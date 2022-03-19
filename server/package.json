@@ -43,7 +43,7 @@
 		"build": "tsup",
 		"watch": "tsup -w",
 		"start": "node ./build/index.js",
-		"start:prod": "NODE_ENV=production node./build/index.js",
+		"start:prod": "NODE_ENV=production \"node ./build/index.js\"",
 		"dev": "tsup --watch --onSuccess \"node ./build/index.js\"",
 		"format": "prettier --write \"src/**/*.ts\"",
 		"setup": "node ./build/libs/setup.js",
