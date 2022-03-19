@@ -7,7 +7,8 @@ import cors from "cors";
 import ioredis from "ioredis";
 import connect from "connect-redis";
 import logger from "./libs/logger";
-import { __port__, __cors__, __prod__, COOKIE_NAME, uploadDir, __secure__ } from "./libs/constants";
+import { __cors__, __prod__, __secure__ } from "./libs/config";
+import { COOKIE_NAME, uploadDir } from "./libs/constants";
 import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { buildSchema } from "type-graphql";
@@ -15,10 +16,11 @@ import { UserResolver } from "./resolvers/user.resolver";
 import { PrismaClient } from "@prisma/client";
 import { graphqlUploadExpress } from "graphql-upload";
 import { UploadResolver } from "./resolvers/upload.resolver";
-import path from "path";
 import { StatResolver } from "./resolvers/stat.resolver";
+import path from "path";
 
 const start = async () => {
+	const port = process.env.PORT ?? 42069;
 	process.setMaxListeners(0);
 	const urlMap = new Map<string, string>();
 	const app = express();
@@ -30,6 +32,8 @@ const start = async () => {
 	const allUrls = await prisma.file.findMany();
 	allUrls.forEach((url) => urlMap.set(url.slug, url.file_name));
 
+	__secure__ && logger.info("Secure mode enabled");
+	__prod__ && logger.info("Production mode enabled");
 	app.use(cors({ credentials: true, origin: __cors__ }));
 	app.use(
 		session({
@@ -41,7 +45,7 @@ const start = async () => {
 				maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
 				sameSite: "lax",
 				httpOnly: true,
-				domain: __prod__ ? process.env.DOMAIN : undefined,
+				domain: __prod__ ? `.${process.env.DOMAIN}` : undefined,
 				secure: __secure__
 			},
 			store: new RedisStore({ client: redis, disableTouch: true, prefix: "bliss:" })
@@ -71,7 +75,7 @@ const start = async () => {
 
 	app.use("*", (_req, res) => res.status(404).send("Not Found"));
 
-	httpServer.listen(__port__, () => logger.info(`Server started on port ${__port__}`));
+	httpServer.listen(port, () => logger.info(`Server started on port ${port}`));
 };
 
 start().catch((error) => {

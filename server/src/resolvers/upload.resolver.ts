@@ -1,11 +1,12 @@
 import { type FileUpload, GraphQLUpload } from "graphql-upload";
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { createWriteStream } from "fs";
-import { uploadDir, __secure__ } from "../libs/constants";
+import { uploadDir } from "../libs/constants";
 import { Context, GraphqlFile, Ids } from "../libs/types";
 import logger from "../libs/logger";
 import { unlink } from "fs/promises";
 import { randomString } from "../libs/functions";
+import { __secure__ } from "../libs/config";
 
 @Resolver()
 export class UploadResolver {
