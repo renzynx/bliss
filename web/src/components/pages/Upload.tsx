@@ -1,4 +1,5 @@
 import {
+	GetStatsDocument,
 	MeDocument,
 	MeQuery,
 	useUploadMultipleImagesMutation,
@@ -28,7 +29,7 @@ const Upload: FC<MeQuery | undefined> = ({ me }) => {
 						const { data } = await uploadMultipleFile({
 							variables: { files },
 							context: { headers: { Authorization: me?.token } },
-							refetchQueries: [MeDocument],
+							refetchQueries: [MeDocument, GetStatsDocument],
 						});
 
 						if (data?.multipleUpload && data.multipleUpload.length) {
