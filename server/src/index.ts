@@ -45,9 +45,7 @@ const start = async () => {
 			cookie: {
 				maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
 				sameSite: "lax",
-				httpOnly: true,
-				secure: __secure__,
-				domain: __prod__ ? `.${process.env.COOKIE_DOMAIN}` : undefined
+				httpOnly: true
 			},
 			store: new RedisStore({ client: redis, disableTouch: true, prefix: "bliss:" })
 		})
