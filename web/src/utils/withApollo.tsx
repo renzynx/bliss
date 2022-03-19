@@ -17,7 +17,7 @@ const withApollo = nextWithApollo(
 			// 	credentials: 'include',
 			// }),
 			link: createUploadLink({
-				uri: process.env.NEXT_PUBLIC_GRAPHQL_URL,
+				uri: `${process.env.BACKEND_URL}/graphql`,
 				credentials: 'include',
 			}),
 			headers: {
