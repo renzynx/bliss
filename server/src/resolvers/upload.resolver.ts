@@ -67,8 +67,7 @@ export class UploadResolver {
 					});
 				})
 				.on("error", (err) => logger.error(err.message));
-			const start = __secure__ ? "https://" : "http://";
-			return { url: `${start}${process.env.DOMAIN}/${generatedName}` };
+			return { url: `${process.env.CORS_ORIGIN}/${generatedName}` };
 		});
 		return Promise.all(promises);
 	}
