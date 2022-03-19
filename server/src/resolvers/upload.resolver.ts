@@ -67,7 +67,7 @@ export class UploadResolver {
 					});
 				})
 				.on("error", (err) => logger.error(err.message));
-			return { url: `${process.env.CORS_ORIGIN}/${generatedName}` };
+			return { url: `${process.env.CDN_URL}/${generatedName}` };
 		});
 		return Promise.all(promises);
 	}
