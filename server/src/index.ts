@@ -47,7 +47,7 @@ const start = async () => {
 				maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
 				sameSite: "lax",
 				httpOnly: true,
-				domain: __prod__ ? `.${process.env.DOMAIN}` : undefined,
+				domain: __prod__ ? `.${process.env.COOKIE_DOMAIN}` : undefined,
 				secure: __secure__
 			},
 			store: new RedisStore({ client: redis, disableTouch: true, prefix: "bliss:" })
