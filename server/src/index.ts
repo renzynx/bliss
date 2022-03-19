@@ -38,7 +38,6 @@ const start = async () => {
 	app.use(cors({ credentials: true, origin: __cors__ }));
 	app.use(
 		session({
-			proxy: true,
 			name: COOKIE_NAME,
 			secret: process.env.SESSION_SECRET!,
 			resave: false,
@@ -47,8 +46,8 @@ const start = async () => {
 				maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
 				sameSite: "lax",
 				httpOnly: true,
-				domain: __prod__ ? `.${process.env.COOKIE_DOMAIN}` : undefined,
-				secure: __secure__
+				secure: __secure__,
+				domain: __prod__ ? `.${process.env.COOKIE_DOMAIN}` : undefined
 			},
 			store: new RedisStore({ client: redis, disableTouch: true, prefix: "bliss:" })
 		})
