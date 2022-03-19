@@ -38,6 +38,7 @@ const start = async () => {
 	app.use(cors({ credentials: true, origin: __cors__ }));
 	app.use(
 		session({
+			proxy: true,
 			name: COOKIE_NAME,
 			secret: process.env.SESSION_SECRET!,
 			resave: false,
