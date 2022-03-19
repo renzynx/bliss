@@ -1,0 +1,10 @@
+{
+	"extends": "@sapphire/ts-config",
+	"include": ["src"],
+	"compileOnSave": true,
+	"compilerOptions": {
+		"rootDir": "src",
+		"outDir": "build",
+		"tsBuildInfoFile": "build/.tsbuildinfo"
+	}
+}

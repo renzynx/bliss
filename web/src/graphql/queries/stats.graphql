@@ -1,0 +1,6 @@
+query GetStats {
+	getStats {
+		files
+		size
+	}
+}

@@ -1,0 +1,13 @@
+node_modules/
+build/
+.yarn/cache
+.yarn/install-state.gz
+.yarn/build-state.yml
+
+.env
+.env.local
+.env.development
+
+
+uploads/*
+!uploads/placeholder.md

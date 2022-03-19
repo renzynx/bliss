@@ -1,0 +1,10 @@
+fragment RegularFile on File {
+	id
+	file_name
+	original_name
+	mimetype
+	slug
+	uploaded_at
+	views
+	uid
+}
