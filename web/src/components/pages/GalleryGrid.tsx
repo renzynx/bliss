@@ -26,7 +26,7 @@ const GalleryGrid = () => {
 						<div key={file.id}>
 							<FileView
 								filename={file.original_name}
-								url={`${process.env.NEXT_PUBLIC_BACKEND_URL}/${file.slug}`}
+								url={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
 								type={file.mimetype!}
 							/>
 						</div>
