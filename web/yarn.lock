@@ -7665,6 +7665,7 @@ __metadata:
     "@types/node": 17.0.21
     "@types/nprogress": ^0.2.0
     "@types/react": 17.0.40
+    ansi-regex: ^5.0.1
     apollo-upload-client: ^17.0.0
     autoprefixer: ^10.4.4
     daisyui: ^2.10.0
