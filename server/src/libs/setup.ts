@@ -18,7 +18,7 @@ const setup = async () => {
 		output: process.stdout
 	});
 
-	return rl.question("What do you want your admin username to be: ", (username) => {
+	rl.question("What do you want your admin username to be: ", (username) => {
 		rl.question("What do you want your admin password to be: ", async (password) => {
 			const hash = await argon.hash(password);
 			await client.user
@@ -40,6 +40,7 @@ const setup = async () => {
 				});
 		});
 	});
+	return null;
 };
 
 setup()
