@@ -33,7 +33,7 @@ const setup = async (): Promise<void | boolean> => {
 					})
 					.then((user) => {
 						logger.info(`Created admin user "${user.username}"`);
-						process.exit(0);
+						rl.close();
 					});
 			});
 		});
