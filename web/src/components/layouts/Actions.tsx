@@ -1,6 +1,5 @@
 import { FC, useState } from 'react';
 import { HiDownload } from 'react-icons/hi';
-import { FiArrowUpRight } from 'react-icons/fi';
 import { saveAs } from 'file-saver';
 import { CgTrash } from 'react-icons/cg';
 import {
@@ -8,6 +7,7 @@ import {
 	MeDocument,
 	useDeleteFileMutation,
 } from '@generated/graphql';
+import { AiOutlineLink } from 'react-icons/ai';
 
 const Actions: FC<{ url: string; filename: string; id: number }> = ({
 	url,
@@ -18,6 +18,7 @@ const Actions: FC<{ url: string; filename: string; id: number }> = ({
 		awaitRefetchQueries: true,
 		refetchQueries: [{ query: MeDocument }, { query: GetStatsDocument }],
 	});
+	const [display, setDisplay] = useState(false);
 
 	return (
 		<div className="flex w-full justify-center gap-5 my-5">
@@ -33,13 +34,21 @@ const Actions: FC<{ url: string; filename: string; id: number }> = ({
 				</button>
 			</div>
 			<div
-				className="tooltip tooltip-bottom tooltip-secondary"
-				data-tip="Open in new tab"
+				className={`tooltip tooltip-open tooltip-right tooltip-secondary ${
+					display ? '' : 'hidden'
+				}`}
+				data-tip="Copied Link"
+			></div>
+			<button
+				className="btn btn-secondary"
+				onClick={() => {
+					navigator.clipboard.writeText(url);
+					setDisplay(true);
+					setTimeout(() => setDisplay(false), 2000);
+				}}
 			>
-				<button className="btn btn-secondary" onClick={() => window.open(url)}>
-					<FiArrowUpRight size="20" />
-				</button>
-			</div>
+				<AiOutlineLink size="20" />
+			</button>
 			<div
 				className="tooltip tooltip-bottom tooltip-error"
 				data-tip="Delete file"
@@ -49,7 +58,7 @@ const Actions: FC<{ url: string; filename: string; id: number }> = ({
 					onClick={async () => {
 						await deleteFile({
 							variables: { ids: { ids: [id] } },
-						}).catch((err) => console.log(err));
+						});
 					}}
 				>
 					<CgTrash size="20" />

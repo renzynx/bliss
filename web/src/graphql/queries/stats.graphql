@@ -1,5 +1,6 @@
 query GetStats {
 	getStats {
+		users
 		files
 		size
 	}

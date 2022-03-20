@@ -35,6 +35,8 @@ const Upload: FC<MeQuery | undefined> = ({ me }) => {
 						url: data.multipleUpload[i].url,
 						// @ts-ignore
 						id: data.multipleUpload[i].id,
+						// @ts-ignore
+						displayName: data.multipleUpload[i].url.split('/').pop()!,
 						type: acceptedFiles[i].type,
 						filename: acceptedFiles[i].name,
 						size: acceptedFiles[i].size,
@@ -53,6 +55,7 @@ const Upload: FC<MeQuery | undefined> = ({ me }) => {
 			size={file.size}
 			id={file.id}
 			key={index}
+			displayName={file.displayName}
 		/>
 	));
 

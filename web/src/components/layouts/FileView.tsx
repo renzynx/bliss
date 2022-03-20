@@ -11,6 +11,7 @@ const FileView: FC<Preview & { actions: boolean }> = ({
 	id,
 	actions,
 	size,
+	displayName,
 }) => {
 	const Actions = dynamic(() => import('@components/layouts/Actions'));
 
@@ -42,8 +43,10 @@ const FileView: FC<Preview & { actions: boolean }> = ({
 						<p>This file type can&apos; be previewed.</p>
 					)}
 				</div>
-				<h2 className="text-md text-center my-2">{filename}</h2>
-				<h3 className="text-sm text-center">{bytesToHr(size)}</h3>
+				<p className="text-lg text-center font-bold mt-2">{filename}</p>
+				<h2 className="text-sm text-center">
+					{displayName} ({bytesToHr(size)}){' '}
+				</h2>
 				{actions && <Actions url={url} filename={filename} id={id} />}
 			</div>
 		</>

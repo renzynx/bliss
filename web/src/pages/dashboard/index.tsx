@@ -21,7 +21,7 @@ const DashboardPage = () => {
 			</Head>
 			<Navbar />
 			<DashboardStats data={data} stats={stats} />
-			<DashboardBody />
+			<DashboardBody data={data} />
 		</>
 	);
 };

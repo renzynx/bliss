@@ -21,8 +21,10 @@ model User {
   embed_title     String?
   embed_color     String   @default("#808bed")
   embed_desc      String?
+  slug_type       String   @default("random")
   files           File[]
   urls            Url[]
+  invites         Invite[]
 }
 
 model Url {
@@ -53,6 +55,7 @@ model Invite {
   id         Int      @id @default(autoincrement())
   code       String   @unique
   created_at DateTime @default(now())
-  used_by    String
+  created_by User     @relation(fields: [uid], references: [id])
   uid        Int
+  used_by    Int?
 }

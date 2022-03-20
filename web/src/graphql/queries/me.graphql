@@ -1,14 +1,5 @@
 query Me {
 	me {
-		id
-		username
-		is_admin
-		token
-		files {
-			...RegularFile
-		}
-		urls {
-			...RegularUrl
-		}
+		...RegularUser
 	}
 }

@@ -11,12 +11,21 @@ const Navbar = () => {
 	if (loading) body = <BarLoader loading={loading} color="#808bed" />;
 	else if (!data?.me)
 		body = (
-			<button
-				className="btn btn-primary"
-				onClick={() => (window.location.href = '/login')}
-			>
-				Login
-			</button>
+			<div className="flex gap-5">
+				<button
+					className="btn btn-primary"
+					onClick={() => (window.location.href = '/register')}
+				>
+					Register
+				</button>
+
+				<button
+					className="btn btn-primary"
+					onClick={() => (window.location.href = '/login')}
+				>
+					Login
+				</button>
+			</div>
 		);
 	else
 		body = (

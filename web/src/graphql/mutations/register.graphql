@@ -1,0 +1,10 @@
+mutation Register($username: String!, $password: String!, $invite: String!) {
+	register(username: $username, password: $password, invite: $invite) {
+		errors {
+			...RegularError
+		}
+		user {
+			...RegularUser
+		}
+	}
+}

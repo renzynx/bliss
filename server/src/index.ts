@@ -22,12 +22,12 @@ import path from "path";
 const start = async () => {
 	const port = process.env.PORT ?? 42069;
 	process.setMaxListeners(0);
-	const urlMap = new Map<string, string>();
 	const app = express();
 	const httpServer = http.createServer(app);
 	const prisma = new PrismaClient();
 	const RedisStore = connect(session);
 	const redis = new ioredis(process.env.REDIS_URL, { keepAlive: 5000 });
+	const urlMap = new Map<string, string>();
 
 	const allUrls = await prisma.file.findMany();
 	allUrls.forEach((url) => urlMap.set(url.slug, url.file_name));
@@ -58,7 +58,7 @@ const start = async () => {
 			ApolloServerPluginDrainHttpServer({ httpServer }),
 			ApolloServerPluginLandingPageGraphQLPlayground({ settings: { "request.credentials": "include" } })
 		],
-		context: ({ req, res }) => ({ req, res, prisma, urls: urlMap })
+		context: ({ req, res }) => ({ req, res, prisma, redis, urls: urlMap })
 	});
 
 	await server.start();
@@ -70,6 +70,11 @@ const start = async () => {
 		if (!fileName) return next();
 		const file = path.join(uploadDir, fileName);
 		res.sendFile(file);
+	});
+
+	app.get("/api/v1/urls", (_req, res) => {
+		const mapArray = Array.from(urlMap);
+		res.json(mapArray);
 	});
 
 	app.use("*", (_req, res) => res.status(404).send("Not Found"));

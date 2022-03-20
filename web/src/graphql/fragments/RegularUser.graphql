@@ -9,4 +9,7 @@ fragment RegularUser on User {
 	urls {
 		...RegularUrl
 	}
+	invites {
+		...RegularInvite
+	}
 }

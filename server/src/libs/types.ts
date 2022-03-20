@@ -2,18 +2,32 @@ import type { Session, SessionData } from "express-session";
 import type { Request, Response } from "express";
 import { Field, InputType, Int, ObjectType } from "type-graphql";
 import type { PrismaClient, Prisma } from "@prisma/client";
+import type { Redis } from "ioredis";
 
 export interface Context {
 	res: Response;
 	req: Request & {
 		session: Session & Partial<SessionData> & { userId: number };
 	};
+	redis: Redis;
 	urls: Map<string, string>;
 	prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>;
 }
 
 @ObjectType()
+export class CreateInvite {
+	@Field()
+	invite!: string;
+
+	@Field()
+	expires!: number;
+}
+
+@ObjectType()
 export class Stats {
+	@Field()
+	users!: number;
+
 	@Field()
 	files!: number;
 
@@ -52,6 +66,27 @@ export class User {
 
 	@Field(() => [Url], { nullable: true })
 	urls?: Url[];
+
+	@Field(() => [Invite], { nullable: true })
+	invites?: Invite[];
+}
+
+@ObjectType()
+export class Invite {
+	@Field()
+	id!: number;
+
+	@Field()
+	code!: string;
+
+	@Field()
+	created_at!: Date;
+
+	@Field({ nullable: true })
+	used_by?: number;
+
+	@Field()
+	uid!: number;
 }
 
 @ObjectType()

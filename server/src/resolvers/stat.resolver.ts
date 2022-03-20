@@ -7,11 +7,12 @@ import { uploadDir } from "../libs/constants";
 export class StatResolver {
 	@Query(() => Stats)
 	async getStats(@Ctx() { prisma }: Context) {
-		const files = await prisma.file.count();
-		const bytes = await dirSize(uploadDir);
-		const size = bytesToHr(bytes);
+		const [users, files, dirSiz] = await Promise.all([prisma.user.count(), prisma.file.count(), dirSize(uploadDir)]);
+
+		const size = bytesToHr(dirSiz);
 
 		return {
+			users,
 			files,
 			size
 		};

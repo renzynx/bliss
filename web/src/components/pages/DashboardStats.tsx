@@ -8,7 +8,7 @@ const DashboardStats: FC<{ data?: MeQuery; stats?: GetStatsQuery }> = ({
 	return (
 		<>
 			<div className="flex items-center justify-center my-20">
-				<div className="stats shadow bg-base-300">
+				<div className="stats lg:stats-horizontal md:stats-horizontal md:stats-vertical stats-vertical shadow bg-base-300">
 					<div className="stat">
 						<div className="stat-title">Your Uploads</div>
 						<div className="stat-value">{data?.me?.files?.length}</div>
@@ -20,6 +20,10 @@ const DashboardStats: FC<{ data?: MeQuery; stats?: GetStatsQuery }> = ({
 					<div className="stat">
 						<div className="stat-title">Storage Used</div>
 						<div className="stat-value">{stats?.getStats.size}</div>
+					</div>
+					<div className="stat">
+						<div className="stat-title">Total Users</div>
+						<div className="stat-value">{stats?.getStats.users}</div>
 					</div>
 				</div>
 			</div>

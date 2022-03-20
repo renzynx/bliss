@@ -19,6 +19,12 @@ export type Scalars = {
   Upload: any;
 };
 
+export type CreateInvite = {
+  __typename?: 'CreateInvite';
+  expires: Scalars['Float'];
+  invite: Scalars['String'];
+};
+
 export type FieldError = {
   __typename?: 'FieldError';
   field: Scalars['String'];
@@ -47,12 +53,23 @@ export type Ids = {
   ids: Array<Scalars['Int']>;
 };
 
+export type Invite = {
+  __typename?: 'Invite';
+  code: Scalars['String'];
+  created_at: Scalars['DateTime'];
+  id: Scalars['Float'];
+  uid: Scalars['Float'];
+  used_by: Scalars['Float'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createInvite?: Maybe<CreateInvite>;
   deleteFile: Scalars['Boolean'];
   login: UserResponse;
   logout: Scalars['Boolean'];
   multipleUpload?: Maybe<Array<GraphqlFile>>;
+  register: UserResponse;
   singleUpload: GraphqlFile;
 };
 
@@ -73,6 +90,13 @@ export type MutationMultipleUploadArgs = {
 };
 
 
+export type MutationRegisterArgs = {
+  invite: Scalars['String'];
+  password: Scalars['String'];
+  username: Scalars['String'];
+};
+
+
 export type MutationSingleUploadArgs = {
   file: Scalars['Upload'];
 };
@@ -87,6 +111,7 @@ export type Stats = {
   __typename?: 'Stats';
   files: Scalars['Float'];
   size: Scalars['String'];
+  users: Scalars['Float'];
 };
 
 export type Url = {
@@ -104,6 +129,7 @@ export type User = {
   __typename?: 'User';
   files?: Maybe<Array<File>>;
   id: Scalars['Float'];
+  invites?: Maybe<Array<Invite>>;
   is_admin: Scalars['Boolean'];
   token: Scalars['String'];
   urls?: Maybe<Array<Url>>;
@@ -120,9 +146,11 @@ export type RegularErrorFragment = { __typename?: 'FieldError', field: string, m
 
 export type RegularFileFragment = { __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number };
 
+export type RegularInviteFragment = { __typename?: 'Invite', id: number, code: string, created_at: any, used_by: number, uid: number };
+
 export type RegularUrlFragment = { __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number };
 
-export type RegularUserFragment = { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null };
+export type RegularUserFragment = { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null, invites?: Array<{ __typename?: 'Invite', id: number, code: string, created_at: any, used_by: number, uid: number }> | null };
 
 export type DeleteFileMutationVariables = Exact<{
   ids: Ids;
@@ -131,18 +159,32 @@ export type DeleteFileMutationVariables = Exact<{
 
 export type DeleteFileMutation = { __typename?: 'Mutation', deleteFile: boolean };
 
+export type CreateInviteMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CreateInviteMutation = { __typename?: 'Mutation', createInvite?: { __typename?: 'CreateInvite', invite: string, expires: number } | null };
+
 export type SignInMutationVariables = Exact<{
   username: Scalars['String'];
   password: Scalars['String'];
 }>;
 
 
-export type SignInMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null } | null } };
+export type SignInMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null, invites?: Array<{ __typename?: 'Invite', id: number, code: string, created_at: any, used_by: number, uid: number }> | null } | null } };
 
 export type SignOutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type SignOutMutation = { __typename?: 'Mutation', logout: boolean };
+
+export type RegisterMutationVariables = Exact<{
+  username: Scalars['String'];
+  password: Scalars['String'];
+  invite: Scalars['String'];
+}>;
+
+
+export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null, invites?: Array<{ __typename?: 'Invite', id: number, code: string, created_at: any, used_by: number, uid: number }> | null } | null } };
 
 export type UploadImageMutationVariables = Exact<{
   file: Scalars['Upload'];
@@ -161,12 +203,12 @@ export type UploadMultipleImagesMutation = { __typename?: 'Mutation', multipleUp
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null, invites?: Array<{ __typename?: 'Invite', id: number, code: string, created_at: any, used_by: number, uid: number }> | null } | null };
 
 export type GetStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetStatsQuery = { __typename?: 'Query', getStats: { __typename?: 'Stats', files: number, size: string } };
+export type GetStatsQuery = { __typename?: 'Query', getStats: { __typename?: 'Stats', users: number, files: number, size: string } };
 
 export const RegularErrorFragmentDoc = gql`
     fragment RegularError on FieldError {
@@ -198,6 +240,15 @@ export const RegularUrlFragmentDoc = gql`
   uid
 }
     `;
+export const RegularInviteFragmentDoc = gql`
+    fragment RegularInvite on Invite {
+  id
+  code
+  created_at
+  used_by
+  uid
+}
+    `;
 export const RegularUserFragmentDoc = gql`
     fragment RegularUser on User {
   id
@@ -210,9 +261,13 @@ export const RegularUserFragmentDoc = gql`
   urls {
     ...RegularUrl
   }
+  invites {
+    ...RegularInvite
+  }
 }
     ${RegularFileFragmentDoc}
-${RegularUrlFragmentDoc}`;
+${RegularUrlFragmentDoc}
+${RegularInviteFragmentDoc}`;
 export const DeleteFileDocument = gql`
     mutation DeleteFile($ids: Ids!) {
   deleteFile(ids: $ids)
@@ -244,6 +299,39 @@ export function useDeleteFileMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeleteFileMutationHookResult = ReturnType<typeof useDeleteFileMutation>;
 export type DeleteFileMutationResult = Apollo.MutationResult<DeleteFileMutation>;
 export type DeleteFileMutationOptions = Apollo.BaseMutationOptions<DeleteFileMutation, DeleteFileMutationVariables>;
+export const CreateInviteDocument = gql`
+    mutation CreateInvite {
+  createInvite {
+    invite
+    expires
+  }
+}
+    `;
+export type CreateInviteMutationFn = Apollo.MutationFunction<CreateInviteMutation, CreateInviteMutationVariables>;
+
+/**
+ * __useCreateInviteMutation__
+ *
+ * To run a mutation, you first call `useCreateInviteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateInviteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createInviteMutation, { data, loading, error }] = useCreateInviteMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCreateInviteMutation(baseOptions?: Apollo.MutationHookOptions<CreateInviteMutation, CreateInviteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateInviteMutation, CreateInviteMutationVariables>(CreateInviteDocument, options);
+      }
+export type CreateInviteMutationHookResult = ReturnType<typeof useCreateInviteMutation>;
+export type CreateInviteMutationResult = Apollo.MutationResult<CreateInviteMutation>;
+export type CreateInviteMutationOptions = Apollo.BaseMutationOptions<CreateInviteMutation, CreateInviteMutationVariables>;
 export const SignInDocument = gql`
     mutation SignIn($username: String!, $password: String!) {
   login(username: $username, password: $password) {
@@ -314,6 +402,47 @@ export function useSignOutMutation(baseOptions?: Apollo.MutationHookOptions<Sign
 export type SignOutMutationHookResult = ReturnType<typeof useSignOutMutation>;
 export type SignOutMutationResult = Apollo.MutationResult<SignOutMutation>;
 export type SignOutMutationOptions = Apollo.BaseMutationOptions<SignOutMutation, SignOutMutationVariables>;
+export const RegisterDocument = gql`
+    mutation Register($username: String!, $password: String!, $invite: String!) {
+  register(username: $username, password: $password, invite: $invite) {
+    errors {
+      ...RegularError
+    }
+    user {
+      ...RegularUser
+    }
+  }
+}
+    ${RegularErrorFragmentDoc}
+${RegularUserFragmentDoc}`;
+export type RegisterMutationFn = Apollo.MutationFunction<RegisterMutation, RegisterMutationVariables>;
+
+/**
+ * __useRegisterMutation__
+ *
+ * To run a mutation, you first call `useRegisterMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerMutation, { data, loading, error }] = useRegisterMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *      password: // value for 'password'
+ *      invite: // value for 'invite'
+ *   },
+ * });
+ */
+export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<RegisterMutation, RegisterMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument, options);
+      }
+export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
+export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
+export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
 export const UploadImageDocument = gql`
     mutation UploadImage($file: Upload!) {
   singleUpload(file: $file) {
@@ -383,20 +512,10 @@ export type UploadMultipleImagesMutationOptions = Apollo.BaseMutationOptions<Upl
 export const MeDocument = gql`
     query Me {
   me {
-    id
-    username
-    is_admin
-    token
-    files {
-      ...RegularFile
-    }
-    urls {
-      ...RegularUrl
-    }
+    ...RegularUser
   }
 }
-    ${RegularFileFragmentDoc}
-${RegularUrlFragmentDoc}`;
+    ${RegularUserFragmentDoc}`;
 
 /**
  * __useMeQuery__
@@ -427,6 +546,7 @@ export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 export const GetStatsDocument = gql`
     query GetStats {
   getStats {
+    users
     files
     size
   }
