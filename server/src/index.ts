@@ -64,18 +64,13 @@ const start = async () => {
 
 	await server.start();
 
-	server.applyMiddleware({ app, cors: false });
+	server.applyMiddleware({ app, cors: { credentials: true, origin: __cors__ } });
 
 	app.use((req, res, next) => {
 		const fileName = urlMap.get(req.path.replace("/", ""));
 		if (!fileName) return next();
 		const file = path.join(uploadDir, fileName);
 		res.sendFile(file);
-	});
-
-	app.get("/api/v1/urls", (_req, res) => {
-		const mapArray = Array.from(urlMap);
-		res.json(mapArray);
 	});
 
 	app.use("*", (_req, res) => res.status(404).send("Not Found"));
