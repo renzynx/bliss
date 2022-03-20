@@ -2,6 +2,7 @@ import { Preview } from '@utils/types';
 import { FC } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { bytesToHr } from '@utils/functions';
 
 const FileView: FC<Preview & { actions: boolean }> = ({
 	filename,
@@ -9,6 +10,7 @@ const FileView: FC<Preview & { actions: boolean }> = ({
 	url,
 	id,
 	actions,
+	size,
 }) => {
 	const Actions = dynamic(() => import('@components/layouts/Actions'));
 
@@ -18,7 +20,7 @@ const FileView: FC<Preview & { actions: boolean }> = ({
 				<div className="relative w-full h-52 cursor-pointer">
 					{type.includes('image') ? (
 						<Image
-							className="max-w-full max-h-full object-cover"
+							className="max-w-full max-h-full"
 							src={url}
 							alt="Preview"
 							layout="fill"
@@ -41,6 +43,7 @@ const FileView: FC<Preview & { actions: boolean }> = ({
 					)}
 				</div>
 				<h2 className="text-md text-center my-2">{filename}</h2>
+				<h3 className="text-sm text-center">{bytesToHr(size)}</h3>
 				{actions && <Actions url={url} filename={filename} id={id} />}
 			</div>
 		</>

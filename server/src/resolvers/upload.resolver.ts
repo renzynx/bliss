@@ -92,7 +92,7 @@ export class UploadResolver {
 					id: file.id
 				}
 			});
-			await unlink(`${uploadDir}/${file.file_name}.${file.original_name.split(".").pop()}`);
+			await unlink(`${uploadDir}/${file.file_name}`);
 		});
 
 		await Promise.all(promises);
