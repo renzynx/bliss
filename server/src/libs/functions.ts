@@ -1,7 +1,8 @@
 import { readdir, stat } from "fs/promises";
+import crypto from "crypto";
 import path from "path";
 
-export const randomString = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+export const randomString = () => crypto.randomBytes(16).toString("hex");
 
 export const dirSize = async (directory: string) => {
 	const files = await readdir(directory);
