@@ -34,7 +34,7 @@ const start = async () => {
 
 	__secure__ && logger.info("Secure mode enabled");
 	__prod__ && logger.info("Production mode enabled");
-	__prod__ && logger.info(`Frontend URL: ${process.env.__cors__}`);
+	__prod__ && logger.info(`Frontend URL: ${__cors__}`);
 	app.set("trust proxy", 1);
 	app.use(cors({ credentials: true, origin: __cors__ }));
 	app.use(
