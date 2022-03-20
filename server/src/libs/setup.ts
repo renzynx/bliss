@@ -13,7 +13,7 @@ const setup = async () => {
 
 	logger.info("Creating admin user...");
 
-	const plainPassword = gen();
+	const plainPassword = randomString();
 	const hashedPassword = await argon.hash(plainPassword);
 
 	await client.user.create({
