@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import * as argon from "argon2";
+import { randomString } from "./functions";
 import logger from "./logger";
 
 const setup = async () => {
@@ -19,7 +20,7 @@ const setup = async () => {
 		data: {
 			username: "admin",
 			password: hashedPassword,
-			token: Buffer.from(gen()).toString("base64"),
+			token: randomString(),
 			is_admin: true
 		}
 	});
@@ -30,5 +31,3 @@ const setup = async () => {
 setup()
 	.catch((err) => logger.error(err.message))
 	.finally(() => process.exit(0));
-
-const gen = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
