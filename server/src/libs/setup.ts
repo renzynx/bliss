@@ -4,45 +4,42 @@ import { randomString } from "./functions";
 import logger from "./logger";
 import readline from "readline";
 
-const setup = async () => {
-	const client = new PrismaClient();
+const setup = async (): Promise<void | boolean> => {
+	try {
+		const client = new PrismaClient();
 
-	logger.info("Connecting to MYSQL...");
+		logger.info("Connecting to MYSQL...");
 
-	const count = await client.user.count();
+		const count = await client.user.count();
 
-	if (count > 0) return logger.error("You already run this setup script, you don't need to run it again");
+		if (count > 0) return logger.error("You already run this setup script, you don't need to run it again");
 
-	const rl = readline.createInterface({
-		input: process.stdin,
-		output: process.stdout
-	});
-
-	rl.question("What do you want your admin username to be: ", (username) => {
-		rl.question("What do you want your admin password to be: ", async (password) => {
-			const hash = await argon.hash(password);
-			await client.user
-				.create({
-					data: {
-						username,
-						password: hash,
-						token: randomString(),
-						is_admin: true
-					}
-				})
-				.then((user) => {
-					logger.info(`Created admin user "${user.username}"`);
-					process.exit(0);
-				})
-				.catch((err) => {
-					logger.error((err as Error).message);
-					process.exit(1);
-				});
+		const rl = readline.createInterface({
+			input: process.stdin,
+			output: process.stdout
 		});
-	});
-	return null;
+
+		rl.question("What do you want your admin username to be: ", (username) => {
+			rl.question("What do you want your admin password to be: ", async (password) => {
+				const hash = await argon.hash(password);
+				await client.user
+					.create({
+						data: {
+							username,
+							password: hash,
+							token: randomString(),
+							is_admin: true
+						}
+					})
+					.then((user) => {
+						logger.info(`Created admin user "${user.username}"`);
+						process.exit(0);
+					});
+			});
+		});
+	} catch (error) {
+		logger.error((error as Error).message);
+	}
 };
 
-setup()
-	.catch((err) => logger.error(err.message))
-	.finally(() => process.exit(0));
+setup().finally(() => process.exit(0));
