@@ -12,7 +12,7 @@ const GalleryGrid = () => {
 
 	if (loading) body = <BarLoader loading={loading} color="#808bed" />;
 
-	if (data?.me) {
+	if (data?.me?.files?.length) {
 		const itemPerPage = 9;
 		const totalPages = Math.ceil((data.me.files?.length ?? 0) / itemPerPage);
 		const start = (currentPage - 1) * itemPerPage;
