@@ -1,6 +1,6 @@
 import { type FileUpload, GraphQLUpload } from "graphql-upload";
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
-import { createWriteStream } from "fs";
+import { createWriteStream, statSync } from "fs";
 import { uploadDir } from "../libs/constants";
 import { Context, GraphqlFile, Ids } from "../libs/types";
 import logger from "../libs/logger";
@@ -10,33 +10,34 @@ import { __secure__ } from "../libs/config";
 
 @Resolver()
 export class UploadResolver {
-	// 	@Mutation(() => GraphqlFile)
-	// 	async singleUpload(
-	// 		@Arg("file", () => GraphQLUpload)
-	// 		{ createReadStream, filename, mimetype }: FileUpload,
-	// 		@Ctx() { prisma, req }: Context
-	// 	) {
-	// 		const ext = filename.split(".").pop();
-	// 		const generatedName = randomString();
-	// 		const slug = `${generatedName}.${ext}`;
-	// 		createReadStream()
-	// 			.pipe(createWriteStream(`${uploadDir}/${slug}`))
-	// 			.on("finish", async () => {
-	// 				await prisma.file.create({
-	// 					data: {
-	// 						file_name: generatedName,
-	// 						mimetype,
-	// 						original_name: filename,
-	// 						slug,
-	// 						uid: req.session.userId
-	// 					}
-	// 				});
-	// 			})
-	// 			.on("error", (err) => {
-	// 				logger.error(err.message);
-	// 			});
-	// 		return { url: `http://localhost:42069/${slug}` };
-	// 	}
+	@Mutation(() => GraphqlFile)
+	async singleUpload(
+		@Arg("file", () => GraphQLUpload)
+		{ createReadStream, filename, mimetype }: FileUpload,
+		@Ctx() { prisma, req }: Context
+	) {
+		const ext = filename.split(".").pop();
+		const generatedName = randomString();
+		const slug = `${generatedName}.${ext}`;
+		createReadStream()
+			.pipe(createWriteStream(`${uploadDir}/${slug}`))
+			.on("finish", async () => {
+				await prisma.file.create({
+					data: {
+						file_name: generatedName,
+						mimetype,
+						original_name: filename,
+						slug,
+						uid: req.session.userId,
+						size: statSync(`${uploadDir}/${slug}`).size
+					}
+				});
+			})
+			.on("error", (err) => {
+				logger.error(err.message);
+			});
+		return { url: `http://localhost:42069/${slug}` };
+	}
 
 	@Mutation(() => [GraphqlFile], { nullable: true })
 	async multipleUpload(
@@ -46,7 +47,7 @@ export class UploadResolver {
 	) {
 		const auth = req.headers.authorization;
 		if (!auth) return null;
-		const token = await prisma.user.findFirst({ where: { token: auth } });
+		const token = await prisma.user.findFirst({ where: { token: auth, id: req.session.userId } });
 		if (!token) return null;
 		const promises = files.map(async (file) => {
 			const { filename, createReadStream, mimetype } = await file;
@@ -62,7 +63,8 @@ export class UploadResolver {
 							file_name: `${generatedName}.${ext}`,
 							uid: req.session.userId,
 							slug: generatedName,
-							mimetype
+							mimetype,
+							size: statSync(`${uploadDir}/${generatedName}.${ext}`).size
 						}
 					});
 				})

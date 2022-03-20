@@ -35,4 +35,6 @@ export type Preview = {
 	url: string;
 	filename: string;
 	type: string;
+	size: number;
+	id: number;
 };

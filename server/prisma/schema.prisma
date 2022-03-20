@@ -44,6 +44,7 @@ model File {
   slug          String
   uploaded_at   DateTime @default(now())
   views         Int      @default(0)
+  size          Int
   user          User     @relation(fields: [uid], references: [id])
   uid           Int
 }

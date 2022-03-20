@@ -638,6 +638,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.1.2":
+  version: 7.17.8
+  resolution: "@babel/runtime@npm:7.17.8"
+  dependencies:
+    regenerator-runtime: ^0.13.4
+  checksum: 68d195c1630bb91ac20e86635d292a17ebab7f361cfe79406b3f5a6cc2e59fa283ae5006568899abf869312c2b35b744bd407aea8ffdb650f1a68d07785d47e9
+  languageName: node
+  linkType: hard
+
 "@babel/template@npm:^7.16.7":
   version: 7.16.7
   resolution: "@babel/template@npm:7.16.7"
@@ -6310,6 +6319,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-dropzone-uploader@npm:^2.11.0":
+  version: 2.11.0
+  resolution: "react-dropzone-uploader@npm:2.11.0"
+  dependencies:
+    "@babel/runtime": ^7.1.2
+  peerDependencies:
+    prop-types: ">=15.5.10"
+    react: ">=16.2.0"
+    react-dom: ">=16.2.0"
+  checksum: 62a320f22d753d3916d0de4921e138892e02adeafe4fced1e9cd8e0199867f06317a631c256e83d0e2b06022fe45c89401f51a6f71ed2004328dcbfde5371009
+  languageName: node
+  linkType: hard
+
 "react-dropzone@npm:^12.0.4":
   version: 12.0.4
   resolution: "react-dropzone@npm:12.0.4"
@@ -7658,6 +7680,7 @@ __metadata:
     react: 17.0.2
     react-dom: 17.0.2
     react-dropzone: ^12.0.4
+    react-dropzone-uploader: ^2.11.0
     react-icons: ^4.3.1
     react-spinners: ^0.11.0
     sharp: ^0.30.3

@@ -79,6 +79,9 @@ export class File {
 
 	@Field()
 	uid!: number;
+
+	@Field()
+	size!: number;
 }
 
 @ObjectType()

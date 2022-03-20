@@ -5,8 +5,8 @@ import { BarLoader } from 'react-spinners';
 
 const GalleryGrid = () => {
 	const { data, loading } = useMeQuery();
-	const FileView = dynamic(() => import('@components/layouts/FileView'));
 	const [currentPage, setCurrentPage] = useState(1);
+	const FileView = dynamic(() => import('@components/layouts/FileView'));
 
 	let body;
 
@@ -21,17 +21,19 @@ const GalleryGrid = () => {
 
 		body = (
 			<>
-				<div className="shadow-lg p-5 bg-base-300 grid mx-10 mt-20 gap-y-5 lg:grid-cols-3 gap-3 md:grid-cols-2 sm:grid-cols-2 grid-cols-1 place-items-center">
-					{currentFiles?.map((file) => (
-						<div key={file.id}>
-							<FileView
-								filename={file.original_name}
-								url={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
-								type={file.mimetype!}
-							/>
-						</div>
+				<aside className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-8 mx-20 mt-20 place-items-center">
+					{currentFiles?.map((file, index) => (
+						<FileView
+							actions
+							filename={file.original_name}
+							url={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
+							type={file.mimetype!}
+							size={file.size}
+							id={file.id}
+							key={index}
+						/>
 					))}
-				</div>
+				</aside>
 				<div className="btn-group mx-auto my-20">
 					{Array.from(Array(totalPages).keys()).map((page) => (
 						<button

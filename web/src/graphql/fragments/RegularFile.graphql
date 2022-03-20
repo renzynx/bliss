@@ -7,4 +7,5 @@ fragment RegularFile on File {
 	uploaded_at
 	views
 	uid
+	size
 }

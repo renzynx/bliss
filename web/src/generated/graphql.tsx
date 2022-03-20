@@ -31,6 +31,7 @@ export type File = {
   id: Scalars['Float'];
   mimetype?: Maybe<Scalars['String']>;
   original_name: Scalars['String'];
+  size: Scalars['Float'];
   slug: Scalars['String'];
   uid: Scalars['Float'];
   uploaded_at: Scalars['DateTime'];
@@ -117,11 +118,18 @@ export type UserResponse = {
 
 export type RegularErrorFragment = { __typename?: 'FieldError', field: string, message: string };
 
-export type RegularFileFragment = { __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number };
+export type RegularFileFragment = { __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number };
 
 export type RegularUrlFragment = { __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number };
 
-export type RegularUserFragment = { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null };
+export type RegularUserFragment = { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null };
+
+export type DeleteFileMutationVariables = Exact<{
+  ids: Ids;
+}>;
+
+
+export type DeleteFileMutation = { __typename?: 'Mutation', deleteFile: boolean };
 
 export type SignInMutationVariables = Exact<{
   username: Scalars['String'];
@@ -129,7 +137,7 @@ export type SignInMutationVariables = Exact<{
 }>;
 
 
-export type SignInMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null } | null } };
+export type SignInMutation = { __typename?: 'Mutation', login: { __typename?: 'UserResponse', errors?: Array<{ __typename?: 'FieldError', field: string, message: string }> | null, user?: { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null } | null } };
 
 export type SignOutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -153,7 +161,7 @@ export type UploadMultipleImagesMutation = { __typename?: 'Mutation', multipleUp
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null } | null };
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', id: number, username: string, is_admin: boolean, token: string, files?: Array<{ __typename?: 'File', id: number, file_name: string, original_name: string, mimetype?: string | null, slug: string, uploaded_at: any, views: number, uid: number, size: number }> | null, urls?: Array<{ __typename?: 'Url', id: number, destination: string, short: string, created_at: string, password: string, views: number, uid: number }> | null } | null };
 
 export type GetStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -176,6 +184,7 @@ export const RegularFileFragmentDoc = gql`
   uploaded_at
   views
   uid
+  size
 }
     `;
 export const RegularUrlFragmentDoc = gql`
@@ -204,6 +213,37 @@ export const RegularUserFragmentDoc = gql`
 }
     ${RegularFileFragmentDoc}
 ${RegularUrlFragmentDoc}`;
+export const DeleteFileDocument = gql`
+    mutation DeleteFile($ids: Ids!) {
+  deleteFile(ids: $ids)
+}
+    `;
+export type DeleteFileMutationFn = Apollo.MutationFunction<DeleteFileMutation, DeleteFileMutationVariables>;
+
+/**
+ * __useDeleteFileMutation__
+ *
+ * To run a mutation, you first call `useDeleteFileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteFileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteFileMutation, { data, loading, error }] = useDeleteFileMutation({
+ *   variables: {
+ *      ids: // value for 'ids'
+ *   },
+ * });
+ */
+export function useDeleteFileMutation(baseOptions?: Apollo.MutationHookOptions<DeleteFileMutation, DeleteFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteFileMutation, DeleteFileMutationVariables>(DeleteFileDocument, options);
+      }
+export type DeleteFileMutationHookResult = ReturnType<typeof useDeleteFileMutation>;
+export type DeleteFileMutationResult = Apollo.MutationResult<DeleteFileMutation>;
+export type DeleteFileMutationOptions = Apollo.BaseMutationOptions<DeleteFileMutation, DeleteFileMutationVariables>;
 export const SignInDocument = gql`
     mutation SignIn($username: String!, $password: String!) {
   login(username: $username, password: $password) {
