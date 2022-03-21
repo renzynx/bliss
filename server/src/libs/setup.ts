@@ -24,7 +24,7 @@ const setup = async (): Promise<void | boolean> => {
 					data: {
 						username,
 						password: hash,
-						token: randomString(),
+						token: randomString(64),
 						is_admin: true
 					}
 				})

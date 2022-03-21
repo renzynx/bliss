@@ -1,6 +1,6 @@
 import { handleError } from '@utils/handleError';
-import { LoginFormProps } from '@utils/types';
-import { LoginSchema } from '@utils/validation';
+import { RegisterFormProps } from '@utils/types';
+import { RegisterSchema } from '@utils/validation';
 import { Field, Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
@@ -8,29 +8,40 @@ import { FC } from 'react';
 interface FormValues {
 	username: string;
 	password: string;
+	confirm_password: string;
+	invite: string;
 }
 
-const LoginForm: FC<LoginFormProps> = ({ signIn }) => {
-	const initialValues: FormValues = { username: '', password: '' };
+const RegisterForm: FC<RegisterFormProps> = ({ register }) => {
+	const initialValues: FormValues = {
+		username: '',
+		password: '',
+		confirm_password: '',
+		invite: '',
+	};
 	const router = useRouter();
 
 	return (
 		<div>
 			<Formik
 				initialValues={initialValues}
-				validationSchema={LoginSchema}
+				validationSchema={RegisterSchema}
 				onSubmit={async (
-					{ username, password },
+					{ username, password, invite },
 					{ setSubmitting, setErrors }
 				) => {
 					setSubmitting(true);
 
-					const res = await signIn({
-						variables: { username, password },
+					const { data } = await register({
+						variables: {
+							username,
+							password,
+							invite,
+						},
 					}).finally(() => setSubmitting(false));
 
-					if (res.data?.login.errors) {
-						setErrors(handleError(res.data.login.errors));
+					if (data?.register.errors) {
+						setErrors(handleError(data.register.errors));
 					} else router.push('/dashboard');
 				}}
 			>
@@ -61,6 +72,34 @@ const LoginForm: FC<LoginFormProps> = ({ signIn }) => {
 								name="password"
 								id="password"
 							/>
+
+							<label htmlFor="password" className="label">
+								Confirm Password
+							</label>
+							{errors.confirm_password && (
+								<div className="text-red-500 text-xs">
+									{errors.confirm_password}
+								</div>
+							)}
+							<Field
+								className="input input-bordered mb-2"
+								type="password"
+								name="confirm_password"
+								id="confirm_password"
+							/>
+
+							<label htmlFor="invite" className="label">
+								Invitation Code
+							</label>
+							{errors.invite && (
+								<div className="text-red-500 text-xs">{errors.invite}</div>
+							)}
+							<Field
+								className="input input-bordered mb-2"
+								type="text"
+								name="invite"
+								id="invite"
+							/>
 							<div className="card-actions justify-end">
 								<button
 									className={`btn btn-secondary ${
@@ -68,7 +107,7 @@ const LoginForm: FC<LoginFormProps> = ({ signIn }) => {
 									}`}
 									type="submit"
 								>
-									Sign In
+									Register
 								</button>
 							</div>
 						</div>
@@ -79,4 +118,4 @@ const LoginForm: FC<LoginFormProps> = ({ signIn }) => {
 	);
 };
 
-export default LoginForm;
+export default RegisterForm;

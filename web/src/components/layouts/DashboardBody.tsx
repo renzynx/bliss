@@ -1,4 +1,8 @@
-import { MeQuery, useCreateInviteMutation } from '@generated/graphql';
+import {
+	MeDocument,
+	MeQuery,
+	useCreateInviteMutation,
+} from '@generated/graphql';
 import { USER_LIMIT } from '@utils/constants';
 import Link from 'next/link';
 import { FC, useState } from 'react';
@@ -6,7 +10,26 @@ import { AiFillExclamationCircle } from 'react-icons/ai';
 import { HashLoader } from 'react-spinners';
 
 const DashboardBody: FC<{ data?: MeQuery }> = ({ data }) => {
-	const [createInvite] = useCreateInviteMutation();
+	const [createInvite] = useCreateInviteMutation({
+		update: (cache, { data }) => {
+			if (!data?.createInvite) return;
+			const cacheData = cache.readQuery<MeQuery>({ query: MeDocument });
+			if (!cacheData) return;
+			const { me } = cacheData;
+			if (!me || !me.invites) return;
+			cache.writeQuery({
+				query: MeDocument,
+				data: {
+					__typename: 'Query',
+					me: {
+						...me,
+						invites: [...me.invites, data.createInvite],
+					},
+				},
+			});
+		},
+	});
+
 	const [inviteData, setInviteData] = useState<{
 		__typename?: 'CreateInvite' | undefined;
 		invite: string;
@@ -15,7 +38,11 @@ const DashboardBody: FC<{ data?: MeQuery }> = ({ data }) => {
 	const [loading, setLoading] = useState(false);
 	let body;
 
-	if (data?.me?.is_admin || data?.me?.invites?.length! < USER_LIMIT)
+	if (
+		data?.me?.is_admin ||
+		!data?.me?.invites ||
+		data?.me?.invites.length < USER_LIMIT
+	)
 		body = (
 			<>
 				<label
@@ -55,7 +82,7 @@ const DashboardBody: FC<{ data?: MeQuery }> = ({ data }) => {
 		body = (
 			<button className="btn btn-error btn-disabled">
 				<AiFillExclamationCircle className="mr-2" size={25} />
-				You have already used all of your 2 invites
+				You have no invite left
 			</button>
 		);
 

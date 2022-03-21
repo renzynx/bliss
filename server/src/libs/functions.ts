@@ -5,7 +5,7 @@ import path from "path";
 
 const { text, zerowidth, emoji } = charsets;
 
-export const randomString = () => crypto.randomBytes(16).toString("hex");
+export const randomString = (length: number) => crypto.randomBytes(length).toString("hex");
 
 export const dirSize = async (directory: string) => {
 	const files = await readdir(directory);

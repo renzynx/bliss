@@ -1,4 +1,4 @@
-import { MeQuery } from './../generated/graphql';
+import { MeQuery, RegisterMutation } from './../generated/graphql';
 import {
 	MutationFunctionOptions,
 	DefaultContext,
@@ -13,7 +13,6 @@ export interface IUserContext {
 }
 
 export interface LoginFormProps {
-	redirect?: string;
 	signIn: (
 		options?:
 			| MutationFunctionOptions<
@@ -28,6 +27,25 @@ export interface LoginFormProps {
 			| undefined
 	) => Promise<
 		FetchResult<SignInMutation, Record<string, any>, Record<string, any>>
+	>;
+}
+
+export interface RegisterFormProps {
+	register: (
+		options?:
+			| MutationFunctionOptions<
+					RegisterMutation,
+					Exact<{
+						username: string;
+						password: string;
+						invite: string;
+					}>,
+					DefaultContext,
+					ApolloCache<any>
+			  >
+			| undefined
+	) => Promise<
+		FetchResult<RegisterMutation, Record<string, any>, Record<string, any>>
 	>;
 }
 

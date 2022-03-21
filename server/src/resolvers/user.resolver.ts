@@ -9,21 +9,21 @@ export class UserResolver {
 	@Query(() => User, { nullable: true })
 	me(@Ctx() { req, prisma }: Context) {
 		if (!req.session.userId) return null;
-		return prisma.user.findUnique({ where: { id: req.session.userId }, include: { files: true, urls: true } });
+		return prisma.user.findUnique({ where: { id: req.session.userId }, include: { files: true, urls: true, invites: true } });
 	}
 
 	@Mutation(() => CreateInvite, { nullable: true })
 	async createInvite(@Ctx() { redis, prisma, req }: Context): Promise<CreateInvite | null> {
-		const invite = randomString();
+		const invite = randomString(16);
 		const expires = Date.now() + 1000 * 60 * 60 * 24;
 
-		const code = await redis.set(`${INVITE_PREFIX}${invite}`, invite, "ex", 1000 * 60 * 60 * 24);
+		const ok = await redis.set(`${INVITE_PREFIX}${invite}`, invite, "ex", 1000 * 60 * 60 * 24);
 
-		if (!code) return null;
+		if (!ok) return null;
 
 		await prisma.invite.create({
 			data: {
-				code,
+				code: invite,
 				uid: req.session.userId
 			}
 		});
@@ -38,28 +38,6 @@ export class UserResolver {
 		@Arg("invite") invite: string,
 		@Ctx() { req, prisma, redis }: Context
 	): Promise<UserResponse> {
-		const format = /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-
-		if (format.test(username))
-			return {
-				errors: [
-					{
-						field: "username",
-						message: "Username contains invalid characters."
-					}
-				]
-			};
-
-		if (password.length < 3)
-			return {
-				errors: [
-					{
-						field: "password",
-						message: "Password must be at least 3 characters."
-					}
-				]
-			};
-
 		const checkExist = await prisma.user.findUnique({ where: { username } });
 
 		if (checkExist)
@@ -90,7 +68,7 @@ export class UserResolver {
 			data: {
 				username,
 				password: hashedPassword,
-				token: randomString()
+				token: randomString(64)
 			}
 		});
 
