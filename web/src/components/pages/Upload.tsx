@@ -1,5 +1,6 @@
 import {
 	GetStatsDocument,
+	GetStatsQuery,
 	MeDocument,
 	MeQuery,
 	useUploadMultipleImagesMutation,
@@ -25,7 +26,8 @@ const Upload: FC<MeQuery | undefined> = ({ me }) => {
 			const { data } = await uploadMultipleFile({
 				variables: { files: acceptedFiles },
 				context: { headers: { Authorization: me?.token } },
-				refetchQueries: [{ query: MeDocument }, { query: GetStatsDocument }],
+				refetchQueries: [{ query: MeDocument }],
+				awaitRefetchQueries: true,
 			}).finally(() => setLoading(false));
 
 			for (let i = 0; i < data?.multipleUpload?.length! ?? 0; i++) {
@@ -78,7 +80,7 @@ const Upload: FC<MeQuery | undefined> = ({ me }) => {
 						<BarLoader loading={loading} color="#808bed" width="300px" />
 					</div>
 				)}
-				<aside className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-8 m-20">
+				<aside className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-8 m-20 place-items-center">
 					{thumbnail}
 				</aside>
 			</div>
