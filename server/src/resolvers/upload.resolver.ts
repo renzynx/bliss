@@ -17,7 +17,7 @@ export class UploadResolver {
 		@Ctx() { prisma, req }: Context
 	) {
 		const ext = filename.split(".").pop();
-		const generatedName = randomString();
+		const generatedName = randomString(12);
 		const slug = `${generatedName}.${ext}`;
 		createReadStream()
 			.pipe(createWriteStream(`${uploadDir}/${slug}`))
@@ -52,7 +52,7 @@ export class UploadResolver {
 		const promises = files.map(async (file) => {
 			const { filename, createReadStream, mimetype } = await file;
 			const ext = filename.split(".").pop();
-			const generatedName = randomString();
+			const generatedName = randomString(12);
 			urls.set(generatedName, `${generatedName}.${ext}`);
 			createReadStream()
 				.pipe(createWriteStream(`${uploadDir}/${generatedName}.${ext}`))
