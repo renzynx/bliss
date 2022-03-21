@@ -2,7 +2,7 @@
 const nextConfig = {
 	reactStrictMode: true,
 	images: {
-		domains: ['localhost', process.env.API_URL],
+		domains: ['localhost'],
 	},
 	env: {
 		API_URL: process.env.API_URL,
