@@ -44,7 +44,7 @@ const FileView: FC<Preview & { actions: boolean }> = ({
 					)}
 				</div>
 				<p className="text-md text-center font-bold">
-					{filename.length > 20 ? filename.slice(0, 50) + '...' : filename}
+					{filename.length > 50 ? filename.slice(0, 50) + '...' : filename}
 				</p>
 				<h2 className="text-sm text-center">
 					{displayName} ({bytesToHr(size)}){' '}
