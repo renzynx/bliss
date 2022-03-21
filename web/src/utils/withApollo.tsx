@@ -13,7 +13,7 @@ const withApollo = nextWithApollo(
 		return new ApolloClient({
 			ssrMode: typeof window === 'undefined',
 			link: createUploadLink({
-				uri: `${process.env.NEXT_PUBLIC_API_URL}/graphql`,
+				uri: `${process.env.API_URL}/graphql`,
 				credentials: 'include',
 			}),
 			headers: {

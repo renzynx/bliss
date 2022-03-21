@@ -18,7 +18,7 @@ const FileView: FC<Preview & { actions: boolean }> = ({
 	return (
 		<>
 			<div className="flex flex-col items-center justify-center bg-base-300 w-[20rem] h-80 p-2 shadow-lg rounded-lg">
-				<div className="relative w-full h-52 cursor-pointer">
+				<div className="relative w-full h-52 m-5 cursor-pointer">
 					{type.includes('image') ? (
 						<Image
 							className="max-w-full max-h-full"
@@ -26,7 +26,7 @@ const FileView: FC<Preview & { actions: boolean }> = ({
 							alt="Preview"
 							layout="fill"
 							objectFit="scale-down"
-							quality={100}
+							priority
 							onClick={() => window.open(url)}
 							blurDataURL="/blur.webp"
 							draggable

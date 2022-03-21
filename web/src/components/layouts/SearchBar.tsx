@@ -19,7 +19,7 @@ const SearchBar: FC<{ files: FileProps; input: string }> = ({
 						<FileView
 							actions
 							filename={file.original_name}
-							url={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
+							url={`${process.env.API_URL}/${file.slug}`}
 							type={file.mimetype!}
 							size={file.size}
 							id={file.id}

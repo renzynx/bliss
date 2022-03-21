@@ -1,6 +1,5 @@
 import SearchBar from '@components/layouts/SearchBar';
 import { useMeQuery } from '@generated/graphql';
-import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { BarLoader } from 'react-spinners';
 
@@ -8,7 +7,6 @@ const GalleryGrid = () => {
 	const { data, loading } = useMeQuery();
 	const [currentPage, setCurrentPage] = useState(1);
 	const [input, setInput] = useState('');
-	const FileView = dynamic(() => import('@components/layouts/FileView'));
 
 	let body;
 

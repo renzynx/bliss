@@ -4,6 +4,9 @@ const nextConfig = {
 	images: {
 		domains: ['cdn.renzynx.space', 'localhost'],
 	},
+	env: {
+		API_URL: process.env.API_URL,
+	},
 };
 
 module.exports = nextConfig;
