@@ -1,11 +1,14 @@
-import { useMeQuery, useSignOutMutation } from '@generated/graphql';
+import { MeQuery, useSignOutMutation } from '@generated/graphql';
 import { BarLoader } from 'react-spinners';
 import Link from 'next/link';
 import Hambuger from './Hambuger';
+import { FC } from 'react';
 
-const Navbar = () => {
+const Navbar: FC<{ data?: MeQuery; loading: boolean }> = ({
+	data,
+	loading,
+}) => {
 	let body;
-	const { data, loading } = useMeQuery();
 	const [signOut] = useSignOutMutation();
 
 	if (loading) body = <BarLoader loading={loading} color="#808bed" />;

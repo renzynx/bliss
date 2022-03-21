@@ -10,6 +10,7 @@ import { Preview } from '@utils/types';
 import { useDropzone } from 'react-dropzone';
 import { IoCloudUpload } from 'react-icons/io5';
 import dynamic from 'next/dynamic';
+import useIsAuth from '@utils/hooks/useIsAuth';
 
 const Upload: FC<MeQuery | undefined> = ({ me }) => {
 	const [uploadMultipleFile] = useUploadMultipleImagesMutation();

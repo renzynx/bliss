@@ -17,7 +17,7 @@ const FileView: FC<Preview & { actions: boolean }> = ({
 
 	return (
 		<>
-			<div className="flex flex-col items-center justify-center bg-base-300 w-[20rem] h-80 p-2 overflow-clip shadow-lg rounded-lg">
+			<div className="flex flex-col items-center justify-center bg-base-300 w-[20rem] h-80 p-2 shadow-lg rounded-lg">
 				<div className="relative w-full h-52 cursor-pointer">
 					{type.includes('image') ? (
 						<Image
@@ -43,7 +43,9 @@ const FileView: FC<Preview & { actions: boolean }> = ({
 						<p>This file type can&apos; be previewed.</p>
 					)}
 				</div>
-				<p className="text-lg text-center font-bold mt-2">{filename}</p>
+				<p className="text-md text-center font-bold">
+					{filename.length > 20 ? filename.slice(0, 50) + '...' : filename}
+				</p>
 				<h2 className="text-sm text-center">
 					{displayName} ({bytesToHr(size)}){' '}
 				</h2>

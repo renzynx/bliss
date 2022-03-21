@@ -2,15 +2,14 @@ import "reflect-metadata";
 import "./libs/config";
 import express from "express";
 import session from "express-session";
-import http from "http";
 import cors from "cors";
 import ioredis from "ioredis";
 import connect from "connect-redis";
 import logger from "./libs/logger";
-import { __cors__, __prod__, __secure__ } from "./libs/config";
+import { port, __cors__, __prod__, __secure__ } from "./libs/config";
 import { COOKIE_NAME, uploadDir } from "./libs/constants";
 import { ApolloServer } from "apollo-server-express";
-import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
+import { ApolloServerPluginLandingPageGraphQLPlayground, ApolloServerPluginLandingPageDisabled } from "apollo-server-core";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user.resolver";
 import { PrismaClient } from "@prisma/client";
@@ -20,10 +19,8 @@ import { StatResolver } from "./resolvers/stat.resolver";
 import path from "path";
 
 const start = async () => {
-	const port = process.env.PORT ?? 42069;
 	process.setMaxListeners(0);
 	const app = express();
-	const httpServer = http.createServer(app);
 	const prisma = new PrismaClient();
 	const RedisStore = connect(session);
 	const redis = new ioredis(process.env.REDIS_URL, { keepAlive: 5000 });
@@ -36,7 +33,7 @@ const start = async () => {
 	__prod__ && logger.info("Production mode enabled");
 	__prod__ && logger.info(`Frontend URL: ${__cors__}`);
 	app.set("trust proxy", 1);
-	app.use(cors({ credentials: true, origin: __cors__ }));
+	app.use(cors({ credentials: true, origin: __cors__, optionsSuccessStatus: 200, allowedHeaders: ["Content-Type", "Authorization"] }));
 	app.use(
 		session({
 			name: COOKIE_NAME,
@@ -51,20 +48,22 @@ const start = async () => {
 			store: new RedisStore({ client: redis, disableTouch: true, prefix: "bliss:" })
 		})
 	);
-	app.use(graphqlUploadExpress());
 
 	const server = new ApolloServer({
 		schema: await buildSchema({ resolvers: [UserResolver, UploadResolver, StatResolver], validate: false }),
 		plugins: [
-			ApolloServerPluginDrainHttpServer({ httpServer }),
-			ApolloServerPluginLandingPageGraphQLPlayground({ settings: { "request.credentials": "include" } })
+			__prod__
+				? ApolloServerPluginLandingPageDisabled()
+				: ApolloServerPluginLandingPageGraphQLPlayground({ settings: { "request.credentials": "include" } })
 		],
 		context: ({ req, res }) => ({ req, res, prisma, redis, urls: urlMap })
 	});
 
 	await server.start();
 
-	server.applyMiddleware({ app, cors: { credentials: true, origin: __cors__ } });
+	app.use(graphqlUploadExpress());
+
+	server.applyMiddleware({ app, cors: false });
 
 	app.use((req, res, next) => {
 		const fileName = urlMap.get(req.path.replace("/", ""));
@@ -75,10 +74,7 @@ const start = async () => {
 
 	app.use("*", (_req, res) => res.status(404).send("Not Found"));
 
-	httpServer.listen(port, () => logger.info(`Server started on port ${port}`));
+	app.listen(port, () => logger.info(`Server started on port ${port}`));
 };
 
-start().catch((error) => {
-	const err = error as Error;
-	logger.error(err.message);
-});
+start().catch((error) => logger.error((error as Error).message));
