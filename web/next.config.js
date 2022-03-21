@@ -2,7 +2,7 @@
 const nextConfig = {
 	reactStrictMode: true,
 	images: {
-		domains: ['cdn.renzynx.space', 'localhost'],
+		domains: ['localhost', process.env.API_URL],
 	},
 	env: {
 		API_URL: process.env.API_URL,
