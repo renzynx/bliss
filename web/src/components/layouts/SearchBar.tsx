@@ -21,13 +21,13 @@ const SearchBar: FC<{ files: FileProps; input: string }> = ({
 		return filteredData.map((file, index) => (
 			<FileView
 				actions
-				filename={file.file_name}
+				filename={file.original_name}
 				type={file.mimetype!}
 				url={`${cdn}/${file.slug}`}
 				size={file.size}
 				id={file.id}
 				key={index}
-				displayName={file.original_name}
+				displayName={file.file_name}
 			/>
 		));
 	}, [FileView, cdn, filteredData]);
