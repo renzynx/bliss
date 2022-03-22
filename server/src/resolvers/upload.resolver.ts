@@ -69,7 +69,7 @@ export class UploadResolver {
 					});
 				})
 				.on("error", (err) => logger.error(err.message));
-			return { url: `${__secure__ ? "https" : "http"}//${process.env.CDN_URL}/${generatedName}` };
+			return { url: `${__secure__ ? "https" : "http"}://${process.env.CDN_URL}/${generatedName}` };
 		});
 		return Promise.all(promises);
 	}
