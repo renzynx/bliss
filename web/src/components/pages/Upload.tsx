@@ -68,7 +68,7 @@ const Upload: FC<MeQuery | undefined> = ({ me }) => {
 				<div {...getRootProps({ className: 'dropzone' })}>
 					<input {...getInputProps()} />
 					<div className="flex mx-auto p-5 flex-col gap-5 items-center shadow-lg rounded-3xl justify-center w-[60vw] h-[30vh] bg-base-300 text-center">
-						<p className="text-2xl">
+						<p className="text-[90%]">
 							Drag &apos;n drop some files here, or click to select files
 						</p>
 						<IoCloudUpload size={50} />
