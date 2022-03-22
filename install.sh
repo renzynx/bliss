@@ -19,7 +19,7 @@ if which node > /dev/null
         yarn set version berry
     fi
 
-if which pm2 >> /dev/null
+if which pm2 > /dev/null
     then
         echo "pm2 not found, installing..."
         npm install -g pm2
