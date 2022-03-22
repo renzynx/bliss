@@ -1,13 +1,12 @@
-import RegisterForm from '@components/pages/RegisterForm';
-import { useRegisterMutation } from '@generated/graphql';
 import withApollo from '@utils/withApollo';
+import dynamic from 'next/dynamic';
 
 const RegisterPage = () => {
-	const [register] = useRegisterMutation();
+	const RegisterForm = dynamic(() => import('@components/pages/RegisterForm'));
 
 	return (
 		<div className="flex w-screen min-h-screen items-center justify-center">
-			<RegisterForm register={register} />
+			<RegisterForm />
 		</div>
 	);
 };

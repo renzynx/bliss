@@ -1,21 +1,21 @@
+import { useSignInMutation } from '@generated/graphql';
 import { handleError } from '@utils/handleError';
-import { LoginFormProps } from '@utils/types';
 import { LoginSchema } from '@utils/validation';
 import { Field, Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
-import { FC } from 'react';
 
 interface FormValues {
 	username: string;
 	password: string;
 }
 
-const LoginForm: FC<LoginFormProps> = ({ signIn }) => {
+const LoginForm = () => {
+	const [signIn] = useSignInMutation();
 	const initialValues: FormValues = { username: '', password: '' };
 	const router = useRouter();
 
 	return (
-		<div>
+		<>
 			<Formik
 				initialValues={initialValues}
 				validationSchema={LoginSchema}
@@ -75,7 +75,7 @@ const LoginForm: FC<LoginFormProps> = ({ signIn }) => {
 					</Form>
 				)}
 			</Formik>
-		</div>
+		</>
 	);
 };
 

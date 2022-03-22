@@ -3,15 +3,17 @@ import Navbar from '@components/layouts/Navbar';
 import useIsAuth from '@utils/hooks/useIsAuth';
 import Head from 'next/head';
 import DashboardStats from '@components/pages/DashboardStats';
-import { useGetStatsQuery } from '@generated/graphql';
 import DashboardBody from '@components/layouts/DashboardBody';
 import Loading from '@components/pages/Loading';
+import { useGetStatsQuery } from '@generated/graphql';
+import { memo } from 'react';
 
 const DashboardPage = () => {
 	const { data, loading } = useIsAuth();
 	const { data: stats, loading: statsLoading } = useGetStatsQuery();
+	const Stats = memo(DashboardStats);
 
-	if (loading || statsLoading) return <Loading />;
+	if (loading) return <Loading />;
 
 	return (
 		<>
@@ -19,7 +21,7 @@ const DashboardPage = () => {
 				<title>Bliss | Dashboard</title>
 			</Head>
 			<Navbar data={data} loading={loading} />
-			<DashboardStats data={data} stats={stats} />
+			<Stats data={data} stats={stats} loading={statsLoading} />
 			<DashboardBody data={data} />
 		</>
 	);

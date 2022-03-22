@@ -1,10 +1,13 @@
-import SearchBar from '@components/layouts/SearchBar';
-import { useMeQuery } from '@generated/graphql';
-import { useState } from 'react';
+import { MeQuery } from '@generated/graphql';
+import dynamic from 'next/dynamic';
+import { FC, useState } from 'react';
 import { BarLoader } from 'react-spinners';
 
-const GalleryGrid = () => {
-	const { data, loading } = useMeQuery();
+const GalleryGrid: FC<{ data?: MeQuery; loading: boolean }> = ({
+	data,
+	loading,
+}) => {
+	const SearchBar = dynamic(() => import('@components/layouts/SearchBar'));
 	const [currentPage, setCurrentPage] = useState(1);
 	const [input, setInput] = useState('');
 

@@ -1,10 +1,14 @@
 import { GetStatsQuery, MeQuery } from '@generated/graphql';
 import { FC } from 'react';
+import { BounceLoader } from 'react-spinners';
 
-const DashboardStats: FC<{ data?: MeQuery; stats?: GetStatsQuery }> = ({
-	data,
-	stats,
-}) => {
+const DashboardStats: FC<{
+	data?: MeQuery;
+	stats?: GetStatsQuery;
+	loading: boolean;
+}> = ({ data, stats, loading }) => {
+	if (loading) return <BounceLoader loading color="#808bed" />;
+
 	return (
 		<>
 			<div className="flex items-center justify-center my-20">

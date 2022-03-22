@@ -1,9 +1,8 @@
+import { useRegisterMutation } from '@generated/graphql';
 import { handleError } from '@utils/handleError';
-import { RegisterFormProps } from '@utils/types';
 import { RegisterSchema } from '@utils/validation';
 import { Field, Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
-import { FC } from 'react';
 
 interface FormValues {
 	username: string;
@@ -12,7 +11,8 @@ interface FormValues {
 	invite: string;
 }
 
-const RegisterForm: FC<RegisterFormProps> = ({ register }) => {
+const RegisterForm = () => {
+	const [register] = useRegisterMutation();
 	const initialValues: FormValues = {
 		username: '',
 		password: '',
@@ -22,7 +22,7 @@ const RegisterForm: FC<RegisterFormProps> = ({ register }) => {
 	const router = useRouter();
 
 	return (
-		<div>
+		<>
 			<Formik
 				initialValues={initialValues}
 				validationSchema={RegisterSchema}
@@ -114,7 +114,7 @@ const RegisterForm: FC<RegisterFormProps> = ({ register }) => {
 					</Form>
 				)}
 			</Formik>
-		</div>
+		</>
 	);
 };
 

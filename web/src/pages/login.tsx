@@ -1,13 +1,12 @@
 import withApollo from '@utils/withApollo';
-import { useSignInMutation } from 'generated/graphql';
-import LoginForm from '@components/pages/LoginForm';
+import dynamic from 'next/dynamic';
 
 const LoginPage = () => {
-	const [signIn] = useSignInMutation();
+	const LoginForm = dynamic(import('@components/pages/LoginForm'));
 
 	return (
 		<div className="w-full min-h-screen flex items-center justify-center">
-			<LoginForm signIn={signIn} />
+			<LoginForm />
 		</div>
 	);
 };

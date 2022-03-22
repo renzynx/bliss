@@ -4,38 +4,16 @@ import {
 	useCreateInviteMutation,
 } from '@generated/graphql';
 import { USER_LIMIT } from '@utils/constants';
+import { DashboardBodyState } from '@utils/types';
 import Link from 'next/link';
-import { FC, useState } from 'react';
+import { Dispatch, FC, SetStateAction, useState } from 'react';
 import { AiFillExclamationCircle } from 'react-icons/ai';
 import { HashLoader } from 'react-spinners';
 
 const DashboardBody: FC<{ data?: MeQuery }> = ({ data }) => {
-	const [createInvite] = useCreateInviteMutation({
-		update: (cache, { data }) => {
-			if (!data?.createInvite) return;
-			const cacheData = cache.readQuery<MeQuery>({ query: MeDocument });
-			if (!cacheData) return;
-			const { me } = cacheData;
-			if (!me || !me.invites) return;
-			cache.writeQuery({
-				query: MeDocument,
-				data: {
-					__typename: 'Query',
-					me: {
-						...me,
-						invites: [...me.invites, data.createInvite],
-					},
-				},
-			});
-		},
-	});
-
-	const [inviteData, setInviteData] = useState<{
-		__typename?: 'CreateInvite' | undefined;
-		invite: string;
-		expires: number;
-	}>();
+	const [inviteData, setInviteData] = useState<DashboardBodyState>();
 	const [loading, setLoading] = useState(false);
+
 	let body;
 
 	if (
@@ -45,37 +23,7 @@ const DashboardBody: FC<{ data?: MeQuery }> = ({ data }) => {
 	)
 		body = (
 			<>
-				<label
-					htmlFor="my-modal-6"
-					className="btn btn-wide btn-secondary modal-button"
-				>
-					Create Invite
-				</label>
-				<input type="checkbox" id="my-modal-6" className="modal-toggle" />
-				<div className="modal modal-bottom sm:modal-middle">
-					<div className="modal-box">
-						<h3 className="font-bold text-lg">Confirmation</h3>
-						<p className="py-4">Are you sure you want to create an invite?</p>
-						<div className="modal-action">
-							<label
-								htmlFor="my-modal-6"
-								className="btn btn-success px-10"
-								onClick={async () => {
-									setLoading(true);
-									const { data } = await createInvite({}).finally(() =>
-										setLoading(false)
-									);
-									data?.createInvite && setInviteData(data.createInvite);
-								}}
-							>
-								Yes
-							</label>
-							<label htmlFor="my-modal-6" className="btn btn-error px-10">
-								No
-							</label>
-						</div>
-					</div>
-				</div>
+				<Modal setLoading={setLoading} setInviteData={setInviteData} />
 			</>
 		);
 	else
@@ -125,3 +73,65 @@ const DashboardBody: FC<{ data?: MeQuery }> = ({ data }) => {
 };
 
 export default DashboardBody;
+
+const Modal: FC<{
+	setLoading: Dispatch<SetStateAction<boolean>>;
+	setInviteData: Dispatch<SetStateAction<DashboardBodyState | undefined>>;
+}> = ({ setInviteData, setLoading }) => {
+	const [createInvite] = useCreateInviteMutation({
+		update: (cache, { data }) => {
+			if (!data?.createInvite) return;
+			const cacheData = cache.readQuery<MeQuery>({ query: MeDocument });
+			if (!cacheData) return;
+			const { me } = cacheData;
+			if (!me || !me.invites) return;
+			cache.writeQuery({
+				query: MeDocument,
+				data: {
+					__typename: 'Query',
+					me: {
+						...me,
+						invites: [...me.invites, data.createInvite],
+					},
+				},
+			});
+		},
+	});
+
+	return (
+		<>
+			<label
+				htmlFor="my-modal-6"
+				className="btn btn-wide btn-secondary modal-button"
+			>
+				Create Invite
+			</label>
+			<input type="checkbox" id="my-modal-6" className="modal-toggle" />
+			<div className="modal modal-bottom sm:modal-middle">
+				<div className="modal-box">
+					<h3 className="font-bold text-lg">Confirmation</h3>
+					<p className="py-4">Are you sure you want to create an invite?</p>
+					<div className="modal-action">
+						<label
+							htmlFor="my-modal-6"
+							className="btn btn-success px-10"
+							onClick={async () => {
+								setLoading(true);
+								const { data } = await createInvite({}).finally(() =>
+									setLoading(false)
+								);
+								if (!data?.createInvite) return;
+								setInviteData(data.createInvite);
+							}}
+						>
+							Yes
+						</label>
+						<label htmlFor="my-modal-6" className="btn btn-error px-10">
+							No
+						</label>
+					</div>
+				</div>
+			</div>
+		</>
+	);
+};

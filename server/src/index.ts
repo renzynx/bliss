@@ -25,9 +25,12 @@ const start = async () => {
 	const RedisStore = connect(session);
 	const redis = new ioredis(process.env.REDIS_URL, { keepAlive: 5000 });
 	const urlMap = new Map<string, string>();
+	const tokenMap = new Map<string, number>();
 
-	const allUrls = await prisma.file.findMany();
-	allUrls.forEach((url) => urlMap.set(url.slug, url.file_name));
+	const [allToken, allUrl] = await Promise.all([prisma.user.findMany(), prisma.file.findMany()]);
+
+	allToken.forEach(({ id, token }) => tokenMap.set(token, id));
+	allUrl.forEach(({ slug, file_name }) => urlMap.set(slug, file_name));
 
 	__secure__ && logger.info("Secure mode enabled");
 	__prod__ && logger.info("Production mode enabled");
@@ -56,7 +59,7 @@ const start = async () => {
 				? ApolloServerPluginLandingPageDisabled()
 				: ApolloServerPluginLandingPageGraphQLPlayground({ settings: { "request.credentials": "include" } })
 		],
-		context: ({ req, res }) => ({ req, res, prisma, redis, urls: urlMap })
+		context: ({ req, res }) => ({ req, res, prisma, redis, urls: urlMap, tokens: tokenMap })
 	});
 
 	await server.start();

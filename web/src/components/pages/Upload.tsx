@@ -1,36 +1,33 @@
 import {
-	GetStatsDocument,
-	GetStatsQuery,
 	MeDocument,
 	MeQuery,
 	useUploadMultipleImagesMutation,
 } from '@generated/graphql';
-import { FC, useState } from 'react';
+import { FC, useState, useMemo } from 'react';
 import { BarLoader } from 'react-spinners';
 import { Preview } from '@utils/types';
 import { useDropzone } from 'react-dropzone';
 import { IoCloudUpload } from 'react-icons/io5';
 import dynamic from 'next/dynamic';
-import useIsAuth from '@utils/hooks/useIsAuth';
 
 const Upload: FC<MeQuery | undefined> = ({ me }) => {
-	const [uploadMultipleFile] = useUploadMultipleImagesMutation();
+	const [uploadMultipleFile, { loading }] = useUploadMultipleImagesMutation();
 	const [data, setData] = useState<Preview[]>([]);
-	const [loading, setLoading] = useState(false);
 	const FileView = dynamic(() => import('@components/layouts/FileView'));
 	const { getRootProps, getInputProps } = useDropzone({
 		multiple: true,
 		accept: 'image/*,audio/*,video/*',
 		onDrop: async (acceptedFiles) => {
-			setLoading(true);
 			const { data } = await uploadMultipleFile({
 				variables: { files: acceptedFiles },
 				context: { headers: { Authorization: me?.token } },
 				refetchQueries: [{ query: MeDocument }],
 				awaitRefetchQueries: true,
-			}).finally(() => setLoading(false));
+			});
 
-			for (let i = 0; i < data?.multipleUpload?.length! ?? 0; i++) {
+			if (!data?.multipleUpload) return;
+
+			for (let i = 0; i < data?.multipleUpload.length; i++) {
 				setData((prev) => [
 					...prev,
 					{
@@ -49,18 +46,21 @@ const Upload: FC<MeQuery | undefined> = ({ me }) => {
 		},
 	});
 
-	const thumbnail = data.map((file, index) => (
-		<FileView
-			actions={false}
-			filename={file.filename}
-			type={file.type}
-			url={file.url}
-			size={file.size}
-			id={file.id}
-			key={index}
-			displayName={file.displayName}
-		/>
-	));
+	const thumbnail = useMemo(() => {
+		if (!data.length) return null;
+		return data.map((file, index) => (
+			<FileView
+				actions={false}
+				filename={file.filename}
+				type={file.type}
+				url={file.url}
+				size={file.size}
+				id={file.id}
+				key={index}
+				displayName={file.displayName}
+			/>
+		));
+	}, [FileView, data]);
 
 	return (
 		<div className="w-full min-h-[90vh] flex flex-col gap-10 items-center justify-center">

@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import { Field, InputType, Int, ObjectType } from "type-graphql";
 import type { PrismaClient, Prisma } from "@prisma/client";
 import type { Redis } from "ioredis";
+import type { Stream } from "stream";
 
 export interface Context {
 	res: Response;
@@ -11,7 +12,15 @@ export interface Context {
 	};
 	redis: Redis;
 	urls: Map<string, string>;
+	tokens: Map<string, number>;
 	prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>;
+}
+
+export interface Upload {
+	filename: string;
+	mimetype: string;
+	encoding: string;
+	createReadStream: () => Stream;
 }
 
 @ObjectType()
