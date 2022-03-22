@@ -21,10 +21,10 @@ if which node > /dev/null
 
 if which pm2 > /dev/null
     then
-        echo "pm2 not found, installing..."
-        npm install -g pm2
+        echo "You need to have pm2 installed, please install pm2 and rerun this script..."
+        echo "You can install pm2 with npm install -g pm2"
     else
-        echo "found pm2"
+        echo "found pm2, skipping"
     fi
 
 FILE=.env
@@ -81,7 +81,7 @@ echo NEXT_PUBLIC_API_URL=$server >> .env
 
 read -p 'the port you want your frontend running from: ' frontendport
 
-yarn install && yarn build && pm2 start "yarn next start -p $frontendport" -n frontend
+yarn install && yarn build
 
 cd ../server
 
@@ -90,3 +90,4 @@ pm2 start "yarn start" -n backend
 echo Installation finished.
 echo One final step, because the files are hosted on the backend you need to go into web folder and manually update domains array with your backend url
 echo You can learn more details here https://nextjs.org/docs/messages/next-image-unconfigured-host
+echo After that you can run the frontend with pm2 start "yarn next start -p your desiredport" -n frontend
