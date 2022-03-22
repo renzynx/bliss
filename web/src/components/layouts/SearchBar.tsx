@@ -21,7 +21,7 @@ const SearchBar: FC<{ files: FileProps; input: string }> = ({
 		return filteredData.map((file, index) => (
 			<FileView
 				actions
-				filename={file.original_name}
+				filename={file.file_name}
 				type={file.mimetype!}
 				url={`${cdn}/${file.slug}`}
 				size={file.size}
