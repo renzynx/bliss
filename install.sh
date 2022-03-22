@@ -48,7 +48,7 @@ echo This is use for signing cookie you can use a random generated hash or just 
 read -p 'session cookie: ' secret
 echo SESSION_SECRET=$secret >> .env
 
-echo Example: api.renzynx.space, do not include http or https
+echo Example: renzynx.space, do not include http or https
 read -p 'frontend url: ' domain
 echo DOMAIN=$domain >> .env
 echo COOKIE_DOMAIN=.$domain >> .env
@@ -77,7 +77,7 @@ fi
 
 echo Example: https://api.renzynx.space include http or https this time
 read -p 'your server domain: ' serverdomain
-echo NEXT_PUBLIC_API_URL=$server >> .env
+echo API_URL=$server >> .env
 
 read -p 'the port you want your frontend running from: ' frontendport
 
@@ -90,4 +90,5 @@ pm2 start "yarn start" -n backend
 echo Installation finished.
 echo One final step, because the files are hosted on the backend you need to go into web folder and manually update domains array with your backend url
 echo You can learn more details here https://nextjs.org/docs/messages/next-image-unconfigured-host
-echo After that you can run the frontend with pm2 start "yarn next start -p your desiredport" -n frontend
+echo After that you need to rebuild the frontend with yarn build
+echo And then you can start the frontend with pm2 start "yarn start" -n frontend

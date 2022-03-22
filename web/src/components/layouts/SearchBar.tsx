@@ -1,4 +1,3 @@
-import { API } from '@utils/constants';
 import { FileProps } from '@utils/types';
 import { FC } from 'react';
 import FileView from './FileView';
@@ -20,7 +19,7 @@ const SearchBar: FC<{ files: FileProps; input: string }> = ({
 						<FileView
 							actions
 							filename={file.original_name}
-							url={`${API}/${file.slug}`}
+							url={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
 							type={file.mimetype!}
 							size={file.size}
 							id={file.id}
