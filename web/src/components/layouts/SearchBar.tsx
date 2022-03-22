@@ -12,8 +12,8 @@ const SearchBar: FC<{ files: FileProps; input: string }> = ({
 	});
 
 	const cdn = process.env.NEXT_PUBLIC_USE_HTTPS
-		? 'https'
-		: 'http' + '://' + process.env.NEXT_PUBLIC_API_URL;
+		? 'https://' + process.env.NEXT_PUBLIC_API_URL
+		: 'http://' + process.env.NEXT_PUBLIC_API_URL;
 
 	return (
 		<>
