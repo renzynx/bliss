@@ -11,6 +11,10 @@ const SearchBar: FC<{ files: FileProps; input: string }> = ({
 		else return el.original_name.toLowerCase().includes(input);
 	});
 
+	const cdn = process.env.NEXT_PUBLIC_USE_HTTPS
+		? 'https'
+		: 'http' + '://' + process.env.NEXT_PUBLIC_API_URL;
+
 	return (
 		<>
 			<aside className="mb-20 grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-8 mx-20 mt-20 place-items-center">
@@ -19,7 +23,7 @@ const SearchBar: FC<{ files: FileProps; input: string }> = ({
 						<FileView
 							actions
 							filename={file.original_name}
-							url={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
+							url={`${cdn}/${file.slug}`}
 							type={file.mimetype!}
 							size={file.size}
 							id={file.id}
