@@ -2,14 +2,13 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import { createUploadLink } from 'apollo-upload-client';
 import { useRouter } from 'next/router';
 import nextWithApollo from 'next-with-apollo';
-import { API } from './constants';
 
 const withApollo = nextWithApollo(
 	({ initialState, headers }) => {
 		return new ApolloClient({
 			ssrMode: typeof window === 'undefined',
 			link: createUploadLink({
-				uri: `${API}/graphql`,
+				uri: `${process.env.NEXT_PUBLIC_API_URL}/graphql`,
 				credentials: 'include',
 			}),
 			headers: {

@@ -11,8 +11,6 @@ export interface Context {
 		session: Session & Partial<SessionData> & { userId: number };
 	};
 	redis: Redis;
-	urls: Map<string, string>;
-	tokens: Map<string, number>;
 	prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined>;
 }
 

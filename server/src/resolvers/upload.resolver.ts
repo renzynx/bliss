@@ -3,10 +3,10 @@ import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { createWriteStream, statSync } from "fs";
 import { uploadDir } from "../libs/constants";
 import { Context, GraphqlFile, Ids, Upload } from "../libs/types";
-import logger from "../libs/logger";
-import { unlink } from "fs/promises";
 import { randomString } from "../libs/functions";
 import { __secure__ } from "../libs/config";
+import { unlink } from "fs/promises";
+import logger from "../libs/logger";
 
 @Resolver()
 export class UploadResolver {
@@ -14,25 +14,24 @@ export class UploadResolver {
 	async singleUpload(
 		@Arg("file", () => GraphQLUpload)
 		{ createReadStream, filename, mimetype }: Upload,
-		@Ctx() { prisma, req, tokens, urls }: Context
+		@Ctx() { prisma, req }: Context
 	) {
-		return new Promise((resolve, reject) => {
+		return new Promise(async (resolve, reject) => {
 			console.log(req.headers.authorization);
 			const auth = req.headers.authorization;
 			if (!auth) return;
-			const uid = tokens.get(auth);
-			if (!uid) return;
+			const check = await prisma.user.findUnique({ where: { token: auth } });
+			if (!check) return;
 			const gen = randomString(12);
 			const ext = filename.split(".").pop();
 			createReadStream()
 				.pipe(createWriteStream(`${uploadDir}/${gen}.${ext}`))
 				.on("finish", async () => {
-					urls.set(gen, `${gen}.${ext}`);
 					await prisma.file.create({
 						data: {
 							original_name: filename,
 							file_name: `${gen}.${ext}`,
-							uid,
+							uid: check.id,
 							slug: gen,
 							mimetype,
 							size: statSync(`${uploadDir}/${gen}.${ext}`).size
@@ -48,17 +47,16 @@ export class UploadResolver {
 	async multipleUpload(
 		@Arg("files", () => [GraphQLUpload])
 		files: Array<FileUpload>,
-		@Ctx() { prisma, req, urls, tokens }: Context
+		@Ctx() { prisma, req }: Context
 	) {
 		const auth = req.headers.authorization;
 		if (!auth) return null;
-		const token = tokens.get(auth);
-		if (!token) return null;
+		const check = await prisma.user.findUnique({ where: { token: auth } });
+		if (!check) return null;
 		const promises = files.map(async (file) => {
 			const { filename, createReadStream, mimetype } = await file;
 			const ext = filename.split(".").pop();
 			const generatedName = randomString(12);
-			urls.set(generatedName, `${generatedName}.${ext}`);
 			createReadStream()
 				.pipe(createWriteStream(`${uploadDir}/${generatedName}.${ext}`))
 				.on("finish", async () => {
@@ -80,11 +78,11 @@ export class UploadResolver {
 	}
 
 	@Mutation(() => Boolean)
-	async deleteFile(@Arg("ids") ids: Ids, @Ctx() { prisma }: Context) {
+	async deleteFile(@Arg("ids") { ids }: Ids, @Ctx() { prisma }: Context) {
 		const files = await prisma.file.findMany({
 			where: {
 				id: {
-					in: ids.ids
+					in: ids
 				}
 			}
 		});

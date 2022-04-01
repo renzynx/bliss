@@ -16,7 +16,9 @@ import { PrismaClient } from "@prisma/client";
 import { graphqlUploadExpress } from "graphql-upload";
 import { UploadResolver } from "./resolvers/upload.resolver";
 import { StatResolver } from "./resolvers/stat.resolver";
+import { existsSync, createReadStream } from "fs";
 import path from "path";
+import upload from "./routes/upload";
 
 const start = async () => {
 	process.setMaxListeners(0);
@@ -24,19 +26,12 @@ const start = async () => {
 	const prisma = new PrismaClient();
 	const RedisStore = connect(session);
 	const redis = new ioredis(process.env.REDIS_URL, { keepAlive: 5000 });
-	const urlMap = new Map<string, string>();
-	const tokenMap = new Map<string, number>();
-
-	const [allToken, allUrl] = await Promise.all([prisma.user.findMany(), prisma.file.findMany()]);
-
-	allToken.forEach(({ id, token }) => tokenMap.set(token, id));
-	allUrl.forEach(({ slug, file_name }) => urlMap.set(slug, file_name));
 
 	__secure__ && logger.info("Secure mode enabled");
 	__prod__ && logger.info("Production mode enabled");
 	__prod__ && logger.info(`Frontend URL: ${__cors__}`);
 	app.set("trust proxy", 1);
-	app.use(cors({ credentials: true, origin: __cors__, optionsSuccessStatus: 200, allowedHeaders: ["Content-Type", "Authorization"] }));
+	app.use(cors({ credentials: true, origin: __cors__, optionsSuccessStatus: 200 }));
 	app.use(
 		session({
 			name: COOKIE_NAME,
@@ -46,7 +41,9 @@ const start = async () => {
 			cookie: {
 				maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
 				sameSite: "lax",
-				httpOnly: true
+				httpOnly: true,
+				secure: __secure__,
+				domain: process.env.NODE_ENV === "production" ? `.${process.env.DOMAIN}` : undefined
 			},
 			store: new RedisStore({ client: redis, disableTouch: true, prefix: "bliss:" })
 		})
@@ -55,11 +52,11 @@ const start = async () => {
 	const server = new ApolloServer({
 		schema: await buildSchema({ resolvers: [UserResolver, UploadResolver, StatResolver], validate: false }),
 		plugins: [
-			__prod__
+			process.env.NODE_ENV === "production"
 				? ApolloServerPluginLandingPageDisabled()
 				: ApolloServerPluginLandingPageGraphQLPlayground({ settings: { "request.credentials": "include" } })
 		],
-		context: ({ req, res }) => ({ req, res, prisma, redis, urls: urlMap, tokens: tokenMap })
+		context: ({ req, res }) => ({ req, res, prisma, redis })
 	});
 
 	await server.start();
@@ -68,13 +65,13 @@ const start = async () => {
 
 	server.applyMiddleware({ app, cors: false });
 
-	app.use((req, res, next) => {
-		const fileName = urlMap.get(req.path.replace("/", ""));
-		if (!fileName) return next();
-		const file = path.join(uploadDir, fileName);
-		res.sendFile(file);
+	app.get("/:image", (req, res) => {
+		const { image } = req.params;
+		const exist = existsSync(path.join(uploadDir, image));
+		if (!exist) return res.sendStatus(404);
+		return createReadStream(path.join(uploadDir, image)).pipe(res);
 	});
-
+	app.use("/upload", upload);
 	app.use("*", (_req, res) => res.status(404).send("Not Found"));
 
 	app.listen(port, () => logger.info(`Server started on port ${port}`));
