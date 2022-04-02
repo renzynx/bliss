@@ -37,7 +37,7 @@ router.post("/", upload.single("file"), async (req, res) => {
 		const ext = originalname.split(".").pop();
 
 		const [file] = await Promise.all([
-			await prisma.file.create({
+			prisma.file.create({
 				data: {
 					original_name: originalname,
 					file_name: `${generatedName}.${ext}`,
@@ -47,7 +47,7 @@ router.post("/", upload.single("file"), async (req, res) => {
 					size: size
 				}
 			}),
-			await writeFile(`${uploadDir}/${generatedName}`, buffer)
+			writeFile(`${uploadDir}/${generatedName}`, buffer)
 		]);
 
 		filedata.set(file.slug, file);
