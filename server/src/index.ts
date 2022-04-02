@@ -13,18 +13,22 @@ import { ApolloServerPluginLandingPageGraphQLPlayground, ApolloServerPluginLandi
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user.resolver";
 import { StatResolver } from "./resolvers/stat.resolver";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, createReadStream } from "fs";
 import path from "path";
 import prisma from "./libs/prisma";
 import upload from "./routes/upload";
 import files from "./routes/files";
 import deleteFile from "./routes/delete";
+import type { File } from "@prisma/client";
 
+export const filedata = new Map<string, File>();
 const start = async () => {
 	process.setMaxListeners(0);
 	const app = express();
 	const RedisStore = connect(session);
 	const redis = new ioredis(process.env.REDIS_URL, { keepAlive: 5000 });
+	const allFiles = await prisma.file.findMany();
+	allFiles.forEach((file) => filedata.set(file.slug, file));
 
 	__secure__ && logger.info("Secure mode enabled");
 	__prod__ && logger.info("Production mode enabled");
@@ -66,24 +70,34 @@ const start = async () => {
 	app.use("/upload", upload);
 	app.use("/files", files);
 	app.use("/delete", deleteFile);
-	app.get("/:image", (req, res) => {
+	app.get("/:image", async (req, res) => {
 		const { image } = req.params;
 		const exist = existsSync(path.join(uploadDir, image));
 		if (!exist) return res.sendStatus(404);
-		const data = readFileSync(path.join(uploadDir, image));
-		const file = Buffer.from(data).toString("base64");
-		const url = `${process.env.USE_HTTPS ? "https" : "http"}://${process.env.DOMAIN}/${image}`;
+		const filedesc = filedata.get(image);
+		if (!filedesc) return res.sendStatus(404);
+		console.log(filedesc);
 		return res.send(`
 			<html>
 				<head>
-					<meta name="viewport" content="width=device-width, initial-scale=1">
-					<meta property="og:image" content="${url}">
+					<title>${filedesc.file_name}</title>
+					<meta property="og:${filedesc.mimetype.includes("image") ? "image" : filedesc.mimetype.includes("video") ? "video.other" : "website"}" content="${
+			process.env.USE_HTTPS ? "https" : "http"
+		}://${process.env.CDN_URL}/raw/${image}">
+					<meta property="og:title" content="${filedesc.file_name}">
+					<meta property="og:description" content="${filedesc.original_name}">
 				</head>
 				<body>
-					<img src="data:image/png;base64,${file}" />
+					<img src="${process.env.USE_HTTPS ? "https" : "http"}://${process.env.CDN_URL}/raw/${image}" />
 				</body>
 			</html>
 		`);
+	});
+	app.get("/raw/:image", (req, res) => {
+		const { image } = req.params;
+		const exist = existsSync(path.join(uploadDir, image));
+		if (!exist) return res.sendStatus(404);
+		return createReadStream(path.join(uploadDir, image)).pipe(res);
 	});
 	app.use("*", (_req, res) => res.status(404).send("Not Found"));
 

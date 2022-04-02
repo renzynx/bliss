@@ -4,6 +4,7 @@ import { writeFile } from "fs/promises";
 import { uploadDir } from "../libs/constants";
 import multer from "multer";
 import prisma from "../libs/prisma";
+import { filedata } from "..";
 
 const router = Router();
 
@@ -28,7 +29,7 @@ router.post("/", upload.single("file"), async (req, res) => {
 
 	const ext = originalname.split(".").pop();
 
-	await Promise.all([
+	const [file] = await Promise.all([
 		await prisma.file.create({
 			data: {
 				original_name: originalname,
@@ -42,7 +43,7 @@ router.post("/", upload.single("file"), async (req, res) => {
 		await writeFile(`${uploadDir}/${generatedName}`, buffer)
 	]);
 
-	prisma.$disconnect();
+	filedata.set(file.slug, file);
 
 	return res.json({
 		url: `${process.env.SECURE === "true" ? "https" : "http"}://${process.env.CDN_URL}/${generatedName}`,
@@ -70,7 +71,7 @@ router.post("/multiple", upload.array("files"), async (req, res) => {
 
 		const ext = originalname.split(".").pop();
 
-		await Promise.all([
+		const [created] = await Promise.all([
 			prisma.file.create({
 				data: {
 					original_name: originalname,
@@ -83,6 +84,8 @@ router.post("/multiple", upload.array("files"), async (req, res) => {
 			}),
 			writeFile(`${uploadDir}/${generatedName}`, buffer)
 		]);
+
+		filedata.set(created.slug, created);
 
 		return `${process.env.SECURE === "true" ? "https" : "http"}://${process.env.CDN_URL}/${generatedName}`;
 	});

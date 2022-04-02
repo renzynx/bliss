@@ -17,7 +17,6 @@ export class UploadResolver {
 		@Ctx() { prisma, req }: Context
 	) {
 		return new Promise(async (resolve, reject) => {
-			console.log(req.headers.authorization);
 			const auth = req.headers.authorization;
 			if (!auth) return;
 			const check = await prisma.user.findUnique({ where: { token: auth } });
