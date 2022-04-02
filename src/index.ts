@@ -13,8 +13,6 @@ import upload from "./routes/upload";
 export const filedata = new Map<string, File>();
 
 const start = async () => {
-	if (!process.env.MYSQL_URL) return logger.error("MYSQL_URL not set");
-
 	const app = express();
 	const allFiles = await prisma.file.findMany();
 	allFiles.forEach((file) => filedata.set(file.slug, file));
