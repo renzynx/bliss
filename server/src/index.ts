@@ -72,31 +72,9 @@ const start = async () => {
 	app.use("/delete", deleteFile);
 	app.get("/:image", async (req, res) => {
 		const { image } = req.params;
-		const exist = existsSync(path.join(uploadDir, image));
-		if (!exist) return res.sendStatus(404);
 		const filedesc = filedata.get(image);
 		if (!filedesc) return res.sendStatus(404);
-		console.log(filedesc);
-		return res.send(`
-			<html>
-				<head>
-					<title>${filedesc.file_name}</title>
-					<meta property="og:${filedesc.mimetype.includes("image") ? "image" : filedesc.mimetype.includes("video") ? "video.other" : "website"}" content="${
-			process.env.USE_HTTPS ? "https" : "http"
-		}://${process.env.CDN_URL}/raw/${image}">
-					<meta property="og:title" content="${filedesc.file_name}">
-					<meta property="og:description" content="${filedesc.original_name}">
-				</head>
-				<body>
-					<img src="${process.env.USE_HTTPS ? "https" : "http"}://${process.env.CDN_URL}/raw/${image}" />
-				</body>
-			</html>
-		`);
-	});
-	app.get("/raw/:image", (req, res) => {
-		const { image } = req.params;
-		const exist = existsSync(path.join(uploadDir, image));
-		if (!exist) return res.sendStatus(404);
+		res.header("Accept-Ranges", "bytes").header("Content-Length", filedesc.size.toString()).header("Content-Type", filedesc.mimetype);
 		return createReadStream(path.join(uploadDir, image)).pipe(res);
 	});
 	app.use("*", (_req, res) => res.status(404).send("Not Found"));
