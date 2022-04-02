@@ -13,7 +13,7 @@ import { ApolloServerPluginLandingPageGraphQLPlayground, ApolloServerPluginLandi
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user.resolver";
 import { StatResolver } from "./resolvers/stat.resolver";
-import { existsSync, createReadStream } from "fs";
+import { existsSync, readFileSync } from "fs";
 import path from "path";
 import prisma from "./libs/prisma";
 import upload from "./routes/upload";
@@ -70,7 +70,20 @@ const start = async () => {
 		const { image } = req.params;
 		const exist = existsSync(path.join(uploadDir, image));
 		if (!exist) return res.sendStatus(404);
-		return createReadStream(path.join(uploadDir, image)).pipe(res);
+		const data = readFileSync(path.join(uploadDir, image));
+		const file = Buffer.from(data).toString("base64");
+		const url = `${process.env.USE_HTTPS ? "https" : "http"}://${process.env.DOMAIN}/${image}`;
+		return res.send(`
+			<html>
+				<title>
+					<meta name="viewport" content="width=device-width, initial-scale=1">
+					<meta property="og:image" content="${url}">
+				</title>
+				<body>
+					<img src="data:image/png;base64,${file}" />
+				</body>
+			</html>
+		`);
 	});
 	app.use("*", (_req, res) => res.status(404).send("Not Found"));
 
