@@ -8,9 +8,12 @@ const SearchBar = dynamic(() => import('@components/layouts/SearchBar'));
 
 const GalleryGrid: FC = ({}) => {
 	const { data: swrData, error } = useSWR('gallery', () =>
-		axios.get<Omit<File, '__typename'>[]>('http://localhost:42069/files', {
-			withCredentials: true,
-		})
+		axios.get<Omit<File, '__typename'>[]>(
+			`${process.env.NEXT_PUBLIC_API_URL}/files`,
+			{
+				withCredentials: true,
+			}
+		)
 	);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [input, setInput] = useState('');
