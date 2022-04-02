@@ -75,10 +75,10 @@ const start = async () => {
 		const url = `${process.env.USE_HTTPS ? "https" : "http"}://${process.env.DOMAIN}/${image}`;
 		return res.send(`
 			<html>
-				<title>
+				<head>
 					<meta name="viewport" content="width=device-width, initial-scale=1">
 					<meta property="og:image" content="${url}">
-				</title>
+				</head>
 				<body>
 					<img src="data:image/png;base64,${file}" />
 				</body>
