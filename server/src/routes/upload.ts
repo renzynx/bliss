@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { randomString } from "../libs/functions";
+import { randomString, slugGenerator } from "../libs/functions";
 import { writeFile } from "fs/promises";
-import { uploadDir } from "../libs/constants";
+import { GENERATOR_TYPE, uploadDir } from "../libs/constants";
 import multer from "multer";
 import prisma from "../libs/prisma";
 import { filedata } from "..";
@@ -13,7 +13,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.post("/", upload.single("file"), async (req, res) => {
 	if (!req.headers.authorization) return res.status(401).send("Unauthorized");
 
-	const { authorization } = req.headers;
+	const { authorization, type } = req.headers;
 
 	const user = await prisma.user.findUnique({
 		where: { token: authorization }
@@ -25,7 +25,12 @@ router.post("/", upload.single("file"), async (req, res) => {
 
 	const { mimetype, buffer, originalname, size } = req.file;
 
-	const generatedName = randomString(12);
+	const generatedName =
+		type === "zws"
+			? slugGenerator(12, GENERATOR_TYPE.ZEROWIDTH)
+			: type === "emoji"
+			? slugGenerator(12, GENERATOR_TYPE.EMOJI)
+			: slugGenerator(12, GENERATOR_TYPE.TEXT);
 
 	const ext = originalname.split(".").pop();
 
