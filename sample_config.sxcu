@@ -1,0 +1,16 @@
+{
+	"Version": "13.4.0",
+	"Name": "bliss",
+	"DestinationType": "ImageUploader, TextUploader, FileUploader",
+	"RequestMethod": "POST",
+	"RequestURL": "http://yourdomain.com/upload",
+	"Headers": {
+		"Authorization": "your generated token",
+		"Type": "this can be zws, emoji or random"
+	},
+	"Body": "MultipartFormData",
+	"FileFormName": "file",
+	"URL": "$json:.url$",
+	"DeletionURL": "$json:.delete$",
+	"ErrorMessage": "$json:error$"
+}

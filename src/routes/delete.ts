@@ -1,0 +1,34 @@
+import { Router } from "express";
+import { unlink } from "fs/promises";
+import { join } from "path";
+import { filedata } from "..";
+import { uploadDir } from "../libs/constants";
+import logger from "../libs/logger";
+import prisma from "../libs/prisma";
+
+const router = Router();
+
+router.get("/:file", async (req, res) => {
+	try {
+		const { file } = req.params;
+
+		const exist = await prisma.file.findMany();
+
+		const fileExist = exist.find((f) => f.slug === file);
+
+		if (!fileExist) return res.status(404).send("File not found");
+
+		await Promise.all([prisma.file.delete({ where: { id: fileExist.id } }), unlink(join(uploadDir, fileExist.slug))]);
+
+		filedata.delete(fileExist.slug);
+
+		logger.info(`File ${fileExist.file_name} deleted`);
+
+		return res.sendStatus(200);
+	} catch (error) {
+		logger.error((error as Error).message);
+		return res.status(500).send("Something went wrong");
+	}
+});
+
+export default router;

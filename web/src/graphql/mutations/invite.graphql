@@ -1,6 +1,0 @@
-mutation CreateInvite {
-	createInvite {
-		invite
-		expires
-	}
-}

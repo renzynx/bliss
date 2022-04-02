@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("MYSQL_URL")
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  username        String   @unique
+  token           String   @unique
+  is_admin        Boolean  @default(false)
+  files           File[]
+}
+
+model File {
+  id            Int      @id @default(autoincrement())
+  file_name     String
+  original_name String
+  mimetype      String   @default("image/png")
+  slug          String
+  uploaded_at   DateTime @default(now())
+  views         Int      @default(0)
+  size          Int
+  user          User     @relation(fields: [uid], references: [id])
+  uid           Int
+}

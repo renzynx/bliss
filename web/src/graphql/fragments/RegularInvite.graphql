@@ -1,8 +1,0 @@
-fragment RegularInvite on Invite {
-	id
-	code
-	created_at
-	used_by
-	uid
-	expires_at
-}

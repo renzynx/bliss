@@ -1,9 +1,0 @@
-fragment RegularUrl on Url {
-	id
-	destination
-	short
-	created_at
-	password
-	views
-	uid
-}
