@@ -5,13 +5,11 @@ import Head from 'next/head';
 import DashboardStats from '@components/pages/DashboardStats';
 import DashboardBody from '@components/layouts/DashboardBody';
 import Loading from '@components/pages/Loading';
-import { useGetStatsQuery } from '@generated/graphql';
 import { memo } from 'react';
+const Stats = memo(DashboardStats);
 
 const DashboardPage = () => {
 	const { data, loading } = useIsAuth();
-	const { data: stats, loading: statsLoading } = useGetStatsQuery();
-	const Stats = memo(DashboardStats);
 
 	if (loading) return <Loading />;
 
@@ -20,8 +18,8 @@ const DashboardPage = () => {
 			<Head>
 				<title>Bliss | Dashboard</title>
 			</Head>
-			<Navbar data={data} loading={loading} />
-			<Stats data={data} stats={stats} loading={statsLoading} />
+			<Navbar loading={loading} data={data} />
+			<Stats data={data} />
 			<DashboardBody data={data} />
 		</>
 	);

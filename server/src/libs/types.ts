@@ -90,10 +90,13 @@ export class Invite {
 	created_at!: Date;
 
 	@Field({ nullable: true })
-	used_by?: number;
+	used_by?: string;
 
 	@Field()
 	uid!: number;
+
+	@Field()
+	expires_at!: Date;
 }
 
 @ObjectType()

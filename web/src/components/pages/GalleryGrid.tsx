@@ -1,26 +1,39 @@
-import { MeQuery } from '@generated/graphql';
+import { File, MeQuery } from '@generated/graphql';
+import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { FC, useState } from 'react';
 import { BarLoader } from 'react-spinners';
+import useSWR from 'swr';
+const SearchBar = dynamic(() => import('@components/layouts/SearchBar'));
 
-const GalleryGrid: FC<{ data?: MeQuery; loading: boolean }> = ({
-	data,
-	loading,
-}) => {
-	const SearchBar = dynamic(() => import('@components/layouts/SearchBar'));
+const GalleryGrid: FC = ({}) => {
+	const { data: swrData, error } = useSWR('gallery', () =>
+		axios.get<Omit<File, '__typename'>[]>('http://localhost:42069/files', {
+			withCredentials: true,
+		})
+	);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [input, setInput] = useState('');
 
 	let body;
 
-	if (loading) body = <BarLoader loading={loading} color="#808bed" />;
+	if (!swrData) body = <BarLoader loading color="#808bed" />;
 
-	if (data?.me?.files?.length) {
+	if (error)
+		body = (
+			<>
+				<div className="text-red-400 text-center text-2xl mt-20">
+					Something went wrong.
+				</div>
+			</>
+		);
+
+	if (swrData?.data.length) {
 		const itemPerPage = 15;
-		const totalPages = Math.ceil((data.me.files?.length ?? 0) / itemPerPage);
+		const totalPages = Math.ceil((swrData.data.length ?? 0) / itemPerPage);
 		const start = (currentPage - 1) * itemPerPage;
 		const end = currentPage * itemPerPage;
-		const currentFiles = data.me.files?.slice(start, end);
+		const currentFiles = swrData.data.slice(start, end);
 		body = (
 			<>
 				<div className="flex items-center justify-center mt-10">
@@ -56,7 +69,9 @@ const GalleryGrid: FC<{ data?: MeQuery; loading: boolean }> = ({
 						</button>
 					)}
 				</div>
-				<SearchBar files={currentFiles} input={input} />
+				<aside className="mb-20 grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-8 w-[80%] mt-20 place-items-center">
+					<SearchBar files={currentFiles} input={input} />
+				</aside>
 			</>
 		);
 	} else {

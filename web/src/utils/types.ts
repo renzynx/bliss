@@ -1,10 +1,10 @@
+import { MeQuery } from '@generated/graphql';
+
 export type Preview = {
 	url: string;
 	filename: string;
-	displayName: string;
 	type: string;
 	size: number;
-	id: number;
 };
 
 export type FileProps = {
@@ -24,4 +24,19 @@ export interface DashboardBodyState {
 	__typename?: 'CreateInvite' | undefined;
 	invite: string;
 	expires: number;
+}
+
+export interface InviteProps {
+	__typename?: 'Invite' | undefined;
+	id: number;
+	code: string;
+	created_at: any;
+	used_by?: string | null | undefined;
+	uid: number;
+	expires_at: any;
+}
+
+export interface UserStore {
+	data?: MeQuery;
+	loading: boolean;
 }

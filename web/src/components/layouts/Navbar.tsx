@@ -1,5 +1,4 @@
 import { MeQuery, useSignOutMutation } from '@generated/graphql';
-import { BarLoader } from 'react-spinners';
 import Link from 'next/link';
 import Hambuger from './Hambuger';
 import { FC } from 'react';
@@ -9,10 +8,12 @@ const Navbar: FC<{ data?: MeQuery; loading: boolean }> = ({
 	loading,
 }) => {
 	let body;
-	const [signOut] = useSignOutMutation();
+	const [signOut] = useSignOutMutation({
+		onCompleted: () => (window.location.href = '/'),
+	});
 
-	if (loading) body = <BarLoader loading={loading} color="#808bed" />;
-	else if (!data?.me)
+	if (loading) {
+	} else if (!data?.me)
 		body = (
 			<div className="flex gap-5">
 				<button
@@ -51,13 +52,10 @@ const Navbar: FC<{ data?: MeQuery; loading: boolean }> = ({
 							<Link href="/dashboard/upload">Upload</Link>
 						</li>
 						<li>
-							<button
-								onClick={async () => {
-									await signOut();
-									window.location.reload();
-								}}
-								className="hover:text-red-400"
-							>
+							<Link href="/dashboard/invites">Invites</Link>
+						</li>
+						<li>
+							<button onClick={() => signOut()} className="hover:text-red-400">
 								Sign out
 							</button>
 						</li>

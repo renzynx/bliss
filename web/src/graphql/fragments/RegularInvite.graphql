@@ -4,4 +4,5 @@ fragment RegularInvite on Invite {
 	created_at
 	used_by
 	uid
+	expires_at
 }

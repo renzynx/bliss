@@ -22,22 +22,18 @@ const SearchBar: FC<{ files: FileProps; input: string }> = ({
 				type={file.mimetype!}
 				url={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
 				size={file.size}
-				id={file.id}
 				key={index}
-				displayName={file.file_name}
 			/>
 		));
 	}, [filteredData]);
 
 	return (
 		<>
-			<aside className="mb-20 grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-8 mx-20 mt-20 place-items-center">
-				{filteredData.length ? (
-					thumbnail
-				) : (
-					<p className="text-center text-lg">No files found</p>
-				)}
-			</aside>
+			{filteredData.length ? (
+				thumbnail
+			) : (
+				<p className="text-center text-lg">No files found</p>
+			)}
 		</>
 	);
 };

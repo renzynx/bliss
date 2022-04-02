@@ -16,7 +16,7 @@ const GalleryPage = () => {
 				<title>Bliss | Gallery</title>
 			</Head>
 			<Navbar data={data} loading={loading} />
-			<GalleryGrid data={data} loading={loading} />
+			<GalleryGrid />
 		</>
 	);
 };

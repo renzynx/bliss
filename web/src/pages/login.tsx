@@ -1,13 +1,18 @@
 import withApollo from '@utils/withApollo';
 import dynamic from 'next/dynamic';
+import Head from 'next/head';
+const LoginForm = dynamic(import('@components/pages/LoginForm'));
 
 const LoginPage = () => {
-	const LoginForm = dynamic(import('@components/pages/LoginForm'));
-
 	return (
-		<div className="w-full min-h-screen flex items-center justify-center">
-			<LoginForm />
-		</div>
+		<>
+			<Head>
+				<title>Bliss | Login</title>
+			</Head>
+			<div className="w-full min-h-screen flex items-center justify-center">
+				<LoginForm />
+			</div>
+		</>
 	);
 };
 

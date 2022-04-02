@@ -2,23 +2,14 @@ import { FC, useState } from 'react';
 import { HiDownload } from 'react-icons/hi';
 import { saveAs } from 'file-saver';
 import { CgTrash } from 'react-icons/cg';
-import {
-	GetStatsDocument,
-	MeDocument,
-	useDeleteFileMutation,
-} from '@generated/graphql';
 import { AiOutlineLink } from 'react-icons/ai';
+import { deleteFile } from '@utils/functions';
+import { useSWRConfig } from 'swr';
 
-const Actions: FC<{ url: string; filename: string; id: number }> = ({
-	url,
-	filename,
-	id,
-}) => {
-	const [deleteFile] = useDeleteFileMutation({
-		awaitRefetchQueries: true,
-		refetchQueries: [{ query: MeDocument }, { query: GetStatsDocument }],
-	});
-	const [display, setDisplay] = useState(false);
+const Actions: FC<{ url: string; filename: string }> = ({ url, filename }) => {
+	const [isLoading, setIsLoading] = useState(false);
+	const [copied, setCopied] = useState(false);
+	const { mutate } = useSWRConfig();
 
 	return (
 		<div className="flex w-full justify-center gap-5 my-5">
@@ -34,34 +25,36 @@ const Actions: FC<{ url: string; filename: string; id: number }> = ({
 				</button>
 			</div>
 			<div
-				className={`tooltip tooltip-open tooltip-right tooltip-secondary ${
-					display ? '' : 'hidden'
+				className={`tooltip tooltip-bottom ${
+					copied ? 'tooltip-success' : 'tooltip-secondary'
 				}`}
-				data-tip="Copied Link"
-			></div>
-			<button
-				className="btn btn-secondary"
-				onClick={() => {
-					navigator.clipboard.writeText(url);
-					setDisplay(true);
-					setTimeout(() => setDisplay(false), 2000);
-				}}
+				data-tip={copied ? 'Copied' : 'Copy to clipboard'}
 			>
-				<AiOutlineLink size="20" />
-			</button>
+				<button
+					className={`btn ${copied ? 'btn-success' : 'btn-secondary'}`}
+					onClick={() => {
+						navigator.clipboard.writeText(url);
+						setCopied(true);
+						setTimeout(() => setCopied(false), 2000);
+					}}
+				>
+					<AiOutlineLink size="20" />
+				</button>
+			</div>
 			<div
 				className="tooltip tooltip-bottom tooltip-error"
 				data-tip="Delete file"
 			>
 				<button
-					className="btn btn-error"
 					onClick={async () => {
-						await deleteFile({
-							variables: { ids: { ids: [id] } },
-						});
+						setIsLoading(true);
+						await deleteFile(url.split('/')[3]);
+						mutate('gallery');
+						setIsLoading(false);
 					}}
+					className={`btn btn-error ${isLoading ? 'loading disabled' : ''}`}
 				>
-					<CgTrash size="20" />
+					{!isLoading && <CgTrash size="20" />}
 				</button>
 			</div>
 		</div>

@@ -1,86 +1,57 @@
-import {
-	MeDocument,
-	MeQuery,
-	useUploadMultipleImagesMutation,
-} from '@generated/graphql';
+import { MeQuery } from '@generated/graphql';
 import { FC, useState, useMemo } from 'react';
-import { BarLoader } from 'react-spinners';
-import { Preview } from '@utils/types';
 import { useDropzone } from 'react-dropzone';
 import { IoCloudUpload } from 'react-icons/io5';
-import dynamic from 'next/dynamic';
+import { bytesToHr, upload } from '@utils/functions';
 
 const Upload: FC<MeQuery | undefined> = ({ me }) => {
-	const [uploadMultipleFile, { loading }] = useUploadMultipleImagesMutation();
-	const [data, setData] = useState<Preview[]>([]);
-	const FileView = dynamic(() => import('@components/layouts/FileView'));
+	const [files, setFiles] = useState<File[]>([]);
+	const [progress, setProgress] = useState(0);
 	const { getRootProps, getInputProps } = useDropzone({
 		multiple: true,
 		accept: 'image/*,audio/*,video/*',
-		onDrop: async (acceptedFiles) => {
-			const { data } = await uploadMultipleFile({
-				variables: { files: acceptedFiles },
-				context: { headers: { Authorization: me?.token } },
-				refetchQueries: [{ query: MeDocument }],
-				awaitRefetchQueries: true,
-			});
-
-			if (!data?.multipleUpload) return;
-
-			for (let i = 0; i < data?.multipleUpload.length; i++) {
-				setData((prev) => [
-					...prev,
-					{
-						// @ts-ignore
-						url: data.multipleUpload[i].url,
-						// @ts-ignore
-						id: data.multipleUpload[i].id,
-						// @ts-ignore
-						displayName: data.multipleUpload[i].url.split('/').pop()!,
-						type: acceptedFiles[i].type,
-						filename: acceptedFiles[i].name,
-						size: acceptedFiles[i].size,
-					},
-				]);
-			}
-		},
+		onDrop: async (acceptedFiles) =>
+			await Promise.all([
+				setFiles((prev) => [...prev, ...acceptedFiles]),
+				upload(acceptedFiles, me?.token!, setProgress),
+			]),
 	});
 
 	const thumbnail = useMemo(() => {
-		if (!data.length) return null;
-		return data.map((file, index) => (
-			<FileView
-				actions={false}
-				filename={file.filename}
-				type={file.type}
-				url={file.url}
-				size={file.size}
-				id={file.id}
+		if (!files.length) return null;
+		return files.map((file, index) => (
+			<div
 				key={index}
-				displayName={file.displayName}
-			/>
+				className="flex justify-between items-center gap-3 flex-col bg-base-300 p-5 rounded-md w-full"
+			>
+				<p>
+					{file.name.length > 25
+						? file.name.substring(0, 25) + '...'
+						: file.name}
+				</p>
+				<p>{bytesToHr(file.size)}</p>
+				<progress
+					className="progress progress-secondary w-full"
+					max="100"
+					value={progress}
+				></progress>
+			</div>
 		));
-	}, [FileView, data]);
+	}, [files, progress]);
 
 	return (
 		<div className="w-full min-h-[90vh] flex flex-col gap-10 items-center justify-center">
 			<div className="mt-20">
 				<div {...getRootProps({ className: 'dropzone' })}>
 					<input {...getInputProps()} />
-					<div className="flex mx-auto p-5 flex-col gap-5 items-center shadow-lg rounded-3xl justify-center w-[60vw] h-[30vh] bg-base-300 text-center">
-						<p className="text-[90%]">
+					<div className="flex mx-auto p-5 flex-col gap-5 items-center shadow-lg rounded-3xl justify-center w-[90vw] h-[40vh] bg-base-300 text-center">
+						<p className="text-md">
 							Drag &apos;n drop some files here, or click to select files
 						</p>
 						<IoCloudUpload size={50} />
 					</div>
 				</div>
-				{loading && (
-					<div className="grid w-full place-content-center mt-10">
-						<p className="text-center">Uploading...</p>
-						<BarLoader loading={loading} color="#808bed" width="300px" />
-					</div>
-				)}
-				<aside className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-8 m-20 place-items-center">
+				<aside className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-1 grid-cols-1 gap-8 m-20 place-items-center">
 					{thumbnail}
 				</aside>
 			</div>

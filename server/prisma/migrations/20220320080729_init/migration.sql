@@ -1,2 +1,0 @@
--- AddForeignKey
-ALTER TABLE `Invite` ADD CONSTRAINT `Invite_uid_fkey` FOREIGN KEY (`uid`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

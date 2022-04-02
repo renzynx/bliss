@@ -12,24 +12,24 @@ import { ApolloServer } from "apollo-server-express";
 import { ApolloServerPluginLandingPageGraphQLPlayground, ApolloServerPluginLandingPageDisabled } from "apollo-server-core";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user.resolver";
-import { PrismaClient } from "@prisma/client";
-import { graphqlUploadExpress } from "graphql-upload";
-import { UploadResolver } from "./resolvers/upload.resolver";
 import { StatResolver } from "./resolvers/stat.resolver";
 import { existsSync, createReadStream } from "fs";
 import path from "path";
+import prisma from "./libs/prisma";
 import upload from "./routes/upload";
+import files from "./routes/files";
+import deleteFile from "./routes/delete";
 
 const start = async () => {
 	process.setMaxListeners(0);
 	const app = express();
-	const prisma = new PrismaClient();
 	const RedisStore = connect(session);
 	const redis = new ioredis(process.env.REDIS_URL, { keepAlive: 5000 });
 
 	__secure__ && logger.info("Secure mode enabled");
 	__prod__ && logger.info("Production mode enabled");
 	__prod__ && logger.info(`Frontend URL: ${__cors__}`);
+
 	app.set("trust proxy", 1);
 	app.use(cors({ credentials: true, origin: __cors__, optionsSuccessStatus: 200 }));
 	app.use(
@@ -50,7 +50,7 @@ const start = async () => {
 	);
 
 	const server = new ApolloServer({
-		schema: await buildSchema({ resolvers: [UserResolver, UploadResolver, StatResolver], validate: false }),
+		schema: await buildSchema({ resolvers: [UserResolver, StatResolver], validate: false }),
 		plugins: [
 			process.env.NODE_ENV === "production"
 				? ApolloServerPluginLandingPageDisabled()
@@ -61,17 +61,17 @@ const start = async () => {
 
 	await server.start();
 
-	app.use(graphqlUploadExpress());
-
 	server.applyMiddleware({ app, cors: false });
 
+	app.use("/upload", upload);
+	app.use("/files", files);
+	app.use("/delete", deleteFile);
 	app.get("/:image", (req, res) => {
 		const { image } = req.params;
 		const exist = existsSync(path.join(uploadDir, image));
 		if (!exist) return res.sendStatus(404);
 		return createReadStream(path.join(uploadDir, image)).pipe(res);
 	});
-	app.use("/upload", upload);
 	app.use("*", (_req, res) => res.status(404).send("Not Found"));
 
 	app.listen(port, () => logger.info(`Server started on port ${port}`));

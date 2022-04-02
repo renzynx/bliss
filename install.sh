@@ -1,28 +1,19 @@
 #!/usr/bin/bash
-command -v git >/dev/null 2>&1 ||
-{ echo >&2 "Git is not installed. Installing..";
-  apt install git
-}
-
-git clone https://github.com/renzynx/bliss.git
-
-cd bliss/server
+git clone https://github.com/renzynx/bliss.git && cd bliss/server
 
 if which node > /dev/null
     then
         echo "node is installed, skipping..."
     else
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-        source ~/.nvm/nvm.sh
-        nvm install --lts
-        npm install -g yarn
-        yarn set version berry
+        echo "node is not installed, please install nodejs..."
+        exit 1 
     fi
 
 if which pm2 > /dev/null
     then
         echo "You need to have pm2 installed, please install pm2 and rerun this script..."
         echo "You can install pm2 with npm install -g pm2"
+        exit 1
     else
         echo "found pm2, skipping"
     fi
@@ -55,7 +46,6 @@ echo CDN_URL=$bdomain >> .env
 echo Example: renzynx.space, do not include http or https
 read -p 'frontend url: ' domain
 echo DOMAIN=$domain >> .env
-echo COOKIE_DOMAIN=.$domain >> .env
 
 while true; do
 read -p "Do you want to use https? (y/n) " yn
@@ -78,16 +68,9 @@ else
     touch .env
 fi
 
-while true; do
-read -p "Do you want to use https? (y/n) " yn
-case $yn in
-        [yY] ) echo USE_HTTPS=true >> .env
-                break;;
-        [nN] ) echo skipping;
-                exit;;
-esac
-done
-
+echo "This time you need to include https:// or http://"
+echo "Example: https://api.renzynx.space"
+read -p "your backend url: " bdomain
 
 yarn install
 
