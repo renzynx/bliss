@@ -470,6 +470,7 @@ __metadata:
     colorette: ^2.0.16
     dotenv-cra: ^3.0.2
     express: ^4.17.3
+    helmet: ^5.0.2
     multer: ^1.4.4
     prisma: latest
     reflect-metadata: ^0.1.13
@@ -1302,6 +1303,13 @@ __metadata:
   version: 2.0.1
   resolution: "has-unicode@npm:2.0.1"
   checksum: 1eab07a7436512db0be40a710b29b5dc21fa04880b7f63c9980b706683127e3c1b57cb80ea96d47991bdae2dfe479604f6a1ba410106ee1046a41d1bd0814400
+  languageName: node
+  linkType: hard
+
+"helmet@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "helmet@npm:5.0.2"
+  checksum: 3fe107f3f73fb6a79173e5599f87a016c69f1c7cc46bcde1c60043ea36e64f893434592890d3c0be68f1d35731f2f2f22094a1cfd70438f9d35740861071dcf3
   languageName: node
   linkType: hard
 

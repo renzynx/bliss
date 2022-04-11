@@ -19,6 +19,7 @@
 		"colorette": "^2.0.16",
 		"dotenv-cra": "^3.0.2",
 		"express": "^4.17.3",
+		"helmet": "^5.0.2",
 		"multer": "^1.4.4",
 		"reflect-metadata": "^0.1.13"
 	},
