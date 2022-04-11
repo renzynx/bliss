@@ -1,7 +1,7 @@
 import type { File } from "@prisma/client";
-import * as express from "express";
+import express from "express";
 import { createReadStream } from "fs";
-import * as path from "path";
+import path from "path";
 import "reflect-metadata";
 import "./libs/config";
 import { port, __secure__ } from "./libs/config";
