@@ -9,14 +9,22 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { FC } from 'react';
-import { ModalProps } from '#lib/types';
+import { ModalProps, RootError } from '#lib/types';
 import useStyles from '#styles/global.styles';
+import { useRegisterMutation } from '#lib/redux/slices/auth.slice';
+import { useRouter } from 'next/router';
+import { handleError, matchError } from '#lib/functions';
+import { useAppDispatch } from '#lib/redux/hooks';
+import { setIsAuth } from '#lib/redux/slices/user.slice';
 
 const RegisterModal: FC<ModalProps> = ({ opened, setOpened }) => {
   const form = useForm({
     initialValues: { email: '', username: '', password: '', invitation: '' },
   });
   const { classes } = useStyles();
+  const [register, { isLoading }] = useRegisterMutation();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
 
   return (
     <>
@@ -27,7 +35,34 @@ const RegisterModal: FC<ModalProps> = ({ opened, setOpened }) => {
         title="Authentication"
       >
         <Box sx={{ maxWidth: 360 }} mx="auto">
-          <form onSubmit={form.onSubmit((values) => console.log(values))}>
+          <form
+            onSubmit={form.onSubmit((values) =>
+              register(values)
+                .unwrap()
+                .then((payload) => {
+                  if (payload.error) {
+                    form.setErrors(handleError(payload.error));
+                  } else if (payload.user) {
+                    dispatch(setIsAuth(true));
+                    router.push('/dashboard');
+                  } else {
+                    form.setErrors({
+                      username_email: 'Something went wrong',
+                      password: 'Something went wrong',
+                    });
+                  }
+                })
+                .catch((err: RootError) => {
+                  if (err.status == 429)
+                    return form.setErrors({
+                      username_email:
+                        'Too many requests, please try again later',
+                      password: 'Too many requests, please try again later',
+                    });
+                  form.setErrors(matchError(err.data.message));
+                })
+            )}
+          >
             <TextInput
               label="Email"
               name="email"
@@ -59,7 +94,7 @@ const RegisterModal: FC<ModalProps> = ({ opened, setOpened }) => {
               >
                 Already have an account?
               </Anchor>
-              <Button type="submit" className={classes.btn}>
+              <Button loading={isLoading} type="submit" className={classes.btn}>
                 Sign Up
               </Button>
             </Group>
