@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  UnauthorizedException,
   Logger,
 } from '@nestjs/common';
 import { SLUG_TYPE, UPLOAD_DIR } from '../lib/constants';
@@ -52,6 +53,7 @@ export class UploadService implements IUploadService {
         where: { token },
         include: { files: true },
       });
+      if (!user) throw new UnauthorizedException('Unauthorized.')
       delete user.password;
       return { user };
     } catch (error) {
