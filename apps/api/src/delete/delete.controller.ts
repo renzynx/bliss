@@ -13,7 +13,9 @@ export class DeleteController {
     const success = await this.deleteService.deleteFile(token, file.slug);
     return {
       success,
-      message: success ? 'File deleted' : 'Error deleting file',
+      message: success
+        ? `Successfully deleted ${file.originalName}`
+        : `Could not delete ${file.originalName}`,
     };
   }
 }

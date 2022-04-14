@@ -1,0 +1,5 @@
+export enum AUTH_ACTIONS {
+  LOGIN = 'LOGIN',
+  REGISTER = 'REGISTER',
+  LOGOUT = 'LOGOUT',
+}

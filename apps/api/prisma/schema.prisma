@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -19,6 +19,7 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   slugType  String   @default("random") @map("slug_type")
+  admin     Boolean  @default(false)
   files     File[]
 }
 
@@ -33,7 +34,7 @@ model File {
   updatedAt    DateTime @updatedAt @map("updated_at")
   deleteToken  String   @unique @default(cuid()) @map("delete_token")
   user         User     @relation(fields: [uid], references: [id])
-  uid          Int
+  uid          Int      
 }
 
 model Session {

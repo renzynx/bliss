@@ -1,13 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
 import { unlink } from 'node:fs/promises';
 import { UPLOAD_DIR } from '../lib/constants';
-import { FileCache } from '../main';
 import { join } from 'node:path';
 import { PrismaService } from '../prisma/prisma.service';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class DeleteService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+  ) {}
 
   findFile(token: string) {
     return this.prismaService.file.findUnique({
@@ -22,7 +25,7 @@ export class DeleteService {
           where: { deleteToken: token },
         }),
         unlink(join(UPLOAD_DIR, slug)),
-        FileCache.delete(slug),
+        this.cacheManager.del(slug),
       ]);
       return true;
     } catch (error) {

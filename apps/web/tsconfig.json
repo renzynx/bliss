@@ -11,7 +11,18 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "incremental": true
+    "incremental": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "#components/*": ["src/components/*"],
+      "#pages/*": ["src/pages/*"],
+      "#lib/*": ["src/lib/*"],
+      "#redux/*": ["src/lib/redux/*"],
+      "#styles/*": ["src/styles/*"],
+      "#layouts/*": ["src/layouts/*"],
+      "@bliss/shared-types": ["../../libs/shared-types/src/index.ts"]
+    }
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "next-env.d.ts"],
   "exclude": ["node_modules"]

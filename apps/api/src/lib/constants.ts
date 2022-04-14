@@ -15,8 +15,11 @@ export enum ROUTES {
   DELETE = 'delete',
 }
 
+export const COOKIE_NAME = 'BLISS_AUTH';
+
 export const SESSION_OPTIONS = {
-  secret: 'keyboard cat',
+  name: COOKIE_NAME,
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: new PrismaSessionStore(new PrismaClient(), {
@@ -38,6 +41,6 @@ export const SESSION_OPTIONS = {
 
 export const PORT = process.env.PORT || 3000;
 
-export const UPLOAD_DIR = join(__dirname, '..', '..', 'uploads');
+export const UPLOAD_DIR = join(process.cwd(), 'uploads');
 
 export const GLOBAL_PREFIX = 'api';

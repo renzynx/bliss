@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { IAppService } from '../lib/interfaces';
-import { FileCache } from '../main';
 
 @Injectable()
 export class AppService implements IAppService {
-  getFile(slug: string) {
-    return FileCache.get(slug);
+  constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
+
+  async getFile(slug: string) {
+    return this.cacheManager.get<string>(slug);
   }
 }
