@@ -34,7 +34,7 @@ export const SESSION_OPTIONS = {
     secure: process.env.USE_HTTPS === 'true',
     domain:
       process.env.NODE_ENV === 'production'
-        ? process.env.WEB_DOMAIN
+        ? `.${process.env.WEB_DOMAIN}`
         : undefined,
   },
 } as session.SessionOptions;
