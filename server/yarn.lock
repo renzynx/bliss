@@ -284,13 +284,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sapphire/ts-config@npm:^3.3.2":
-  version: 3.3.3
-  resolution: "@sapphire/ts-config@npm:3.3.3"
+"@sapphire/ts-config@npm:3.3.4":
+  version: 3.3.4
+  resolution: "@sapphire/ts-config@npm:3.3.4"
   dependencies:
     tslib: ^2.3.1
-    typescript: ^4.6.2
-  checksum: e4a5ed72791629b225b815537ddc040981559cceca87c01559359a5cb58e836182a838b44d7c0988de7b0dc32b8d1fc27390ad0062f8fbf865417baf666170a1
+    typescript: ^4.6.3
+  checksum: c26dee331e17dd1762caa499ca6f1d1ee22fe781a5486575ead625c399678fbf3b33cf963a4f48aad04df5d515a4b3d2f80a03272d2413894d96f799d5f5ca87
   languageName: node
   linkType: hard
 
@@ -990,7 +990,7 @@ __metadata:
   resolution: "bliss-graphql-server@workspace:."
   dependencies:
     "@prisma/client": latest
-    "@sapphire/ts-config": ^3.3.2
+    "@sapphire/ts-config": 3.3.4
     "@swc/core": ^1.2.157
     "@types/connect-redis": ^0.0.18
     "@types/cors": ^2.8.12
@@ -3485,6 +3485,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:^4.6.3":
+  version: 4.6.3
+  resolution: "typescript@npm:4.6.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 255bb26c8cb846ca689dd1c3a56587af4f69055907aa2c154796ea28ee0dea871535b1c78f85a6212c77f2657843a269c3a742d09d81495b97b914bf7920415b
+  languageName: node
+  linkType: hard
+
 "typescript@patch:typescript@^4.6.2#~builtin<compat/typescript>":
   version: 4.6.2
   resolution: "typescript@patch:typescript@npm%3A4.6.2#~builtin<compat/typescript>::version=4.6.2&hash=bda367"
@@ -3492,6 +3502,16 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 40b493a71747fb89fa70df104e2c4a5e284b43750af5bea024090a5261cefa387f7a9372411b13030f7bf5555cee4275443d08805642ae5c74ef76740854a4c7
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@^4.6.3#~builtin<compat/typescript>":
+  version: 4.6.3
+  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=bda367"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 6bf45caf847062420592e711bc9c28bf5f9a9a7fa8245343b81493e4ededae33f1774009d1234d911422d1646a2c839f44e1a23ecb111b40a60ac2ea4c1482a8
   languageName: node
   linkType: hard
 
