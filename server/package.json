@@ -5,7 +5,7 @@
 	"version": "1.0.0",
 	"packageManager": "yarn@3.2.0",
 	"devDependencies": {
-		"@sapphire/ts-config": "^3.3.2",
+		"@sapphire/ts-config": "3.3.4",
 		"@swc/core": "^1.2.157",
 		"@types/connect-redis": "^0.0.18",
 		"@types/cors": "^2.8.12",
