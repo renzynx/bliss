@@ -11,7 +11,7 @@
 		"gen": "graphql-codegen --config codegen.yml"
 	},
 	"dependencies": {
-		"@apollo/client": "^3.5.10",
+		"@apollo/client": "3.5.10",
 		"@graphql-codegen/cli": "^2.6.2",
 		"@next/bundle-analyzer": "^12.1.0",
 		"ansi-regex": "^5.0.1",
