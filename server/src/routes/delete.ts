@@ -2,6 +2,7 @@ import { Router } from "express";
 import { unlink } from "fs/promises";
 import { join } from "path";
 import { uploadDir } from "../libs/constants";
+import logger from "../libs/logger";
 import prisma from "../libs/prisma";
 
 const router = Router();
@@ -20,7 +21,8 @@ router.get("/:file", async (req, res) => {
 
 		return res.sendStatus(200);
 	} catch (error) {
-		return res.status(500).send(error);
+		logger.error((error as Error).message);
+		return res.status(500).send("Something went wrong");
 	}
 });
 
