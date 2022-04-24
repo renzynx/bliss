@@ -36,9 +36,9 @@ export class UploadService implements IUploadService {
         Logger.error((err as Error).message, 'UploadService.findUser');
         throw new InternalServerErrorException('Something went wrong');
       });
-    
+
     if (!user) throw new UnauthorizedException('No user found');
-    
+
     delete user.password;
     return user;
   }
@@ -190,73 +190,4 @@ export class UploadService implements IUploadService {
         return random;
     }
   }
-<<<<<<< HEAD
-=======
-
-  async findUser(token: string): Promise<UserResponse> {
-    try {
-      const user = await this.prismaService.user.findUnique({
-        where: { token },
-        include: { files: true },
-      });
-      if (!user) throw new UnauthorizedException('Unauthorized.')
-      delete user.password;
-      return { user };
-    } catch (error) {
-      Logger.error((error as Error).message, 'UploadService.findUser');
-      throw new InternalServerErrorException('Something went wrong');
-    }
-  }
-
-  async uploadFile(
-    file: Express.Multer.File,
-    uid: number,
-    slugType: string,
-    uploader: 'sharex' | 'web',
-    perverse?: boolean
-  ): Promise<UploadResponse | File> {
-    const slug =
-      slugType === SLUG_TYPE.ZEROWIDTH
-        ? this.generateSlug(SLUG_TYPE.ZEROWIDTH)
-        : slugType === SLUG_TYPE.EMOJI
-        ? this.generateSlug(SLUG_TYPE.EMOJI)
-        : this.generateSlug(SLUG_TYPE.RANDOM);
-
-    const filePath = join(UPLOAD_DIR, slug);
-
-    const [data] = await Promise.all([
-      this.prismaService.file.create({
-        data: {
-          fileName: perverse
-            ? file.originalname
-            : slug + '.' + file.originalname.split('.').pop(),
-          mimetype: file.mimetype,
-          originalName: file.originalname,
-          size: file.size,
-          slug,
-          uid,
-        },
-      }),
-      writeFile(filePath, file.buffer),
-    ]).catch((e) => {
-      Logger.debug((e as Error).message, 'UploadService.uploadFile');
-      throw new InternalServerErrorException('Something went wrong');
-    });
-
-    await this.updateCache(data);
-
-    return uploader === 'sharex'
-      ? {
-          url: `${this.getProtocol()}://${process.env.SERVER_DOMAIN}/${slug}`,
-          delete: `${this.getProtocol()}://${
-            process.env.SERVER_DOMAIN
-          }/delete/${data.deleteToken}`,
-        }
-      : data;
-  }
-
-  getProtocol() {
-    return process.env.USE_HTTPS ? 'https' : 'http';
-  }
->>>>>>> 0e006f565d2dbe631d1761f2aa663a8c4d02bfa7
 }
