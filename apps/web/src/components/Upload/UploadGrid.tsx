@@ -10,8 +10,6 @@ interface UploadGridProps {
 }
 
 const UploadGrid: FC<UploadGridProps> = ({ files, theme }) => {
-  console.log(files);
-
   return (
     <SimpleGrid
       cols={3}

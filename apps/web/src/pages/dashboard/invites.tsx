@@ -61,7 +61,6 @@ const InvitePage = () => {
                     autoClose: 5000,
                   });
                 } else {
-                  console.log(err);
                   showNotification({
                     message: 'Something went wrong, please try again later.',
                     title: 'Error',

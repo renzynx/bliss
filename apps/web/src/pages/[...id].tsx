@@ -7,8 +7,6 @@ const ViewPage: NextPage<{ data: ViewType; slug: string }> = ({
   data,
   slug,
 }) => {
-  console.log(data);
-
   return (
     <>
       <Head>
