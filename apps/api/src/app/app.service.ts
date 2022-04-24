@@ -8,7 +8,7 @@ import {
 import { File } from '@prisma/client';
 import { Cache } from 'cache-manager';
 import { IAppService } from '../lib/interfaces';
-import { createReadStream } from 'fs-extra';
+import { createReadStream } from 'fs';
 import { join } from 'path';
 import { UPLOAD_DIR } from '../lib/constants';
 import { Response } from 'express';
@@ -32,6 +32,7 @@ export class AppService implements IAppService {
     const file: File = JSON.parse(data);
 
     res
+      .header('Accept-Ranges', 'bytes')
       .header('Content-Type', file.mimetype)
       .header('Content-Length', file.toString());
 
