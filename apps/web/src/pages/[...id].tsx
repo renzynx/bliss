@@ -21,6 +21,21 @@ const ViewPage: NextPage<{ data: ViewType; slug: string }> = ({
             <meta property="og:site_name" content={data.siteName} />
             <meta property="theme-color" content={data.color} />
             <meta property="twitter:card" content="summary_large_image" />
+            {data.type.includes('image') ? (
+              <>
+                <meta
+                  property="og:image"
+                  content={`${process.env.NEXT_PUBLIC_API_URL}/${slug}`}
+                />
+              </>
+            ) : data.type.includes('video') ? (
+              <>
+                <meta
+                  property="og:video"
+                  content={`${process.env.NEXT_PUBLIC_API_URL}/${slug}`}
+                />
+              </>
+            ) : null}
           </>
         )}
         <title>Uploaded by {data.username}</title>
