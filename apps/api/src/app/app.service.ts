@@ -8,7 +8,7 @@ import {
 import { File } from '@prisma/client';
 import { Cache } from 'cache-manager';
 import { IAppService } from '../lib/interfaces';
-import { createReadStream, pathExists } from 'fs-extra';
+import { createReadStream } from 'fs-extra';
 import { join } from 'path';
 import { UPLOAD_DIR } from '../lib/constants';
 import { Response } from 'express';
@@ -33,10 +33,7 @@ export class AppService implements IAppService {
 
     res
       .header('Content-Type', file.mimetype)
-      .header('Content-Length', file.toString())
-      .header('Cache-Control', 'public, max-age=31536000')
-      .header('Expires', new Date(Date.now() + 31536000 * 1000).toUTCString())
-      .header('Last-Modified', new Date(file.createdAt).toUTCString());
+      .header('Content-Length', file.toString());
 
     if (download) {
       res.setHeader(
