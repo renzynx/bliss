@@ -1,26 +1,22 @@
 import { MantineTheme, Center, Text, Progress } from '@mantine/core';
 import { FC } from 'react';
-import { File as PrismaFile } from '@prisma/client';
 import useStyles from './Upload.styles';
+import { FileWithProgress } from '#lib/types';
 
 interface CardProps {
   theme: MantineTheme;
-  index: number;
-
-  progress: number[];
-  success: PrismaFile[];
-  file: File;
+  file: FileWithProgress;
 }
 
-const UploadCard: FC<CardProps> = ({ file, index, progress, success }) => {
+const UploadCard: FC<CardProps> = ({ file }) => {
   const { classes } = useStyles();
 
   return (
-    <Center className={classes.card} key={index}>
+    <Center className={classes.card}>
       <Progress
         size="xl"
-        label={`${progress[index]}%`}
-        value={progress[index]}
+        label={`${file.progress}%`}
+        value={file.progress}
         sx={{ width: '100%' }}
         sections={[
           {
@@ -35,7 +31,7 @@ const UploadCard: FC<CardProps> = ({ file, index, progress, success }) => {
           },
         ]}
       />
-      {success[index] ? (
+      {file.progress === 100 ? (
         <Text align="center" lineClamp={1}>
           Uploaded {file.name}
         </Text>

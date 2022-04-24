@@ -7,15 +7,9 @@ export class DeleteController {
   constructor(private readonly deleteService: DeleteService) {}
 
   @Get(':token')
-  async delete(@Param() { token }: { token: string }) {
-    const file = await this.deleteService.findFile(token);
-    if (!file) return { success: false, message: 'File not found' };
-    const success = await this.deleteService.deleteFile(token, file.slug);
-    return {
-      success,
-      message: success
-        ? `Successfully deleted ${file.originalName}`
-        : `Could not delete ${file.originalName}`,
-    };
+  delete(@Param() { token }: { token: string }) {
+    return process.env.USE_S3
+      ? this.deleteService.deleteFileFromS3(token)
+      : this.deleteService.deleteFile(token);
   }
 }

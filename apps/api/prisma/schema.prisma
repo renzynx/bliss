@@ -11,16 +11,24 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  email     String?  @unique
-  password  String
-  token     String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  slugType  String   @default("random") @map("slug_type")
-  admin     Boolean  @default(false)
-  files     File[]
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  email         String?  @unique
+  password      String
+  token         String   @unique
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  slugType      String   @default("random") @map("slug_type")
+  admin         Boolean  @default(false)
+  useEmbed      Boolean  @default(false) @map("use_embed")
+  embedSiteName String?  @default("Bliss") @map("embed_site_name")
+  embedTitle    String?  @map("embed_title")
+  embedColor    String   @default("#808bed") @map("embed_color")
+  embedDesc     String?
+  files         File[]
+  invites       Invite[]
+
+  @@map("users")
 }
 
 model File {
@@ -30,16 +38,24 @@ model File {
   mimetype     String
   size         Int
   slug         String
+  views        Int      @default(0)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   deleteToken  String   @unique @default(cuid()) @map("delete_token")
   user         User     @relation(fields: [uid], references: [id])
-  uid          Int      
+  uid          Int
+
+  @@map("files")
 }
 
-model Session {
-  id        String   @id
-  sid       String   @unique
-  data      String
-  expiresAt DateTime
+model Invite {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  usedBy    String?  @map("used_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+  uid       Int
+  user      User     @relation(fields: [uid], references: [id])
+
+  @@map("invites")
 }

@@ -18,5 +18,6 @@
       "@bliss/shared-types": ["libs/shared-types/src/index.ts"]
     }
   },
+  "include": ["./env.d.ts"],
   "exclude": ["node_modules", "tmp"]
 }

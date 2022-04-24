@@ -10,7 +10,7 @@ const Navbar: FC<{ opened: boolean }> = ({ opened }) => {
       p="md"
       hiddenBreakpoint="sm"
       hidden={!opened}
-      width={{ sm: 200, lg: 300 }}
+      width={{ sm: 300, md: 300, lg: 300 }}
     >
       <Navigation.Section mt="xs">
         <Bliss />

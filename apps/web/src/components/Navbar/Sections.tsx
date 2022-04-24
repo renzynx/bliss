@@ -15,6 +15,7 @@ import {
   X,
   File,
   ChartInfographic,
+  MailForward,
 } from 'tabler-icons-react';
 import useStyles from './Navbar.styles';
 
@@ -66,6 +67,12 @@ const data: SectionProps[] = [
     href: '/dashboard/settings',
   },
   { icon: <X />, color: 'teal', label: 'ShareX', href: '/dashboard/sharex' },
+  {
+    icon: <MailForward />,
+    color: 'teal',
+    label: 'Invites',
+    href: '/dashboard/invites',
+  },
   {
     icon: <ChartInfographic />,
     color: 'teal',

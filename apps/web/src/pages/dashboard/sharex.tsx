@@ -1,17 +1,20 @@
+import Loading from '#components/Loading';
 import ShareXSettings from '#components/SharexSettings';
 import Shell from '#layouts/Shell';
-import { ReactElement } from 'react';
+import { useAuth } from '#lib/hooks/useAuth';
 
 const Sharex = () => {
+  const { data } = useAuth();
+
+  if (!data) return <Loading />;
+
   return (
     <>
-      <ShareXSettings />
+      <Shell>
+        <ShareXSettings />
+      </Shell>
     </>
   );
-};
-
-Sharex.getLayout = function getLayout(page: ReactElement) {
-  return <Shell>{page}</Shell>;
 };
 
 export default Sharex;

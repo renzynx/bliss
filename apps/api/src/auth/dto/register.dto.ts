@@ -25,4 +25,7 @@ export class RegisterDTO {
   @MinLength(8)
   @IsNotEmpty()
   public password: string;
+
+  @IsString()
+  public invitation: string;
 }

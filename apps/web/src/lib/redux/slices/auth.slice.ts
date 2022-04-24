@@ -6,11 +6,11 @@ import {
   RegisterPayload,
   ShareXConfig,
 } from '#lib/types';
-import { File, User } from '@prisma/client';
+import { File, Invite, User } from '@prisma/client';
 
 export const auth = createApi({
   reducerPath: 'auth',
-  tagTypes: ['Auth', 'File'],
+  tagTypes: ['Auth', 'File', 'Invite'],
   baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_URL }),
   endpoints: (builder) => ({
     me: builder.query<{ user: User }, void>({
@@ -44,12 +44,11 @@ export const auth = createApi({
       }),
       invalidatesTags: ['Auth'],
     }),
-    logout: builder.mutation<boolean, void>({
+    logout: builder.mutation<{ success: boolean }, void>({
       query: () => ({
         url: '/auth/logout',
         credentials: 'include',
       }),
-      invalidatesTags: ['Auth'],
     }),
     changePassword: builder.mutation<UserResponse, ChangePasswordPayLoad>({
       query: (data) => ({
@@ -109,6 +108,22 @@ export const auth = createApi({
         credentials: 'include',
       }),
     }),
+    getInvites: builder.query<{ invites: Invite[] }, void>({
+      query: () => ({
+        url: '/auth/invite',
+        method: 'GET',
+        credentials: 'include',
+      }),
+      providesTags: ['Invite'],
+    }),
+    createInvite: builder.mutation<string, void>({
+      query: () => ({
+        url: '/auth/create-invite',
+        method: 'GET',
+        credentials: 'include',
+      }),
+      invalidatesTags: ['Invite'],
+    }),
   }),
 });
 
@@ -124,4 +139,6 @@ export const {
   useResetTokenMutation,
   useChangePasswordMutation,
   useGetConfigMutation,
+  useGetInvitesQuery,
+  useCreateInviteMutation,
 } = auth;

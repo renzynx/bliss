@@ -7,28 +7,33 @@ import {
   UploadResponse,
   UserResponse,
 } from '@bliss/shared-types';
+import { Request, Response } from 'express';
+import { StreamableFile } from '@nestjs/common';
+import { SessionData } from 'express-session';
 
 export interface IUploadService {
-  findUser(token: string): Promise<UserResponse>;
+  findUser(token: string): Promise<User>;
   generateSlug(type: SLUG_TYPE, length?: number): string;
   updateCache(file: File): Promise<string>;
   uploadFile(
     file: Express.Multer.File,
-    uid: number,
-    slugType: string,
-    uploader: 'sharex' | 'web',
-    perverse?: boolean
-  ): Promise<UploadResponse | File>;
+    req: Request
+  ): Promise<UploadResponse | string>;
   getProtocol(): 'https' | 'http';
 }
 
 export interface IAuthService {
   register(
-    email: string,
+    session: SessionData,
+    username: string,
+    password: string,
+    email?: string
+  ): Promise<UserResponse>;
+  login(
+    session: SessionData,
     username: string,
     password: string
   ): Promise<UserResponse>;
-  login(username: string, password: string): Promise<UserResponse>;
   files(
     id: number,
     page: number,
@@ -43,5 +48,9 @@ export interface IAuthService {
 }
 
 export interface IAppService {
-  getFile(slug: string): Promise<string>;
+  getFile(
+    slug: string,
+    res: Response,
+    download?: string
+  ): Promise<StreamableFile | string>;
 }

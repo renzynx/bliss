@@ -1,6 +1,8 @@
 export const text =
   'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890';
+
 export const zerowidth = ['\u200B', '\u2060', '\u200C', '\u200D'];
+
 export const emoji = [
   '😄',
   '😃',

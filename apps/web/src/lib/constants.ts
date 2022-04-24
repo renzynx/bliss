@@ -1,5 +1,40 @@
+import { MIME_TYPES } from '@mantine/dropzone';
+
 export enum AUTH_ACTIONS {
   LOGIN = 'LOGIN',
   REGISTER = 'REGISTER',
   LOGOUT = 'LOGOUT',
 }
+
+export const ACCEPT_TYPE = [
+  MIME_TYPES.png,
+  MIME_TYPES.jpeg,
+  MIME_TYPES.mp4,
+  MIME_TYPES.svg,
+  MIME_TYPES.webp,
+  MIME_TYPES.gif,
+  MIME_TYPES.zip,
+  MIME_TYPES.pdf,
+  MIME_TYPES.docx,
+  MIME_TYPES.pptx,
+  MIME_TYPES.xlsx,
+  'text/plain',
+  'audio/mp3',
+  'audio/wav',
+  'audio/ogg',
+  'audio/flac',
+  'audio/aac',
+  'audio/m4a',
+  'audio/mp4',
+  'audio/mpeg',
+  'audio/webm',
+  'audio/3gpp',
+  'audio/3gpp2',
+  'audio/aac',
+  'audio/aiff',
+  'audio/amr',
+  'audio/basic',
+  'audio/midi',
+  'audio/mid',
+  'audio/m4a',
+];

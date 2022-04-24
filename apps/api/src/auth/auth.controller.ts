@@ -30,12 +30,24 @@ export class AuthController {
     return this.authService.getStats();
   }
 
+  @UseGuards(AuthGuard)
+  @Get('create-invite')
+  createInvite(@Session() session: SessionData) {
+    return this.authService.createInvite(session.userId);
+  }
+
   @SkipThrottle()
   @UseGuards(AuthGuard)
   @Get('me')
   me(@Session() session: SessionData) {
     if (!session.userId) throw new BadRequestException('Unauthorized');
     return this.authService.me(session.userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('invite')
+  async getInvite(@Session() sess: SessionData) {
+    return this.authService.getInvite(sess.userId);
   }
 
   @UseGuards(AuthGuard)
@@ -78,29 +90,25 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(
+  login(
     @Body() { username_email, password }: LoginDTO,
     @Session() session: SessionData
   ) {
-    const res = await this.authService.login(username_email, password);
-    if (res.error)
-      return {
-        error: res.error,
-      };
-    session.userId = res.user.id;
-    return { user: res.user };
+    return this.authService.login(session, username_email, password);
   }
 
   @Post('register')
   async register(
-    @Body() { email, username, password }: RegisterDTO,
+    @Body() { email, username, password, invitation }: RegisterDTO,
     @Session() session: SessionData
   ) {
-    if (!username || !password) throw new BadRequestException('Missing fields');
-    const res = await this.authService.register(username, password, email);
-    if (res.error) throw new BadRequestException(res.error);
-    session.userId = res.user.id;
-    return res.user;
+    return this.authService.register(
+      session,
+      username,
+      password,
+      invitation,
+      email
+    );
   }
 
   @UseGuards(AuthGuard)

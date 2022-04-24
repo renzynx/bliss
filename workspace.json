@@ -1,9 +1,0 @@
-{
-  "version": 2,
-  "projects": {
-    "api": "apps/api",
-    "shared-types": "libs/shared-types",
-    "web": "apps/web",
-    "web-e2e": "apps/web-e2e"
-  }
-}

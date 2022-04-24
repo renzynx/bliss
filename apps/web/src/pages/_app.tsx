@@ -1,3 +1,4 @@
+import '#styles/globals.css';
 import 'nprogress/nprogress.css';
 import {
   MantineProvider,

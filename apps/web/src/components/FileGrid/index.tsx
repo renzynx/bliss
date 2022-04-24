@@ -14,7 +14,7 @@ const FileGrid: FC<FileProps> = ({
 }) => {
   if (isLoading)
     return (
-      <Center>
+      <Center mt="xl">
         <Loader size="xl" />
       </Center>
     );
@@ -38,7 +38,7 @@ const FileGrid: FC<FileProps> = ({
           cols={3}
           breakpoints={[
             { maxWidth: 'sm', cols: 1 },
-            { maxWidth: 'md', cols: 2 },
+            { maxWidth: 'md', cols: 1 },
             { maxWidth: 'lg', cols: 3 },
           ]}
           sx={{ placeItems: 'center' }}

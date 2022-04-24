@@ -5,80 +5,57 @@ import {
   Avatar,
   Box,
   Text,
-  Center,
-  Loader,
   Divider,
   Menu,
+  Skeleton,
 } from '@mantine/core';
-import {
-  ChevronRight,
-  ChevronLeft,
-  Logout,
-  Settings,
-} from 'tabler-icons-react';
-import { useLogoutMutation, useMeQuery } from '#redux/slices/auth.slice';
-import useStyles from './Navbar.styles';
-import { useEffect } from 'react';
-import { useAppDispatch } from '#redux/hooks';
+import { ChevronUp, Logout, Settings } from 'tabler-icons-react';
+import { useLogoutMutation } from '#redux/slices/auth.slice';
+import { useAppDispatch, useAppSelector } from '#redux/hooks';
 import { setIsAuth, setUser } from '#lib/redux/slices/user.slice';
 import { useRouter } from 'next/router';
 import { useDisclosure } from '@mantine/hooks';
+import useStyles from './Navbar.styles';
 
 const User = () => {
-  const { data, isLoading, isError, refetch } = useMeQuery();
-  const [logout] = useLogoutMutation();
-  const theme = useMantineTheme();
   const { classes } = useStyles();
+  const { user } = useAppSelector((state) => state.user);
+  const [logout] = useLogoutMutation();
+  const [opened, handlers] = useDisclosure(false);
+  const theme = useMantineTheme();
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const [opened, handlers] = useDisclosure(false);
-
-  useEffect(() => {
-    if (!isLoading && !isError && data) {
-      dispatch(setUser(data.user));
-      dispatch(setIsAuth(true));
-    } else if (isError) {
-      router.replace('/');
-    }
-  }, [data, dispatch, isError, isLoading, router]);
-
-  if (isLoading || !data) {
-    return (
-      <Center>
-        <Loader size="xl" />
-      </Center>
-    );
-  }
 
   return (
     <>
       <Menu
-        position="right"
+        position="top"
+        placement="end"
         sx={{ width: '100%' }}
         control={
-          <Box className={classes.box}>
-            <UnstyledButton className={classes.button}>
-              <Group>
-                <Avatar className={classes.avatar} radius="xl">
-                  {data.user.username[0]}
-                </Avatar>
-                <Box sx={{ flex: 1 }}>
-                  <Text size="sm" weight={500}>
-                    {data.user.username}
-                  </Text>
-                  <Text color="dimmed" size="xs">
-                    {data.user.email || 'No email linked to account.'}
-                  </Text>
-                </Box>
+          user ? (
+            <Box className={classes.box}>
+              <UnstyledButton className={classes.button}>
+                <Group>
+                  <Avatar className={classes.avatar} radius="xl">
+                    {user.username[0]}
+                  </Avatar>
+                  <Box sx={{ flex: 1 }}>
+                    <Text size="sm" weight={500}>
+                      {user.username}
+                    </Text>
+                    <Text color="dimmed" size="xs">
+                      {user.email || 'No email linked to account.'}
+                    </Text>
+                  </Box>
 
-                {theme.dir === 'ltr' ? (
-                  <ChevronRight size={18} />
-                ) : (
-                  <ChevronLeft size={18} />
-                )}
-              </Group>
-            </UnstyledButton>
-          </Box>
+                  <ChevronUp size={18} />
+                </Group>
+              </UnstyledButton>
+            </Box>
+          ) : (
+            <Skeleton visible></Skeleton>
+          )
         }
         opened={opened}
         onOpen={handlers.open}
@@ -96,7 +73,18 @@ const User = () => {
         <Divider />
 
         <Menu.Item
-          onClick={() => logout().unwrap().then(refetch)}
+          onClick={() =>
+            logout()
+              .unwrap()
+              .then(() => {
+                dispatch(setIsAuth(false));
+                dispatch(setUser(null));
+                router.push('/');
+              })
+              .catch(() => {
+                router.push('/');
+              })
+          }
           icon={<Logout size={14} />}
           sx={{
             color: theme.colors.red[5],

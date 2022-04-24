@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  CACHE_MANAGER,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -15,13 +17,18 @@ import {
   UserResponse,
 } from '@bliss/shared-types';
 import * as os from 'node:os';
-import { COOKIE_NAME, SLUG_TYPE } from '../lib/constants';
+import { COOKIE_NAME, INVITE_PREFIX, SLUG_TYPE } from '../lib/constants';
 import { File } from '@prisma/client';
 import { Request, Response } from 'express';
+import { SessionData } from 'express-session';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AuthService implements IAuthService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+  ) {}
 
   async me(id: number) {
     const user = await this.prismaService.user.findUnique({
@@ -32,6 +39,24 @@ export class AuthService implements IAuthService {
 
     delete user.password;
     return { user };
+  }
+
+  async getInvite(id: number) {
+    const user = await this.prismaService.user
+      .findUnique({
+        where: { id },
+        include: { invites: true },
+      })
+      .catch((err) => {
+        Logger.debug((err as Error).message, 'AuthService.getInvite');
+        throw new InternalServerErrorException('Something went wrong');
+      });
+
+    if (!user) throw new UnauthorizedException('Unauthorized.');
+
+    return {
+      invites: user.invites,
+    };
   }
 
   async files(
@@ -64,18 +89,21 @@ export class AuthService implements IAuthService {
   }
 
   async register(
+    session: SessionData,
     username: string,
     password: string,
+    invitation: string,
     email?: string
   ): Promise<UserResponse> {
-    const check = await this.prismaService.user
-      .findFirst({
+    const [check, inviteCheck] = await Promise.all([
+      this.prismaService.user.findFirst({
         where: { OR: [{ email }, { username }] },
-      })
-      .catch((err) => {
-        Logger.debug((err as Error).message, 'AuthService.register');
-        throw new InternalServerErrorException('Something went wrong');
-      });
+      }),
+      this.cacheManager.get<string>(INVITE_PREFIX + invitation),
+    ]).catch((err) => {
+      Logger.debug((err as Error).message, 'AuthService.register');
+      throw new InternalServerErrorException('Something went wrong');
+    });
 
     if (check)
       return {
@@ -91,23 +119,48 @@ export class AuthService implements IAuthService {
         ],
       };
 
+    if (!inviteCheck)
+      return {
+        error: [
+          {
+            field: 'invitation',
+            message: 'Invitation code is either invalid or expired',
+          },
+        ],
+      };
+
     const hashedPassword = await this.hashPassword(password);
     const token = this.generateToken(32);
 
-    const user = await this.prismaService.user.create({
-      data: {
-        email,
-        username,
-        token,
-        password: hashedPassword,
-      },
-      include: { files: true },
-    });
+    const [user] = await Promise.all([
+      this.prismaService.user.create({
+        data: {
+          email,
+          username,
+          token,
+          password: hashedPassword,
+        },
+        include: { files: true },
+      }),
+      this.cacheManager.del(INVITE_PREFIX + invitation),
+      this.prismaService.invite.update({
+        where: { code: invitation },
+        data: { usedBy: username },
+      }),
+    ]);
+
     delete user.password;
+
+    session.userId = user.id;
+
     return { user };
   }
 
-  async login(username: string, password: string): Promise<UserResponse> {
+  async login(
+    session: SessionData,
+    username: string,
+    password: string
+  ): Promise<UserResponse> {
     const user = username.includes('@')
       ? await this.prismaService.user.findUnique({
           where: { email: username },
@@ -150,19 +203,53 @@ export class AuthService implements IAuthService {
 
     delete user.password;
 
+    session.userId = user.id;
+
     return { user };
   }
 
-  logout(req: Request, res: Response): Promise<boolean> {
-    return new Promise((resolve) => {
-      req.session.destroy((err) => {
-        res.clearCookie(COOKIE_NAME);
-        if (err) {
-          resolve(false);
-        }
-        resolve(true);
-      });
+  logout(req: Request, res: Response): void {
+    req.session.destroy((err) => {
+      res.clearCookie(COOKIE_NAME);
+
+      if (err) return { success: false };
+
+      return { success: true };
     });
+  }
+
+  async createInvite(id: number) {
+    const USER_LIMIT = 2;
+
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+      include: { invites: true },
+    });
+
+    if (!user) throw new UnauthorizedException('Unauthorized.');
+
+    if (user.invites.length >= USER_LIMIT && !user.admin)
+      throw new BadRequestException('You have reached the invite limit.');
+
+    const code = this.generateToken(32);
+
+    const expire = 1000 * 60 * 60 * 24 * 7;
+
+    await Promise.all([
+      this.prismaService.invite.create({
+        data: {
+          code,
+          uid: id,
+          expiresAt: new Date(Date.now() + expire),
+        },
+      }),
+      this.cacheManager.set(INVITE_PREFIX + code, id, { ttl: expire / 1000 }),
+    ]).catch((err) => {
+      Logger.debug((err as Error).message, 'AuthService.createInvite');
+      throw new InternalServerErrorException('Something went wrong');
+    });
+
+    return { code };
   }
 
   async updateSlugType(type: SLUG_TYPE, id: number) {
@@ -228,7 +315,7 @@ export class AuthService implements IAuthService {
       Name: 'bliss',
       DestinationType: 'ImageUploader, FileUploader, TextUploader',
       RequestMethod: 'POST',
-      RequestURL: `${process.env.USE_HTTPS ? 'https' : 'http'}://${
+      RequestURL: `${process.env.USE_HTTPS === 'true' ? 'https' : 'http'}://${
         process.env.SERVER_DOMAIN
       }/upload`,
       Headers: {
@@ -236,8 +323,7 @@ export class AuthService implements IAuthService {
         Type: user.slugType,
       },
       URL: '$json:url$',
-      ThumbnailURL: '$json:thumbUrl$',
-      DeletionURL: '$json:deletionUrl$',
+      DeletionURL: '$json:delete$',
       ErrorMessage: '$json:error$',
       Body: 'MultipartFormData',
       FileFormName: 'file',

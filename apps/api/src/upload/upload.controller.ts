@@ -1,11 +1,7 @@
 import {
-  BadRequestException,
   Controller,
-  InternalServerErrorException,
-  Logger,
   Post,
   Req,
-  UnauthorizedException,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -26,57 +22,33 @@ export class UploadController {
     @UploadedFile() file: Express.Multer.File,
     @Req() req: Request
   ) {
-    const key = req.headers.authorization;
-    if (!key) throw new UnauthorizedException('Unauthorized');
-    const res = await this.uploadService.findUser(key);
-    if (res.error) throw new BadRequestException(res.error);
-
-    const data = await this.uploadService
-      .uploadFile(
-        file,
-        res.user.id,
-        (req.headers.type as string) ?? 'random',
-        (req.headers.uploader as 'sharex' | 'web') ?? 'sharex',
-        Boolean(req.headers.preserve) ?? false
-      )
-      .catch((e) => {
-        Logger.debug((e as Error).message);
-        throw new InternalServerErrorException('Internal Server Error');
-      });
-
-    Logger.debug(
-      `[UID ${res.user.id}] - ${res.user.username} uploaded file ${file.originalname}`,
-      'UploadController'
-    );
-
-    return data;
+    return this.uploadService.uploadFile(file, req);
   }
 
-  @SkipThrottle()
-  @Post()
-  @UseInterceptors(FileInterceptor('files'))
-  async uploadFiles(
-    @UploadedFile() files: Express.Multer.File[],
-    @Req() req: Request
-  ) {
-    const key = req.headers.authorization;
-    if (!key) throw new UnauthorizedException('Unauthorized');
-    const res = await this.uploadService.findUser(key);
-    if (res.error) throw new BadRequestException(res.error);
+  // @SkipThrottle()
+  // @Post()
+  // @UseInterceptors(FileInterceptor('files'))
+  // async uploadFiles(
+  //   @UploadedFile() files: Express.Multer.File[],
+  //   @Req() req: Request
+  // ) {
+  //   const key = req.headers.authorization;
+  //   if (!key) throw new UnauthorizedException('Unauthorized');
+  //   const user = await this.uploadService.findUser(key);
 
-    const promises = files.map(async (file) => {
-      const data = await this.uploadService.uploadFile(
-        file,
-        res.user.id,
-        (req.headers.type as string) ?? 'random',
-        (req.headers.uploader as 'sharex' | 'web') ?? 'sharex',
-        Boolean(req.headers.perverse) ?? false
-      );
-      return data;
-    });
+  //   const promises = files.map(async (file) => {
+  //     const data = await this.uploadService.uploadFile(
+  //       file,
+  //       user.id,
+  //       (req.headers.type as string) ?? 'random',
+  //       (req.headers.uploader as 'sharex' | 'web') ?? 'sharex',
+  //       Boolean(req.headers.perverse) ?? false
+  //     );
+  //     return data;
+  //   });
 
-    const data = await Promise.all(promises);
+  //   const data = await Promise.all(promises);
 
-    return data;
-  }
+  //   return data;
+  // }
 }

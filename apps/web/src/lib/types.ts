@@ -1,5 +1,5 @@
 import { PaginationPayload } from '@bliss/shared-types';
-import { File } from '@prisma/client';
+import { File as PrismaFile } from '@prisma/client';
 import { NextPage } from 'next';
 import { AppProps } from 'next/app';
 import { ReactElement, ReactNode } from 'react';
@@ -63,7 +63,7 @@ export interface FileProps {
   page: number;
   isLoading: boolean;
   isFetching: boolean;
-  files: PaginationPayload<File>;
+  files: PaginationPayload<PrismaFile>;
   setPage: (page: number) => void;
 }
 
@@ -84,3 +84,7 @@ export interface ShareXConfig {
   Body: string;
   FileFormName: string;
 }
+
+export type FileWithProgress = File & {
+  progress: number;
+};

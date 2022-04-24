@@ -1,22 +1,17 @@
 import { MantineTheme, SimpleGrid } from '@mantine/core';
 import { FC, memo } from 'react';
 import dynamic from 'next/dynamic';
-import { File as PrismaFile } from '@prisma/client';
+import { FileWithProgress } from '#lib/types';
 const UploadCard = memo(dynamic(import('./UploadCard')));
 
 interface UploadGridProps {
-  files: File[];
+  files: FileWithProgress[];
   theme: MantineTheme;
-  progress: number[];
-  success: PrismaFile[];
 }
 
-const UploadGrid: FC<UploadGridProps> = ({
-  files,
-  progress,
-  success,
-  theme,
-}) => {
+const UploadGrid: FC<UploadGridProps> = ({ files, theme }) => {
+  console.log(files);
+
   return (
     <SimpleGrid
       cols={3}
@@ -24,19 +19,12 @@ const UploadGrid: FC<UploadGridProps> = ({
       sx={{ placeItems: 'center' }}
       breakpoints={[
         { maxWidth: 'sm', cols: 1 },
-        { maxWidth: 'md', cols: 2 },
+        { maxWidth: 'md', cols: 1 },
         { maxWidth: 'lg', cols: 3 },
       ]}
     >
       {files.map((file, index) => (
-        <UploadCard
-          key={index}
-          file={file}
-          index={index}
-          progress={progress}
-          success={success}
-          theme={theme}
-        />
+        <UploadCard key={index} file={file} theme={theme} />
       ))}
     </SimpleGrid>
   );

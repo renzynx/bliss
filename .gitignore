@@ -43,3 +43,5 @@ Thumbs.db
 
 /uploads/*
 !/uploads/placeholder.md
+
+/.yarn/install-state.gz

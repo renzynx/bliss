@@ -26,11 +26,29 @@ const FileView = ({ file }: { file: PrismaFile }) => {
   return (
     <Box className={classes.card}>
       <Center className={classes.imgContainer}>
-        <Image
-          src={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
-          alt={file.originalName}
-          sx={{ width: '90%' }}
-        />
+        {file.mimetype.includes('image') ? (
+          <Image
+            src={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
+            alt={file.originalName}
+            sx={{ width: '90%' }}
+          />
+        ) : file.mimetype.includes('video') ? (
+          <video
+            style={{ width: '90%' }}
+            src={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
+            controls
+          />
+        ) : file.mimetype.includes('audio') ? (
+          <audio
+            style={{ width: '90%' }}
+            src={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
+            controls
+          />
+        ) : (
+          <Text align="center" size="lg" weight="semibold">
+            This file can&apos;t be previewed.
+          </Text>
+        )}
       </Center>
       <Box className={classes.textContainer}>
         <Text weight="bold" lineClamp={1}>

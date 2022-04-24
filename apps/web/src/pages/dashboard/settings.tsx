@@ -1,18 +1,21 @@
 import dynamic from 'next/dynamic';
 import Shell from '#layouts/Shell';
-import { ReactElement } from 'react';
+import { useAuth } from '#lib/hooks/useAuth';
+import Loading from '#components/Loading';
 const UpdateSettings = dynamic(import('#components/UpdateSettings'));
 
 const Settings = () => {
+  const { data } = useAuth();
+
+  if (!data) return <Loading />;
+
   return (
     <>
-      <UpdateSettings />
+      <Shell>
+        <UpdateSettings />
+      </Shell>
     </>
   );
-};
-
-Settings.getLayout = function getLayout(page: ReactElement) {
-  return <Shell>{page}</Shell>;
 };
 
 export default Settings;
