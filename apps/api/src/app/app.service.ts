@@ -8,7 +8,7 @@ import {
 import { File } from '@prisma/client';
 import { Cache } from 'cache-manager';
 import { IAppService } from '../lib/interfaces';
-import { pathExists, readFile } from 'fs-extra';
+import { createReadStream, pathExists } from 'fs-extra';
 import { join } from 'path';
 import { UPLOAD_DIR } from '../lib/constants';
 import { Response } from 'express';
@@ -25,12 +25,9 @@ export class AppService implements IAppService {
   }
 
   async getFromLocal(slug: string, res: Response, download?: string) {
-    const [data, exists] = await Promise.all([
-      this.cacheManager.get<string>(slug),
-      pathExists(join(UPLOAD_DIR, slug)),
-    ]);
+    const data = await this.cacheManager.get<string>(slug);
 
-    if (!data || !exists) throw new NotFoundException('File not found');
+    if (!data) throw new NotFoundException('File not found');
 
     const file: File = JSON.parse(data);
 
@@ -48,7 +45,7 @@ export class AppService implements IAppService {
       );
     }
 
-    const f = await readFile(join(UPLOAD_DIR, slug));
+    const f = createReadStream(join(UPLOAD_DIR, slug));
 
     return new StreamableFile(f, {
       length: file.size,
