@@ -1,10 +1,19 @@
 import { bytesToSize } from '@bliss/shared-types';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ViewService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+  ) {}
 
   async getFile(slug: string) {
     const file = await this.prismaService.file.findFirst({
@@ -14,12 +23,13 @@ export class ViewService {
 
     if (!file) throw new NotFoundException('File not found');
 
-    await this.prismaService.file.update({
-      where: { id: file.id },
-      data: { views: { increment: 1 } },
-    });
-
-    const user = file.user;
+    const [user] = await Promise.all([
+      this.prismaService.user.findUnique({ where: { id: file.uid } }),
+      this.prismaService.file.update({
+        where: { id: file.id },
+        data: { views: { increment: 1 } },
+      }),
+    ]);
 
     delete user.password;
 
@@ -49,5 +59,29 @@ export class ViewService {
       uploadedAt: file.createdAt,
       view: file.views,
     };
+  }
+
+  async getOembed(slug: string) {
+    const file = await this.prismaService.file.findFirst({
+      where: { slug },
+      include: { user: true },
+    });
+
+    if (!file) throw new NotFoundException('File not found');
+
+    return {
+      type: 'link',
+      version: '1.0',
+      author_name: file.user.username,
+      author_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      provider_name: 'Bliss',
+      provider_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      title: file.originalName,
+      url: `${this.getProtocol()}://${process.env.SERVER_DOMAIN}/${slug}`,
+    };
+  }
+
+  private getProtocol() {
+    return process.env.USE_HTTPS === 'true' ? 'https' : 'http';
   }
 }

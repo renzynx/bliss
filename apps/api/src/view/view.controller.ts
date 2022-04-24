@@ -10,4 +10,9 @@ export class ViewController {
   getFile(@Param() { slug }: { slug: string }) {
     return this.viewService.getFile(slug);
   }
+
+  @Get(':slug/oembed')
+  oEmbed(@Param() { slug }: { slug: string }) {
+    return this.viewService.getOembed(slug);
+  }
 }
