@@ -91,10 +91,14 @@ export class UploadService implements IUploadService {
       'UploadController'
     );
 
+    const url = user.useEmbed
+      ? `${process.env.WEB_DOMAIN}/${slug}`
+      : `${this.getProtocol()}://${process.env.SERVER_DOMAIN}/${slug}`;
+
     return uploader === 'web'
       ? JSON.stringify(data)
       : {
-          url: `${this.getProtocol()}://${process.env.SERVER_DOMAIN}/${slug}`,
+          url,
           delete: `${this.getProtocol()}://${
             process.env.SERVER_DOMAIN
           }/delete/${data.deleteToken}`,
@@ -145,10 +149,14 @@ export class UploadService implements IUploadService {
       'UploadController'
     );
 
+    const url = user.useEmbed
+      ? `${process.env.WEB_DOMAIN}/${slug}`
+      : `${this.getProtocol()}://${process.env.SERVER_DOMAIN}/${slug}`;
+
     return uploader === 'web'
       ? JSON.stringify(data)
       : {
-          url: `${this.getProtocol()}://${process.env.SERVER_DOMAIN}/${slug}`,
+          url,
           delete: `${this.getProtocol()}://${
             process.env.SERVER_DOMAIN
           }/delete/${data.deleteToken}`,
