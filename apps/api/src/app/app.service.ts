@@ -34,7 +34,7 @@ export class AppService implements IAppService {
     res
       .header('Accept-Ranges', 'bytes')
       .header('Content-Type', file.mimetype)
-      .header('Content-Length', file.toString());
+      .header('Content-Length', file.size.toString());
 
     if (download) {
       res.setHeader(
