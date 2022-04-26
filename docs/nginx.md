@@ -5,7 +5,7 @@ You need to make sure that
 - `backend` and `frontend` port matched your config.
 - Replace `your.domain` to your actual domain.
 
-```conf
+```nginx
 upstream backend {
     server 127.0.0.1:3333;
 }
@@ -35,7 +35,7 @@ server {
 }
 ```
 
-```conf
+```nginx
 upstream frontend {
     server 127.0.0.1:4200;
 }
