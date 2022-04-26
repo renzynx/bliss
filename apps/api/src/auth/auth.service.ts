@@ -315,9 +315,7 @@ export class AuthService implements IAuthService {
       Name: 'bliss',
       DestinationType: 'ImageUploader, FileUploader, TextUploader',
       RequestMethod: 'POST',
-      RequestURL: `${process.env.USE_HTTPS === 'true' ? 'https' : 'http'}://${
-        process.env.SERVER_DOMAIN
-      }/upload`,
+      RequestURL: `${process.env.NEXT_PUBLIC_API_URL}/upload`,
       Headers: {
         Authorization: user.token,
         Type: user.slugType,

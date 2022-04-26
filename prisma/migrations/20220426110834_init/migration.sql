@@ -10,10 +10,13 @@ CREATE TABLE "users" (
     "slug_type" TEXT NOT NULL DEFAULT E'random',
     "admin" BOOLEAN NOT NULL DEFAULT false,
     "use_embed" BOOLEAN NOT NULL DEFAULT false,
-    "embed_site_name" TEXT DEFAULT E'Bliss',
+    "embed_site_name" TEXT NOT NULL DEFAULT E'Bliss',
+    "embed_site_url" TEXT,
+    "author_name" TEXT,
+    "author_url" TEXT,
     "embed_title" TEXT,
     "embed_color" TEXT NOT NULL DEFAULT E'#808bed',
-    "embedDesc" TEXT,
+    "embed_desc" TEXT,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -26,6 +29,7 @@ CREATE TABLE "files" (
     "mimetype" TEXT NOT NULL,
     "size" INTEGER NOT NULL,
     "slug" TEXT NOT NULL,
+    "views" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "delete_token" TEXT NOT NULL,
@@ -54,6 +58,9 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_token_key" ON "users"("token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_author_name_key" ON "users"("author_name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "files_delete_token_key" ON "files"("delete_token");

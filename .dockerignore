@@ -1,0 +1,6 @@
+node_modules
+dist
+.yarn/cache
+.yarn/install-state.gz
+.vscode
+apps/web-e2e

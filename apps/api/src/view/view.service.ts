@@ -77,7 +77,7 @@ export class ViewService {
       provider_name: 'Bliss',
       provider_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
       title: file.originalName,
-      url: `${this.getProtocol()}://${process.env.SERVER_DOMAIN}/${slug}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/${slug}`,
     };
   }
 

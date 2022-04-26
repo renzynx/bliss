@@ -5,14 +5,12 @@
   "scripts": {
     "start": "nx serve",
     "build": "nx build",
-    "start:all": "nx run-many --target=serve --all",
+    "start:all": "prisma migrate deploy && nx run-many --target=serve --all --prod",
     "build:all": "nx run-many --target=build --all --prod",
-    "test": "nx test",
-    "build:seed": "tsc ./apps/api/prisma/seed.ts"
+    "test": "nx test"
   },
   "prisma": {
-    "seed": "node ./apps/api/prisma/seed.js",
-    "schema": "./apps/api/prisma/schema.prisma"
+    "seed": "node ./prisma/seed.js"
   },
   "private": true,
   "devDependencies": {
@@ -102,5 +100,6 @@
   "resolutions": {
     "@types/react": "17.0.2",
     "@types/react-dom": "17.0.2"
-  }
+  },
+  "packageManager": "yarn@3.2.0"
 }

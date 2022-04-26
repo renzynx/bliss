@@ -21,10 +21,13 @@ model User {
   slugType      String   @default("random") @map("slug_type")
   admin         Boolean  @default(false)
   useEmbed      Boolean  @default(false) @map("use_embed")
-  embedSiteName String?  @default("Bliss") @map("embed_site_name")
+  embedSiteName String   @default("Bliss") @map("embed_site_name")
+  embedSiteUrl  String?  @map("embed_site_url")
+  authorName    String?  @unique @map("author_name")
+  authorUrl     String?  @map("author_url")
   embedTitle    String?  @map("embed_title")
   embedColor    String   @default("#808bed") @map("embed_color")
-  embedDesc     String?
+  embedDesc     String?  @map("embed_desc")
   files         File[]
   invites       Invite[]
 

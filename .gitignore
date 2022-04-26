@@ -44,4 +44,11 @@ Thumbs.db
 /uploads/*
 !/uploads/placeholder.md
 
-/.yarn/install-state.gz
+!/.yarn/plugins
+!/.yarn/releases
+
+# docker database folder
+postgres
+
+# docker redis cache folder
+cache

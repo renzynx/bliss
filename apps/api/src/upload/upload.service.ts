@@ -93,15 +93,13 @@ export class UploadService implements IUploadService {
 
     const url = user.useEmbed
       ? `${process.env.WEB_DOMAIN}/${slug}`
-      : `${this.getProtocol()}://${process.env.SERVER_DOMAIN}/${slug}`;
+      : `${process.env.NEXT_PUBLIC_API_URL}/${slug}`;
 
     return uploader === 'web'
       ? JSON.stringify(data)
       : {
           url,
-          delete: `${this.getProtocol()}://${
-            process.env.SERVER_DOMAIN
-          }/delete/${data.deleteToken}`,
+          delete: `${process.env.NEXT_PUBLIC_API_URL}/delete/${data.deleteToken}`,
         };
   }
 
@@ -151,15 +149,13 @@ export class UploadService implements IUploadService {
 
     const url = user.useEmbed
       ? `${process.env.WEB_DOMAIN}/${slug}`
-      : `${this.getProtocol()}://${process.env.SERVER_DOMAIN}/${slug}`;
+      : `${process.env.NEXT_PUBLIC_API_URL}/${slug}`;
 
     return uploader === 'web'
       ? JSON.stringify(data)
       : {
           url,
-          delete: `${this.getProtocol()}://${
-            process.env.SERVER_DOMAIN
-          }/delete/${data.deleteToken}`,
+          delete: `${process.env.NEXT_PUBLIC_API_URL}/delete/${data.deleteToken}`,
         };
   }
 
