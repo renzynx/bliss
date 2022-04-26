@@ -16,7 +16,7 @@ Bliss is a file uploader service that aims to be easy to use and setup. It's des
 <br>
 1. Have docker and docker-compose installed (if you don't know what docker is <a href="https://docs.docker.com/">click here</a>.
 <br>
-2. Clone this repo git clone -b dev --recursive https://github.com/renzynx/bliss.git && cd bliss
+2. Clone this repo <code>git clone -b dev --recursive https://github.com/renzynx/bliss.git && cd bliss</code>
 <br>
 3. Run <code>cp .env.example .env</code> and fill out the credentials.
 <br>
