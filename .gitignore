@@ -48,7 +48,4 @@ Thumbs.db
 !/.yarn/releases
 
 # docker database folder
-postgres
-
-# docker redis cache folder
-cache
+database
