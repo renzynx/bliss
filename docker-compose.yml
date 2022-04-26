@@ -35,14 +35,12 @@ services:
     container_name: bliss
     working_dir: /app
     restart: always
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    image: renzynx/bliss
     ports:
       - 3333:3333
       - 4200:4200
     volumes:
-      - ../uploads:/app/uploads
+      - ./uploads:/app/uploads
     depends_on:
       database:
         condition: service_healthy
