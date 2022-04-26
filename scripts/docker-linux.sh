@@ -13,7 +13,9 @@ echo "This may take a while..."
 
 docker-compose up -d && \
     echo "Bliss is running" && \
-    echo "Seeding database" && \
+    echo "Migrating database..." && \
+    docker-compose exec renzynx yarn prisma migrate deploy && \
+    echo "Seeding database..." && \
     docker-compose exec renzynx yarn prisma db seed
 
 echo "Successfully installed Bliss"
