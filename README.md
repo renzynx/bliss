@@ -14,10 +14,10 @@ Bliss is a file uploader service that aims to be easy to use and setup. It's des
 <details>
 <summary>Expand for Docker/Docker Compose installation steps</summary>
 <br>
-1. Have docker and docker-compose installed (if you don't know what docker is [click here](https://docs.docker.com/)),
-2. Clone this repo git clone -b dev --recursive https://github.com/renzynx/bliss.git && cd bliss
-3. Run `cp .env.example .env` and fill out the credentials.
-4. Run the command that corresponds to your OS:
+- Have docker and docker-compose installed (if you don't know what docker is [click here](https://docs.docker.com/)),
+- Clone this repo git clone -b dev --recursive https://github.com/renzynx/bliss.git && cd bliss
+- Run <code>cp .env.example .env</code> and fill out the credentials.
+- Run the command that corresponds to your OS:
 <ul>
     <li>
         Linux: ./scripts/docker-linux.sh
@@ -32,15 +32,18 @@ Bliss is a file uploader service that aims to be easy to use and setup. It's des
 </details>
 
 <details>
+
+### Manual
+
 <summary>Expand for manual installation steps</summary>
 <br>
-1. You need to have NodeJS 16 or higher installed.
-2. Clone this repo git clone -b dev --recursive https://github.com/renzynx/bliss.git && cd bliss
-3. Run `yarn install` or `npm install`.
-4. Fill out the credentials by coping the `.env.example` to `.env`.
-5. Run `yarn build:all` or `npm run build:all`.
-6. Migrate the database with `yarn prisma migrate deploy` or `yarn prisma db push` if you having some problem.
-7. Run `yarn start:all` or `npm run start:all` to start Bliss.
+- You need to have NodeJS 16 or higher installed.
+- Clone this repo git clone -b dev --recursive https://github.com/renzynx/bliss.git && cd bliss
+- Run `yarn install` or `npm install`.
+- Fill out the credentials by coping the `.env.example` to `.env`.
+- Run `yarn build:all` or `npm run build:all`.
+- Migrate the database with `yarn prisma migrate deploy` or `yarn prisma db push` if you having some problem.
+- Run `yarn start:all` or `npm run start:all` to start Bliss.
 </details>
 
 ## Nginx SSL Setup
