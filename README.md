@@ -11,7 +11,7 @@ Bliss is a file uploader service that aims to be easy to use and setup. It's des
 
 ### Docker
 
-<detail>
+<details>
 <summary>Expand for Docker/Docker Compose installation steps</summary>
 <br>
 1. Have docker and docker-compose installed (if you don't know what docker is [click here](https://docs.docker.com/)),
@@ -29,9 +29,9 @@ Bliss is a file uploader service that aims to be easy to use and setup. It's des
         These scripts are identical using the equivalent commands in each OS.
     </li>
 </ul>
-</detail>
+</details>
 
-<detail>
+<details>
 <summary>Expand for manual installation steps</summary>
 <br>
 1. You need to have NodeJS 16 or higher installed.
@@ -41,7 +41,7 @@ Bliss is a file uploader service that aims to be easy to use and setup. It's des
 5. Run `yarn build:all` or `npm run build:all`.
 6. Migrate the database with `yarn prisma migrate deploy` or `yarn prisma db push` if you having some problem.
 7. Run `yarn start:all` or `npm run start:all` to start Bliss.
-</detail>
+</details>
 
 ## Nginx SSL Setup
 
