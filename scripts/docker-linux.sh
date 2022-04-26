@@ -2,7 +2,7 @@
 
 echo "Installing Bliss..."
 
-if [ ! -f ../.env ]; then
+if [ ! -f .env ]; then
     cp .env.example .env
     echo "Please edit .env file and run the script again"
     exit 1
