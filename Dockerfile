@@ -8,7 +8,7 @@ COPY ./prisma ./prisma/
 
 RUN yarn install 
 
-COPY .. .
+COPY . .
 
 FROM node:lts-alpine 
 

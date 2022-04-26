@@ -35,7 +35,9 @@ services:
     container_name: bliss
     working_dir: /app
     restart: always
-    image: renzynx/bliss
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     ports:
       - 3333:3333
       - 4200:4200
