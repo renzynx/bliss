@@ -15,16 +15,18 @@ declare module 'express-session' {
 }
 
 async function bootstrap() {
-  await ensureDir(UPLOAD_DIR);
+  (process.env.USE_S3 === 'false' || !process.env.USE_S3) &&
+    (await ensureDir(UPLOAD_DIR));
   const redisStore = connectRedis(session);
   const client = createClient({ url: process.env.REDIS_URL, legacyMode: true });
   await client.connect();
-  const store = new redisStore({ client, disableTouch: true });
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
   app.useGlobalPipes(new ValidationPipe());
-  app.use(session(SESSION_OPTIONS(store)));
+  app.use(
+    session(SESSION_OPTIONS(new redisStore({ client, disableTouch: true })))
+  );
   app.enableCors({
     credentials: true,
     origin: process.env.WEB_DOMAIN,

@@ -7,6 +7,7 @@
     "build": "nx build",
     "start:all": "prisma migrate deploy && nx run-many --target=serve --all --prod",
     "build:all": "nx run-many --target=build --all --prod",
+    "dev": "nx run-many --target=serve --all",
     "test": "nx test"
   },
   "prisma": {

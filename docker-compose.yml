@@ -31,10 +31,11 @@ services:
     volumes:
       - ./database/postgres:/var/lib/postgresql/data
 
-  renzynx:
-    container_name: bliss
+  bliss:
+    container_name: bliss_app
     working_dir: /app
     restart: always
+    image: renzynx/bliss
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -51,6 +52,19 @@ services:
     env_file:
       - .env
 volumes:
-  cache:
-  postgres:
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./database
+      o: bind
+      device_type: tmpfs
+      tmpfs_size: 100m
   uploads:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./uploads
+      o: bind
+      device_type: tmpfs
+      tmpfs_size: 100m

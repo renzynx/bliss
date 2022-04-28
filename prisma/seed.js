@@ -22,6 +22,7 @@ const { randomBytes } = require('crypto');
         username: 'admin',
         password: hashedPassword,
         token: randomBytes(32).toString('hex'),
+        admin: true,
       },
     });
 

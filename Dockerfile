@@ -29,4 +29,3 @@ RUN yarn build:all
 EXPOSE 3333 4200
 
 CMD [ "yarn", "run", "start:all" ]
-
