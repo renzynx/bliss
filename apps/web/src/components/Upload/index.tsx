@@ -28,7 +28,7 @@ const Upload = () => {
             });
           }}
           onReject={(files) => alert(`${files.length} file(s) rejected`)}
-          maxSize={3 * 1024 ** 2}
+          maxSize={10 * 5 * 1024 ** 2}
           accept={ACCEPT_TYPE}
           multiple
         >

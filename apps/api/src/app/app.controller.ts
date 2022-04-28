@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Query, Res } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
+import { Response, Request } from 'express';
 import { AppService } from './app.service';
 import { Throttle } from '@nestjs/throttler';
 
@@ -10,10 +10,16 @@ export class AppController {
   @Throttle(100, 60)
   @Get(':slug')
   async streamFile(
-    @Param() { slug }: { slug: string },
     @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
+    @Param() { slug }: { slug: string },
     @Query('download') download?: string
   ) {
-    return this.appService.getFile(slug, res, download);
+    return this.appService.getFile(slug, res, req, download);
+  }
+
+  @Get(':slug/oembed')
+  OEmbedJSON(@Param() { slug }: { slug: string }) {
+    return this.appService.getFileJSON(slug);
   }
 }

@@ -41,7 +41,6 @@ model File {
   mimetype     String
   size         Int
   slug         String
-  views        Int      @default(0)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   deleteToken  String   @unique @default(cuid()) @map("delete_token")

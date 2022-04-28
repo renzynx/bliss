@@ -10,7 +10,7 @@ import {
 } from '@mantine/core';
 import { FC } from 'react';
 import { CloudDownload } from 'tabler-icons-react';
-import { View } from '@bliss/shared-types';
+import { bytesToSize, View } from '@bliss/shared-types';
 
 const View: FC<{ data: View; slug: string }> = ({ data, slug }) => {
   return (
@@ -38,7 +38,7 @@ const View: FC<{ data: View; slug: string }> = ({ data, slug }) => {
         })}
       >
         <Box mb="md">
-          <Title order={2}>{data.original_name}</Title>
+          <Title order={2}>{data.original}</Title>
           <Title order={5}>
             {data.filename}
 
@@ -50,7 +50,7 @@ const View: FC<{ data: View; slug: string }> = ({ data, slug }) => {
                 display: 'inline-block',
               }}
             >
-              ({data.formatted_size})
+              ({bytesToSize(parseInt(data.size))})
             </Text>
           </Title>
         </Box>
@@ -61,9 +61,10 @@ const View: FC<{ data: View; slug: string }> = ({ data, slug }) => {
               maxWidth: '100%',
               maxHeight: '75vh',
               width: 'auto',
+              position: 'relative',
             }}
             src={`${process.env.NEXT_PUBLIC_API_URL}/${slug}`}
-            alt={data.original_name}
+            alt={data.original}
           />
         ) : data.type.includes('video') ? (
           <video
@@ -73,11 +74,13 @@ const View: FC<{ data: View; slug: string }> = ({ data, slug }) => {
               maxHeight: '75vh',
               width: 'auto',
             }}
-            src={`${process.env.NEXT_PUBLIC_API_URL}/${slug}`}
+            src={data.url}
             controls
           />
         ) : data.type.includes('audio') ? (
-          <audio src={`${process.env.NEXT_PUBLIC_API_URL}/${slug}`} controls />
+          <>
+            <audio src={data.url} controls />
+          </>
         ) : (
           <Text align="center" size="lg" weight="semibold">
             This file can&apos;t be previewed.
@@ -104,18 +107,6 @@ const View: FC<{ data: View; slug: string }> = ({ data, slug }) => {
               }}
             >
               {new Date(data.uploadedAt).toLocaleString()}
-            </Text>
-          </Title>
-          <Title order={5}>
-            View:{' '}
-            <Text
-              inherit
-              color="dimmed"
-              sx={{
-                display: 'inline-block',
-              }}
-            >
-              {data.view}
             </Text>
           </Title>
           <Group mt="md">

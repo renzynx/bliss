@@ -17,6 +17,7 @@ import { UploadResponse } from '@bliss/shared-types';
 import { Cache } from 'cache-manager';
 import { S3Service } from '../s3/s3.service';
 import { Request } from 'express';
+import { outputJson } from 'fs-extra';
 
 @Injectable()
 export class UploadService implements IUploadService {
@@ -27,19 +28,15 @@ export class UploadService implements IUploadService {
   ) {}
 
   async findUser(token: string): Promise<User> {
-    const user = await this.prismaService.user
-      .findUnique({
-        where: { token },
-        include: { files: true },
-      })
-      .catch((err) => {
-        Logger.error((err as Error).message, 'UploadService.findUser');
-        throw new InternalServerErrorException('Something went wrong');
-      });
+    const user = await this.prismaService.user.findUnique({
+      where: { token },
+      include: { files: true },
+    });
 
-    if (!user) throw new UnauthorizedException('No user found');
+    if (!user) return null;
 
     delete user.password;
+
     return user;
   }
 
@@ -47,7 +44,7 @@ export class UploadService implements IUploadService {
     file: Express.Multer.File,
     req: Request
   ): Promise<UploadResponse | string> {
-    return process.env.USE_S3
+    return process.env.USE_S3 === 'true'
       ? this.uploadToS3(file, req)
       : this.uploadToLocal(file, req);
   }
@@ -67,8 +64,14 @@ export class UploadService implements IUploadService {
 
     const uploader = req.headers.uploader as 'sharex' | 'web';
 
-    const [obj, data] = await Promise.all([
-      this.s3Service.s3_upload(file, slug),
+    await this.s3Service.s3_upload(user.username, file, slug).catch((e) => {
+      Logger.debug((e as Error).message, 'UploadService.uploadToS3');
+      throw new InternalServerErrorException(
+        `Failed to upload ${file.originalname}, please try again later.`
+      );
+    });
+
+    const [data] = await Promise.all([
       this.prismaService.file.create({
         data: {
           fileName: slug + '.' + file.originalname.split('.').pop(),
@@ -78,13 +81,15 @@ export class UploadService implements IUploadService {
           uid,
           slug,
         },
+        include: { user: true },
       }),
+      this.generateOEmbed(user, slug),
     ]).catch((err) => {
       Logger.error((err as Error).message, 'UploadService.uploadToS3');
       throw new InternalServerErrorException('Something went wrong');
     });
 
-    await this.cacheManger.set(slug, obj.Location);
+    await this.updateCache(data);
 
     Logger.debug(
       `[UID ${user.id}] - ${user.username} uploaded file ${file.originalname}`,
@@ -119,6 +124,13 @@ export class UploadService implements IUploadService {
 
     const uploader = req.headers.uploader as 'sharex' | 'web';
 
+    await writeFile(join(UPLOAD_DIR, slug), file.buffer).catch((e) => {
+      Logger.debug((e as Error).message, 'UploadService.uploadFile');
+      throw new InternalServerErrorException(
+        `Failed to upload ${file.originalname}, please try again later.`
+      );
+    });
+
     const [data] = await Promise.all([
       this.prismaService.file.create({
         data: {
@@ -131,13 +143,12 @@ export class UploadService implements IUploadService {
           slug,
           uid,
         },
+        include: { user: true },
       }),
-      writeFile(join(UPLOAD_DIR, slug), file.buffer),
-    ]).catch((e) => {
-      Logger.debug((e as Error).message, 'UploadService.uploadFile');
-      throw new InternalServerErrorException(
-        'Something went wrong, please try again later.'
-      );
+      this.generateOEmbed(user, slug),
+    ]).catch((err) => {
+      Logger.error((err as Error).message, 'UploadService.uploadToLocal');
+      throw new InternalServerErrorException('Something went wrong');
     });
 
     await this.updateCache(data);
@@ -159,8 +170,27 @@ export class UploadService implements IUploadService {
         };
   }
 
-  getProtocol() {
-    return process.env.USE_HTTPS === 'true' ? 'https' : 'http';
+  generateOEmbed(user: User, slug: string) {
+    const JSON_DATA = {
+      type: 'link',
+      version: '1.0',
+      provider_name: user.embedSiteName,
+      provider_url: user.embedSiteUrl,
+      author_name: user.authorName,
+      author_url: user.authorUrl,
+    };
+
+    return outputJson(
+      join(UPLOAD_DIR, `${slug}.json`),
+      JSON_DATA,
+      {},
+      (err) => {
+        if (err) {
+          Logger.error((err as Error).message, 'UploadService.generateOEmbed');
+          throw new InternalServerErrorException('Something went wrong');
+        }
+      }
+    );
   }
 
   getSlug(slugType: string) {
@@ -171,8 +201,21 @@ export class UploadService implements IUploadService {
       : this.generateSlug(SLUG_TYPE.RANDOM);
   }
 
-  updateCache(file: File) {
-    return this.cacheManger.set(file.slug, JSON.stringify(file));
+  updateCache(file: File & { user: User }) {
+    delete file.user.password;
+
+    const data = {
+      ...file,
+      url: `${
+        process.env.USE_S3 === 'true'
+          ? process.env.S3_CDN_URL
+            ? process.env.S3_CDN_URL
+            : process.env.S3_ENDPOINT
+          : process.env.NEXT_PUBLIC_API_URL
+      }/${file.user.username}/${file.fileName}`,
+    };
+
+    return this.cacheManger.set(file.slug, JSON.stringify(data));
   }
 
   generateSlug(type: SLUG_TYPE, length = 12) {

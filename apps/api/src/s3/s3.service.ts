@@ -3,12 +3,11 @@ import { S3, Endpoint, Credentials } from 'aws-sdk';
 
 @Injectable()
 export class S3Service {
-  private readonly AWS_S3_BUCKET = process.env.S3_BUCKET;
   private readonly s3 =
     process.env.USE_S3 &&
     new S3({
       region: process.env.S3_REGION,
-      s3ForcePathStyle: Boolean(process.env.S3_FORCE_PATH_STYLE),
+      s3ForcePathStyle: true,
       endpoint: new Endpoint(process.env.S3_ENDPOINT),
       credentials: new Credentials({
         accessKeyId: process.env.S3_ACCESS_KEY_ID,
@@ -16,9 +15,9 @@ export class S3Service {
       }),
     });
 
-  s3_upload(file: Express.Multer.File, slug: string) {
+  s3_upload(bucket: string, file: Express.Multer.File, slug: string) {
     const params: S3.PutObjectRequest = {
-      Bucket: this.AWS_S3_BUCKET,
+      Bucket: bucket,
       Key: slug + '.' + file.originalname.split('.').pop(),
       Body: file.buffer,
       ACL: 'public-read',
@@ -29,9 +28,9 @@ export class S3Service {
     return this.s3.upload(params).promise();
   }
 
-  s3_delete(filename: string) {
+  s3_delete(filename: string, bucket: string) {
     const params: S3.DeleteObjectRequest = {
-      Bucket: this.AWS_S3_BUCKET,
+      Bucket: bucket,
       Key: filename,
     };
 

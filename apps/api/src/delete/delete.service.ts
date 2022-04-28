@@ -41,6 +41,7 @@ export class DeleteService {
         where: { deleteToken: token },
       }),
       unlink(join(UPLOAD_DIR, file.slug)),
+      unlink(join(UPLOAD_DIR, file.slug + '.json')),
       this.cacheManager.del(file.slug),
     ]).catch((err) => {
       Logger.error((err as Error).message, 'DeleteService.deleteFile');
@@ -55,16 +56,16 @@ export class DeleteService {
   async deleteFileFromS3(token: string) {
     const file = await this.prismaService.file.findUnique({
       where: { deleteToken: token },
+      include: { user: true },
     });
 
     if (!file) throw new NotFoundException('File not found');
 
     await Promise.all([
-      this.prismaService.file.delete({
-        where: { deleteToken: token },
-      }),
-      this.s3Service.s3_delete(file.fileName),
+      this.prismaService.file.delete({ where: { deleteToken: token } }),
+      this.s3Service.s3_delete(file.fileName, file.user.username),
       this.cacheManager.del(file.slug),
+      unlink(join(UPLOAD_DIR, file.slug + '.json')),
     ]).catch((err) => {
       Logger.error((err as Error).message, 'DeleteService.deleteFileFromS3');
       throw new InternalServerErrorException('Something went wrong');

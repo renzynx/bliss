@@ -9,7 +9,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerBehindProxyGuard } from './app.guard';
 import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
-import { ViewModule } from '../view/view.module';
 
 @Module({
   imports: [
@@ -26,11 +25,11 @@ import { ViewModule } from '../view/view.module';
     AuthModule,
     UploadModule,
     DeleteModule,
-    ViewModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
+
     {
       provide: APP_GUARD,
       useClass: ThrottlerBehindProxyGuard,

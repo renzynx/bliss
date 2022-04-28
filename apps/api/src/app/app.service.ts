@@ -2,67 +2,135 @@ import {
   CACHE_MANAGER,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
   StreamableFile,
 } from '@nestjs/common';
-import { File } from '@prisma/client';
+import { File, User } from '@prisma/client';
 import { Cache } from 'cache-manager';
-import { IAppService } from '../lib/interfaces';
-import { createReadStream } from 'fs';
+import { createReadStream } from 'node:fs';
 import { join } from 'path';
 import { UPLOAD_DIR } from '../lib/constants';
-import { Response } from 'express';
+import { Response, Request } from 'express';
+import { pathExists, readJson } from 'fs-extra';
 import axios from 'axios';
 
 @Injectable()
-export class AppService implements IAppService {
+export class AppService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
-  async getFile(slug: string, res: Response, download?: string) {
-    return process.env.USE_S3
-      ? this.getFromS3(slug, res)
-      : this.getFromLocal(slug, res, download);
+  async getFile(slug: string, res: Response, req: Request, download?: string) {
+    return process.env.USE_S3 === 'true'
+      ? this.getFromS3(slug, res, req, download)
+      : this.getFromLocal(slug, res, req, download);
   }
 
-  async getFromLocal(slug: string, res: Response, download?: string) {
-    const data = await this.cacheManager.get<string>(slug);
+  async getFileJSON(slug: string) {
+    const exist = await pathExists(join(UPLOAD_DIR, slug + '.json'));
 
-    if (!data) throw new NotFoundException('File not found');
+    if (!exist) throw new NotFoundException('File not found');
 
-    const file: File = JSON.parse(data);
+    return readJson(join(UPLOAD_DIR, slug + '.json'));
+  }
+
+  async getFromLocal(
+    slug: string,
+    res: Response,
+    req: Request,
+    download?: string
+  ) {
+    const raw = await this.cacheManager.get<string>(slug);
+
+    if (!raw) throw new NotFoundException('File not found');
+
+    const data: File & { url: string; user: User } = JSON.parse(raw);
+
+    const path = await pathExists(join(UPLOAD_DIR, data.fileName));
+
+    if (!path) throw new NotFoundException('File not found');
 
     res
       .header('Accept-Ranges', 'bytes')
-      .header('Content-Type', file.mimetype)
-      .header('Content-Length', file.size.toString());
+      .header('Content-Type', data.mimetype)
+      .header('Content-Length', String(data.size));
 
     if (download) {
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename="${file.originalName}"`
+        `attachment; filename="${data.originalName}"`
       );
     }
 
-    const f = createReadStream(join(UPLOAD_DIR, slug));
+    req.headers['x-bliss-data'] &&
+      res.setHeader(
+        'x-bliss-data',
+        JSON.stringify({
+          title: data.user.embedTitle,
+          description: data.user.embedDesc,
+          color: data.user.embedColor,
+          uploadedAt: data.createdAt.toString(),
+          filename: data.fileName,
+          original: data.originalName,
+          enabled: data.user.useEmbed,
+          url: data.url,
+          username: data.user.username,
+        })
+      );
 
-    return new StreamableFile(f, {
-      length: file.size,
-      type: file.mimetype,
-    });
+    return new StreamableFile(
+      createReadStream(join(UPLOAD_DIR, data.fileName)),
+      {
+        length: data.size,
+        type: data.mimetype,
+      }
+    );
   }
 
-  async getFromS3(slug: string, res: Response) {
-    const url = await this.cacheManager.get<string>(slug);
+  async getFromS3(
+    slug: string,
+    res: Response,
+    req: Request,
+    download?: string
+  ) {
+    const raw = await this.cacheManager.get<string>(slug);
 
-    if (!url) throw new NotFoundException('File not found');
+    if (!raw) throw new NotFoundException('File not found');
 
-    const file = await axios.get(url, { responseType: 'stream' });
+    const data: File & { url: string; user: User } = JSON.parse(raw);
 
-    if (file.status !== 200) throw new NotFoundException('File not found');
+    const file = await axios
+      .get(data.url, { responseType: 'stream' })
+      .catch((err) => {
+        Logger.error((err as Error).message, 'AppService.getFromS3');
+        throw new NotFoundException('File not found');
+      });
 
     Object.keys(file.headers).forEach((key) =>
       res.setHeader(key, file.headers[key])
     );
+
+    if (download) {
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${data.originalName}"`
+      );
+    }
+
+    req.headers['x-bliss-data'] &&
+      res.setHeader(
+        'x-bliss-data',
+        JSON.stringify({
+          title: data.user.embedTitle,
+          description: data.user.embedDesc,
+          color: data.user.embedColor,
+          uploadedAt: data.createdAt.toString(),
+          filename: data.fileName,
+          original: data.originalName,
+          enabled: data.user.useEmbed,
+          url: data.url,
+          username: data.user.username,
+        })
+      );
 
     return new StreamableFile(file.data);
   }

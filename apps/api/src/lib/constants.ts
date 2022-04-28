@@ -36,5 +36,6 @@ export const SESSION_OPTIONS = (store: session.Store) =>
   } as session.SessionOptions);
 
 export const UPLOAD_DIR = join(process.cwd(), 'uploads');
+export const JSON_DIR = join(process.cwd(), 'json');
 
 export const INVITE_PREFIX = 'invite:';

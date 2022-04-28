@@ -16,12 +16,14 @@ import { useDeleteFileMutation } from '#lib/redux/slices/auth.slice';
 import { showNotification } from '@mantine/notifications';
 import { Check, X } from 'tabler-icons-react';
 import { RootError } from '#lib/types';
+import { useAppSelector } from '#lib/redux/hooks';
 
 const FileView = ({ file }: { file: PrismaFile }) => {
   const theme = useMantineTheme();
   const { classes } = useStyles();
   const { copy, copied } = useClipboard({ timeout: 3000 });
   const [deleteFile, { isLoading }] = useDeleteFileMutation();
+  const { user } = useAppSelector((state) => state.user);
 
   return (
     <Box className={classes.card}>
@@ -34,16 +36,17 @@ const FileView = ({ file }: { file: PrismaFile }) => {
           />
         ) : file.mimetype.includes('video') ? (
           <video
+            controls
             style={{ width: '90%' }}
             src={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
-            controls
           />
         ) : file.mimetype.includes('audio') ? (
-          <audio
-            style={{ width: '90%' }}
-            src={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
-            controls
-          />
+          <audio controls preload="auto">
+            <source
+              src={`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`}
+              type={file.mimetype}
+            />
+          </audio>
         ) : (
           <Text align="center" size="lg" weight="semibold">
             This file can&apos;t be previewed.
@@ -125,10 +128,15 @@ const FileView = ({ file }: { file: PrismaFile }) => {
             sx={{
               width: '100%',
             }}
+            loading={!user}
             color={copied ? 'green' : 'blue'}
             variant={`${theme.colorScheme === 'dark' ? 'light' : 'filled'}`}
             onClick={() =>
-              copy(`${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`)
+              copy(
+                user.useEmbed
+                  ? `${window.location.hostname}/${file.slug}`
+                  : `${process.env.NEXT_PUBLIC_API_URL}/${file.slug}`
+              )
             }
           >
             {copied ? 'Copied File URL' : 'Copy URL'}

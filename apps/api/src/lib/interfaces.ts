@@ -7,8 +7,7 @@ import {
   UploadResponse,
   UserResponse,
 } from '@bliss/shared-types';
-import { Request, Response } from 'express';
-import { StreamableFile } from '@nestjs/common';
+import { Request } from 'express';
 import { SessionData } from 'express-session';
 
 export interface IUploadService {
@@ -19,7 +18,6 @@ export interface IUploadService {
     file: Express.Multer.File,
     req: Request
   ): Promise<UploadResponse | string>;
-  getProtocol(): 'https' | 'http';
 }
 
 export interface IAuthService {
@@ -45,12 +43,4 @@ export interface IAuthService {
   hashPassword(text: string): Promise<string>;
   verifyPassword(hash: string, password: string): Promise<boolean>;
   generateToken(length: number): string;
-}
-
-export interface IAppService {
-  getFile(
-    slug: string,
-    res: Response,
-    download?: string
-  ): Promise<StreamableFile | string>;
 }
