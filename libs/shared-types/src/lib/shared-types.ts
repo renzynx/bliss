@@ -67,4 +67,5 @@ export interface View {
   filename: string;
   uploadedAt: string;
   url: string;
+  slug: string;
 }

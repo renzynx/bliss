@@ -3,9 +3,7 @@ import { View as ViewType } from '@bliss/shared-types';
 import Head from 'next/head';
 import View from '#components/View';
 
-const ViewPage: NextPage<{ raw: string; slug: string }> = ({ raw, slug }) => {
-  const data: ViewType = JSON.parse(raw);
-
+const ViewPage: NextPage<{ data: ViewType }> = ({ data }) => {
   return (
     <>
       <Head>
@@ -13,7 +11,7 @@ const ViewPage: NextPage<{ raw: string; slug: string }> = ({ raw, slug }) => {
           <>
             <link
               type="application/json+oembed"
-              href={`${process.env.NEXT_PUBLIC_API_URL}/${slug}/oembed`}
+              href={`${process.env.NEXT_PUBLIC_API_URL}/${data.slug}/oembed`}
             />
             <meta name="og:title" content={data.title} />
             <meta name="og:description" content={data.description} />
@@ -42,7 +40,7 @@ const ViewPage: NextPage<{ raw: string; slug: string }> = ({ raw, slug }) => {
         <title>Bliss | Uploaded by {data.username}</title>
       </Head>
 
-      <View data={data} slug={slug} />
+      <View data={data} slug={data.slug} />
     </>
   );
 };
@@ -56,21 +54,23 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     },
   });
 
-  const data = res.headers;
+  const headers = res.headers;
 
-  if (!data.has('x-bliss-data'))
+  if (!headers.has('x-bliss-data'))
     return {
       notFound: true,
     };
 
+  const data = {
+    ...JSON.parse(headers.get('x-bliss-data')),
+    type: headers.get('content-type'),
+    size: headers.get('content-length'),
+    slug,
+  };
+
   return {
     props: {
-      raw: JSON.stringify({
-        ...JSON.parse(data.get('x-bliss-data')),
-        type: data.get('content-type'),
-        size: data.get('content-length'),
-      }),
-      slug,
+      data,
     },
   };
 };
