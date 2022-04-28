@@ -71,7 +71,7 @@ export class AppService {
           uploadedAt: data.createdAt.toString(),
           filename: data.fileName,
           original: data.originalName,
-          enabled: data.user.useEmbed,
+          enabled: data.user.useEmbed ? 'true' : 'false',
           url: data.url,
           username: data.user.username,
         })
