@@ -9,7 +9,7 @@ const ViewPage: NextPage<{ raw: string; slug: string }> = ({ raw, slug }) => {
   return (
     <>
       <Head>
-        {data && data.enabled === 'true' && (
+        {data && (
           <>
             <link
               type="application/json+oembed"
