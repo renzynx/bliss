@@ -63,8 +63,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       notFound: true,
     };
 
-  console.log(data);
-
   return {
     props: {
       raw: JSON.stringify({
