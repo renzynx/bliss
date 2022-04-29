@@ -64,7 +64,7 @@ export class UploadService implements IUploadService {
 
     const uploader = req.headers.uploader as 'sharex' | 'web';
 
-    await this.s3Service.s3_upload(user.username, file, slug).catch((e) => {
+    await this.s3Service.s3_upload(process.env.S3_BUCKET, file, slug).catch((e) => {
       Logger.debug((e as Error).message, 'UploadService.uploadToS3');
       throw new InternalServerErrorException(
         `Failed to upload ${file.originalname}, please try again later.`

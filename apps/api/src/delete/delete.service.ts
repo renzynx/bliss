@@ -63,7 +63,7 @@ export class DeleteService {
 
     await Promise.all([
       this.prismaService.file.delete({ where: { deleteToken: token } }),
-      this.s3Service.s3_delete(file.fileName, file.user.username),
+      this.s3Service.s3_delete(file.fileName, process.env.S3_BUCKET),
       this.cacheManager.del(file.slug),
       unlink(join(UPLOAD_DIR, file.slug + '.json')),
     ]).catch((err) => {
