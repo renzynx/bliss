@@ -44,7 +44,6 @@ services:
       - 4200:4200
     volumes:
       - ./uploads:/app/uploads
-      - ./.env:/app/.env
     depends_on:
       database:
         condition: service_healthy

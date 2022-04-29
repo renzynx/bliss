@@ -21,6 +21,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/apps ./apps
 COPY --from=builder /app/libs ./libs
 COPY --from=builder /app/nx.json ./nx.json
+COPY --from=builder /app/.env ./.env
 COPY --from=builder /app/tsconfig.base.json ./tsconfig.base.json
 
 RUN yarn build:all
