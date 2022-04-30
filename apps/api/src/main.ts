@@ -7,7 +7,6 @@ import { SESSION_OPTIONS, UPLOAD_DIR } from './lib/constants';
 import * as session from 'express-session';
 import * as connectRedis from 'connect-redis';
 import { ensureDir } from 'fs-extra';
-import { resolve } from 'path';
 
 declare module 'express-session' {
   interface SessionData {
@@ -25,9 +24,6 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.useStaticAssets(resolve('./src/public'));
-  app.setBaseViewsDir(resolve('./src/views'));
-  app.setViewEngine('hbs');
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
   app.useGlobalPipes(new ValidationPipe());

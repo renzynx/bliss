@@ -37,8 +37,6 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      cache_from:
-        - 'renzynx/bliss:buildcache'
     env_file:
       - .env
     ports:
