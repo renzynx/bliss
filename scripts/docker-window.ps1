@@ -19,7 +19,6 @@ Write-Output "Running docker-compose..."
 Write-Output "This may take a while..."
 
 docker-compose up -d
-Write-Output "Bliss is running"
 Write-Output "Migrating database..."
 docker-compose exec renzynx yarn prisma migrate deploy
 Write-Output "Seeding database..."

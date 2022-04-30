@@ -5,15 +5,15 @@ services:
     container_name: bliss_cache
     restart: always
     command: redis-server --save 20 1 --loglevel warning --requirepass bliss
+    ports:
+      - ${REDIS_PORT}:6379
+    volumes:
+      - ./database/redis:/data
     healthcheck:
       test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 1s
       timeout: 3s
       retries: 10
-    ports:
-      - 40115:6379
-    volumes:
-      - ./database/redis:/data
 
   database:
     image: postgres:alpine
@@ -24,28 +24,29 @@ services:
       retries: 5
     container_name: bliss_database
     restart: always
-    ports:
-      - 40116:5432
     env_file:
       - .env
+    ports:
+      - ${DATABASE_PORT}:5432
     volumes:
       - ./database/postgres:/var/lib/postgresql/data
 
   bliss:
     container_name: bliss_app
     working_dir: /app
-    restart: always
     image: renzynx/bliss
     build:
       context: .
       dockerfile: ./Dockerfile
+      cache_from:
+        - 'renzynx/bliss:buildcache'
+    env_file:
+      - .env
     ports:
-      - 3333:3333
-      - 4200:4200
+      - ${PORT}:3333
+      - ${PORT_2}:4200
     volumes:
       - ./uploads:/app/uploads
-    env_file:
-      - ./.env
     depends_on:
       database:
         condition: service_healthy
@@ -53,18 +54,9 @@ services:
         condition: service_healthy
 volumes:
   database:
+    name: bliss_database
     driver: local
-    driver_opts:
-      type: none
-      device: ./database
-      o: bind
-      device_type: tmpfs
-      tmpfs_size: 100m
+
   uploads:
+    name: bliss_uploads
     driver: local
-    driver_opts:
-      type: none
-      device: ./uploads
-      o: bind
-      device_type: tmpfs
-      tmpfs_size: 100m

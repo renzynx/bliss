@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nx serve",
     "build": "nx build",
-    "start:all": "prisma migrate deploy && nx run-many --target=serve --all --prod",
+    "start:all": "prisma migrate deploy && nx run-many --target=serve --all",
     "build:all": "nx run-many --target=build --all --prod",
     "dev": "nx run-many --target=serve --all",
     "test": "nx test"

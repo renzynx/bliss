@@ -1,11 +1,26 @@
-import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Render,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { Response, Request } from 'express';
 import { AppService } from './app.service';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
+
+  @SkipThrottle()
+  @Get()
+  @Render('index')
+  root() {
+    return { message: 'Hello World!' };
+  }
 
   @Throttle(100, 60)
   @Get(':slug')

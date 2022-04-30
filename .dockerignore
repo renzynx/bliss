@@ -2,4 +2,13 @@ node_modules
 dist
 .yarn
 .vscode
+database
+.github
+docs
+uploads
+.editorconfig
+Dockerfile
+.dockerignore
+docker-compose.yml
+README.md
 apps/web-e2e
