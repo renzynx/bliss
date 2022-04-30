@@ -34,7 +34,6 @@ services:
   bliss:
     container_name: bliss_app
     working_dir: /app
-    image: renzynx/bliss
     build:
       context: .
       dockerfile: ./Dockerfile
