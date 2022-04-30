@@ -20,10 +20,10 @@ Write-Output "This may take a while..."
 
 docker-compose up -d
 Write-Output "Migrating database..."
-docker-compose exec renzynx yarn prisma migrate deploy
+docker-compose exec bliss yarn prisma migrate deploy
 Write-Output "Seeding database..."
-docker-compose exec renzynx yarn prisma db seed 
+docker-compose exec bliss yarn prisma db seed 
 
 Write-Output "Successfully installed Bliss"
 Write-Output "Run the following to view logs:"
-Write-Output "docker-compose logs -f --tail=50 --no-log-prefix renzynx"
+Write-Output "docker-compose logs -f --tail=50 --no-log-prefix bliss"
