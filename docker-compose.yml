@@ -40,8 +40,8 @@ services:
     env_file:
       - .env
     ports:
-      - ${PORT}:3333
-      - ${PORT_2}:4200
+      - 3333:3333
+      - 4200:4200
     volumes:
       - ./uploads:/app/uploads
     depends_on:

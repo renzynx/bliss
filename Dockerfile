@@ -10,7 +10,7 @@ RUN yarn install
 
 COPY . .
 
-RUN yarn build:all
+RUN yarn build api --prod
 
 FROM node:lts-alpine as runner
 
@@ -18,6 +18,7 @@ WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/yarn.lock ./yarn.lock
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/apps ./apps
 COPY --from=builder /app/libs ./libs
@@ -26,5 +27,7 @@ COPY --from=builder /app/.env ./.env
 COPY --from=builder /app/tsconfig.base.json ./tsconfig.base.json
 
 EXPOSE 3333 4200
+
+RUN yarn build web
 
 CMD [ "yarn", "run", "start:all" ]
