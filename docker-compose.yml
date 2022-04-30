@@ -44,14 +44,13 @@ services:
       - 4200:4200
     volumes:
       - ./uploads:/app/uploads
-      - ./.env:/app/.env
+    env_file:
+      - ./.env
     depends_on:
       database:
         condition: service_healthy
       cache:
         condition: service_healthy
-    env_file:
-      - .env
 volumes:
   database:
     driver: local
@@ -66,14 +65,6 @@ volumes:
     driver_opts:
       type: none
       device: ./uploads
-      o: bind
-      device_type: tmpfs
-      tmpfs_size: 100m
-  .env:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./.env
       o: bind
       device_type: tmpfs
       tmpfs_size: 100m
