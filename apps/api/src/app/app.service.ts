@@ -45,7 +45,7 @@ export class AppService {
 
     const data: File & { url: string; user: User } = JSON.parse(raw);
 
-    const path = await pathExists(join(UPLOAD_DIR, data.fileName));
+    const path = await pathExists(join(UPLOAD_DIR, data.slug));
 
     if (!path) throw new NotFoundException('File not found');
 
@@ -77,13 +77,10 @@ export class AppService {
         })
       );
 
-    return new StreamableFile(
-      createReadStream(join(UPLOAD_DIR, data.fileName)),
-      {
-        length: data.size,
-        type: data.mimetype,
-      }
-    );
+    return new StreamableFile(createReadStream(join(UPLOAD_DIR, data.slug)), {
+      length: data.size,
+      type: data.mimetype,
+    });
   }
 
   async getFromS3(
