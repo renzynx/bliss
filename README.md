@@ -36,12 +36,13 @@ Bliss is a file uploader service that aims to be easy to use and setup. It's des
 
 How to update?
 
-<code>
+```shell
 # first pull the new changes with
 git pull
+
 # and rebuild the container
 docker-compose up --force-recreate --build -d && docker image prune
-</code>
+```
 
 </details>
 
