@@ -66,6 +66,17 @@ docker-compose up --force-recreate --build -d && docker image prune
 7. Run <code>yarn start:all</code> or <code>npm run start:all</code> to start Bliss.
 </details>
 
+```shell
+# first pull the new changes with
+git pull
+
+# and recompile typescript to javascript
+yarn build:all
+
+# restart the node process to get the latest update
+yarn start:all
+```
+
 ## Nginx SSL Setup
 
 [Click Here](docs/nginx.md)
