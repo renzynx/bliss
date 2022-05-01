@@ -65,6 +65,8 @@ docker-compose up --force-recreate --build -d && docker image prune
 <br>
 7. Run <code>yarn start:all</code> or <code>npm run start:all</code> to start Bliss.
 
+How to update?
+
 ```shell
 # first pull the new changes with
 git pull
