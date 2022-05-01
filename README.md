@@ -64,7 +64,6 @@ docker-compose up --force-recreate --build -d && docker image prune
 6. Migrate the database with <code>yarn prisma migrate deploy</code> or <code>yarn prisma db push</code> if you having some problem.
 <br>
 7. Run <code>yarn start:all</code> or <code>npm run start:all</code> to start Bliss.
-</details>
 
 ```shell
 # first pull the new changes with
@@ -76,6 +75,8 @@ yarn build:all
 # restart the node process to get the latest update
 yarn start:all
 ```
+
+</details>
 
 ## Nginx SSL Setup
 
