@@ -37,23 +37,16 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    env_file:
-      - .env
     ports:
       - 3333:3333
       - 4200:4200
     volumes:
       - ./uploads:/app/uploads
+      - type: bind
+        source: .env
+        target: /app/.env
     depends_on:
       database:
         condition: service_healthy
       cache:
         condition: service_healthy
-volumes:
-  database:
-    name: bliss_database
-    driver: local
-
-  uploads:
-    name: bliss_uploads
-    driver: local

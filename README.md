@@ -14,7 +14,7 @@ Bliss is a file uploader service that aims to be easy to use and setup. It's des
 <details>
 <summary>Expand for Docker/Docker Compose installation steps</summary>
 <br>
-1. Have docker and docker-compose installed (if you don't know what docker is <a href="https://docs.docker.com/">click here</a>.
+1. Have docker and docker-compose installed (if you don't know what docker is <a href="https://docs.docker.com/">click here</a>).
 <br>
 2. Clone this repo <code>git clone --recursive https://github.com/renzynx/bliss.git && cd bliss</code>
 <br>
@@ -33,6 +33,20 @@ Bliss is a file uploader service that aims to be easy to use and setup. It's des
         These scripts are identical using the equivalent commands in each OS.
     </li>
 </ul>
+
+How to update?
+
+<code>
+
+# first pull the new changes with
+
+git pull
+
+# and rebuild the container
+
+docker-compose up --force-recreate --build -d && docker image prune
+</code>
+
 </details>
 
 ### Manual

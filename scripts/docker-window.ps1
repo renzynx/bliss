@@ -6,7 +6,7 @@ if (-not(Test-Path -Path $file -PathType Leaf)) {
      try {
          $null = New-Item -ItemType File -Path $file -Force -ErrorAction Stop
          Copy-Item .env.example .env
-         Write-Output Please edit .env file and restart the script.
+         Write-Output "Please edit .env file and restart the script."
          exit 1
      }
      catch {
