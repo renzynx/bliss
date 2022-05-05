@@ -8,7 +8,7 @@ export class DeleteController {
 
   @Get(':token')
   delete(@Param() { token }: { token: string }) {
-    return process.env.USE_S3
+    return process.env.USE_S3 === 'true'
       ? this.deleteService.deleteFileFromS3(token)
       : this.deleteService.deleteFile(token);
   }
