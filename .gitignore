@@ -34,6 +34,7 @@ yarn-error.log
 testem.log
 /typings
 /.yarn/*
+/.yarn/install-state.gz
 
 # System Files
 .DS_Store
