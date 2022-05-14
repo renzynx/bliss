@@ -16,15 +16,15 @@ Bliss is a file uploader service that aims to be easy to use and setup. It's des
 <br>
 1. Have docker and docker-compose installed (if you don't know what docker is <a href="https://docs.docker.com/">click here</a>).
 <br>
-2. Clone this repo <code>git clone --recursive https://github.com/renzynx/bliss.git && cd bliss</code>
+2. Clone this repo <code>git clone https://github.com/renzynx/bliss.git && cd bliss</code>
 <br>
-3. Run <code>cp .env.example .env</code> and fill out the credentials.
+3. Run <code>cp .env.docker.example .env</code> and fill out the credentials.
 <br>
 4. Run the command that corresponds to your OS:
 <br>
 <ul>
     <li>
-        Linux: <code>./scripts/docker-linux.sh</code>
+        Linux: <code>sh scripts/docker-linux.sh</code>
     </li>
     <li>
         Window: <code>./scripts/docker-window.ps1</code>
@@ -64,6 +64,8 @@ docker-compose up --force-recreate --build -d && docker image prune
 6. Migrate the database with <code>yarn prisma migrate deploy</code> or <code>yarn prisma db push</code> if you having some problem.
 <br>
 7. Run <code>yarn start:all</code> or <code>npm run start:all</code> to start Bliss.
+
+<br>
 
 How to update?
 
