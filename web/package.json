@@ -1,0 +1,46 @@
+{
+	"name": "bliss",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev -p 5000",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint",
+		"format": "prettier --write src/**/*.{ts,tsx}"
+	},
+	"dependencies": {
+		"@emotion/react": "^11.10.5",
+		"@emotion/server": "^11.10.0",
+		"@highlight-run/react": "^1.2.1",
+		"@mantine/core": "^5.8.2",
+		"@mantine/dropzone": "^5.8.4",
+		"@mantine/form": "^5.8.3",
+		"@mantine/hooks": "^5.8.2",
+		"@mantine/next": "^5.8.2",
+		"@mantine/notifications": "^5.9.1",
+		"@sentry/nextjs": "^7.24.2",
+		"@supabase/supabase-js": "^2.1.1",
+		"@tabler/icons": "^1.112.0",
+		"@tanstack/react-query": "^4.16.1",
+		"@types/node": "18.11.9",
+		"@types/react": "18.0.25",
+		"@types/react-dom": "18.0.9",
+		"axios": "^1.2.0",
+		"eslint": "^8.28.0",
+		"eslint-config-next": "^13.0.5",
+		"eslint-plugin-unused-imports": "^2.0.0",
+		"highlight.run": "^5.1.6",
+		"jotai": "^1.10.0",
+		"next": "13.0.4",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"typescript": "4.9.3"
+	},
+	"devDependencies": {
+		"@types/eslint": "^8",
+		"@types/nodemailer": "^6",
+		"ts-node": "^10.9.1"
+	},
+	"packageManager": "yarn@3.3.0"
+}

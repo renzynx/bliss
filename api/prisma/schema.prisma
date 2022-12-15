@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String         @id @default(uuid())
+  username       String         @unique
+  image          String?
+  email          String         @unique
+  password       String
+  role           Role           @default(USER)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  emailVerified  DateTime?      @map("email_verified")
+  invitedBy      String?        @map("invited_by")
+  apiKey         String         @unique @map("api_key")
+  embed_settings EmbedSettings?
+  File           File[]
+
+  @@map("users")
+}
+
+model EmbedSettings {
+  id             String  @id @default(cuid())
+  enabled        Boolean @default(false)
+  embedSite      String? @map("embed_site")
+  embedSiteUrl   String? @map("embed_site_url")
+  embedAuthor    String? @map("embed_author")
+  embedAuthorUrl String? @map("embed_author_url")
+  title          String?
+  description    String?
+  color          String?
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @unique @map("user_id")
+
+  @@map("embed_settings")
+}
+
+model File {
+  id        String   @id @default(cuid())
+  filename  String
+  mimetype  String
+  slug      String   @unique
+  size      Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @map("user_id")
+
+  @@unique([userId, slug])
+  @@map("files")
+}
+
+model VerificationToken {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  type       Token    @default(EMAIL_VERIFICATION) @map("type")
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  USER
+}
+
+enum Token {
+  EMAIL_VERIFICATION
+  INVITE_CODE
+}

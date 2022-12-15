@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  server:
+    image: renzynx/bliss:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bliss
+    restart: always
+    env_file:
+      - .env.production
+    ports:
+      - 3000:${PORT}
+    depends_on:
+      - mongo
+      - redis
+
+  mongo:
+    image: prismagraphql/mongo-single-replica:4.4.3-bionic
+    container_name: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      INIT_WAIT_SEC: 3
+    ports:
+      - 27017:${MONGO_PORT}
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: on-failure
+    ports:
+      - 6379:${REDIS_PORT}
+    command: '--requirepass ${REDIS_PASSWORD}'

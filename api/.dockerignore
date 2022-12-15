@@ -1,0 +1,13 @@
+/node_modules
+/dist
+/uploads/*
+!/uploads/.gitkeep
+/thumbnails/*
+!/thumbnails/.gitkeep
+/logs/*
+!/logs/.gitkeep
+/.yarn/*
+!/.yarn/releases
+!/.yarn/plugins
+Dockerfile
+test
