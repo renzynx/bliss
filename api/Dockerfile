@@ -1,4 +1,4 @@
-FROM node:alpine AS builder
+FROM node:lts-buster-slim AS builder
 RUN apk update
 
 WORKDIR /app
@@ -13,7 +13,7 @@ RUN yarn prisma generate
 
 RUN yarn build
 
-FROM node:alpine AS runner
+FROM node:lts-buster-slim AS runner
 WORKDIR /app
 
 COPY --from=builder /app/package.json ./package.json 
