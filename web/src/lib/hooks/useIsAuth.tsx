@@ -15,7 +15,7 @@ export const useIsAuth = ({
 		['auth'],
 		() =>
 			axios
-				.get(API_URL + API_ROUTES.ME, { withCredentials: true })
+				.get<SessionUser>(API_URL + API_ROUTES.ME, { withCredentials: true })
 				.then((res) => {
 					if (res.status !== 200) {
 						redirectTo &&
@@ -24,7 +24,7 @@ export const useIsAuth = ({
 							);
 						return null;
 					} else {
-						const data = res.data as SessionUser;
+						const data = res.data;
 						setUser(data);
 						return data;
 					}

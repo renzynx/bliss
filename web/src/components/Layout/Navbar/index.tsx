@@ -43,7 +43,7 @@ const Navbar: FC<{ user?: SessionUser }> = ({ user }) => {
 							<Button
 								variant="light"
 								w={{ base: '6rem', md: '7rem', lg: '7rem', sm: '7rem' }}
-								onClick={() => Router.push('/auth/signin')}
+								onClick={() => Router.push(ROUTES.SIGN_IN)}
 							>
 								Sign in
 							</Button>

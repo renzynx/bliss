@@ -11,7 +11,7 @@ const Layout: FC<{
 	return (
 		<>
 			<Navbar user={user} />
-			<Sidebar admin={user?.role === 'OWNER' || user?.role === 'ADMIN'} />
+			<Sidebar />
 			<Box
 				w={{ base: '95%', lg: '90%', md: '90%', sm: '90%' }}
 				mx="auto"

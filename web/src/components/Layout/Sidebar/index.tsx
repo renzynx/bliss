@@ -21,7 +21,7 @@ import {
 } from '@tabler/icons';
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/router';
-import { FC, useMemo } from 'react';
+import { useMemo } from 'react';
 import { sidebarStyles } from './styles';
 
 export const NavbarLink = ({
@@ -90,12 +90,13 @@ const items: Item[] = [
 	},
 ];
 
-const Sidebar: FC<{ admin?: boolean }> = ({ admin }) => {
+const Sidebar = () => {
 	const [user] = useAtom(userAtom);
 	const [opened, setOpened] = useAtom(openedAtom);
 	const router = useRouter();
 	const mobile_screens = useMediaQuery('(max-width: 480px)');
 	const theme = useMantineTheme();
+	const admin = user?.role === 'OWNER' || user?.role === 'ADMIN';
 
 	const links = useMemo(() => {
 		return (admin ? items : items.filter((item) => !item.admin)).map(

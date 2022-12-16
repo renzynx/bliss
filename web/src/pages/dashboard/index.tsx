@@ -60,8 +60,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 		return {
 			props: {
 				data: {
-					files: 0,
-					size: 0,
+					files: 'N/A',
+					size: 'N/A',
 				},
 			},
 		};

@@ -60,7 +60,7 @@ function Auth({
 			: '';
 	const { data, isLoading } = useIsAuth({
 		redirectTo: ROUTES.SIGN_IN,
-		callbackUrl: encodeURI(currentUrl),
+		callbackUrl: encodeURIComponent(currentUrl),
 	});
 
 	if (isLoading) return <LoadingPage color="yellow" />;

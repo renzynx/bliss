@@ -43,7 +43,7 @@ const MenuItem = ({ href, text, icon, right_section }: IMenuProps) => {
 	);
 };
 
-const UserMenu = ({ user }: { user?: SessionUser }) => {
+const UserMenu = ({ user }: { user: SessionUser }) => {
 	const { signOut } = useSignOut();
 	const items = useMemo(() => {
 		return menu_items.map(({ href, text, icon, right_section }, idx) => {
@@ -79,7 +79,7 @@ const UserMenu = ({ user }: { user?: SessionUser }) => {
 					<Avatar
 						sx={{ cursor: 'pointer', boxShadow: '0 0 0 0.1px #FFFFFF' }}
 						radius="xl"
-						src={user?.image}
+						src={user.image}
 						alt="User Avatar"
 					/>
 				</Indicator>
@@ -107,7 +107,7 @@ const UserMenu = ({ user }: { user?: SessionUser }) => {
 					],
 				])}
 			>
-				<Menu.Label>{user?.username}</Menu.Label>
+				<Menu.Label>{user.username}</Menu.Label>
 				{items}
 			</Menu.Dropdown>
 		</Menu>
