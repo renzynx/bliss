@@ -10,7 +10,7 @@ const Layout: FC<{
 }> = ({ children, user }) => {
 	return (
 		<>
-			<Navbar />
+			<Navbar user={user} />
 			<Sidebar admin={user?.role === 'OWNER' || user?.role === 'ADMIN'} />
 			<Box
 				w={{ base: '95%', lg: '90%', md: '90%', sm: '90%' }}

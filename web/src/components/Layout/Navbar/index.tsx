@@ -1,14 +1,15 @@
-import { openedAtom, userAtom } from '@lib/atoms';
+import { openedAtom } from '@lib/atoms';
 import { APP_NAME, ROUTES } from '@lib/constants';
+import { SessionUser } from '@lib/types';
 import { Box, Burger, Button, Flex, Group, Text } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useAtom } from 'jotai';
 import Router from 'next/router';
+import { FC } from 'react';
 import { navbarStyles } from './styles';
 import UserMenu from './UserMenu';
 
-const Navbar = () => {
-	const [user] = useAtom(userAtom);
+const Navbar: FC<{ user?: SessionUser }> = ({ user }) => {
 	const { classes } = navbarStyles();
 	const [opened, setOpened] = useAtom(openedAtom);
 	const mobile_screens = useMediaQuery('(max-width: 376px)');
