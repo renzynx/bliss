@@ -1,3 +1,5 @@
+import { serializeURL } from './utils';
+
 export enum ROUTES {
 	HOME = '/',
 	ROOT = '/dashboard',
@@ -35,7 +37,7 @@ export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? 'Bliss V2';
 export const API_URL =
 	process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
-export const uploaderConfig = (name: string, token: string) => ({
+export const sharexConfig = (name: string, token: string) => ({
 	Version: '13.2.1',
 	Name: name,
 	DestinationType: 'ImageUploader, FileUploader, TextUploader',
@@ -51,6 +53,37 @@ export const uploaderConfig = (name: string, token: string) => ({
 	Body: 'MultipartFormData',
 	FileFormName: 'file',
 });
+
+export const flameshotScript = (token: string) => `
+#!/bin/bash
+IMAGEPATH="$HOME/Pictures/"
+IMAGENAME="$name-$(date +%s%N | sha256sum | base64 | head -c 32 ; echo)"
+KEY="${token}" 
+DOMAIN="${serializeURL(
+	process.env.NEXT_PUBLIC_API_URL!
+)}" # Your upload domain (without http:// or https://)
+
+flameshot config -f "$IMAGENAME" 
+flameshot gui -r -p "$IMAGEPATH" > /dev/null 
+
+FILE="$IMAGEPATH$IMAGENAME.png"
+
+
+if [ -f "$FILE" ]; then
+    echo "$FILE exists."
+    URL=$(curl -X POST \
+      -H "Content-Type: multipart/form-data" \
+      -H "Accept: application/json" \
+      -H "User-Agent: ShareX/13.4.0" \
+      -H "Authorization: $KEY" \
+      -F "file=@$IMAGEPATH$IMAGENAME.png" "https://$DOMAIN/" | grep -Po '(?<="resource":")[^"]+')
+    # printf instead of echo as echo appends a newline
+    printf "%s" "$URL" | xclip -sel clip
+    rm "$IMAGEPATH$IMAGENAME.png" # Delete the image locally
+else 
+    echo "Aborted."
+fi
+`;
 
 export const MIME_TYPES = [
 	'image/png',
@@ -70,6 +103,11 @@ export const MIME_TYPES = [
 	'video/ogg',
 	'video/webm',
 	'application/ogg',
+	'application/zip',
+	'application/binary',
+	'application/octet-stream',
+	// .bin
+	'application/x-msdownload',
 ];
 
-export const CHUNK_SIZE = 90 * 1024 ** 2; // 90MB
+export const CHUNK_SIZE = 50 * 1024 ** 2; // 50MB

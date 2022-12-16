@@ -7,7 +7,15 @@ import {
 } from "@nestjs/common";
 import { generateApiKey, lookUp } from "lib/utils";
 import { createReadStream, createWriteStream, existsSync } from "fs";
-import { readdir, readFile, stat, unlink, writeFile } from "fs/promises";
+import {
+  copyFile,
+  readdir,
+  readFile,
+  rename,
+  stat,
+  unlink,
+  writeFile,
+} from "fs/promises";
 import { thumbnailDir, tmpDir, uploadDir } from "lib/constants";
 import { Request, Response } from "express";
 import { join } from "path";
@@ -15,35 +23,13 @@ import { PrismaService } from "modules/prisma/prisma.service";
 import { CustomSession } from "lib/types";
 import mimetype from "mime-types";
 import { EmbedSettings } from "@prisma/client";
+import md5 from "md5";
 
 @Injectable()
 export class UploadService {
   private logger = new Logger(UploadService.name);
 
   constructor(private readonly prismaService: PrismaService) {}
-
-  getFilePath(fileId: string) {
-    return join(uploadDir, fileId);
-  }
-
-  uploadRequest() {
-    const fileId = generateApiKey(12);
-    createWriteStream(this.getFilePath(fileId), { flags: "w" });
-    return { fileId };
-  }
-
-  async uploadStatus(fileId: string) {
-    return stat(this.getFilePath(fileId))
-      .then((stats) => {
-        return { uploaded: stats.size };
-      })
-      .catch((err) => {
-        if (err.code === "ENOENT") {
-          return { uploaded: 0 };
-        }
-        throw err;
-      });
-  }
 
   createOEmbedJSON({
     embedAuthor,
@@ -61,7 +47,7 @@ export class UploadService {
       provider_url: embedSiteUrl,
     };
 
-    const stream = createWriteStream(join(thumbnailDir, filename + ".json"), {
+    const stream = createWriteStream(join(uploadDir, filename + ".json"), {
       flags: "w",
     });
     stream.write(JSON.stringify(data));
@@ -164,7 +150,7 @@ export class UploadService {
       },
     });
 
-    const protocol = process.env.USE_PROXY === "true" ? "https" : req.protocol;
+    const protocol = process.env.USE_SSL === "true" ? "https" : req.protocol;
 
     const baseUrl = `${protocol}://${req.get("host")}`;
 
@@ -175,7 +161,7 @@ export class UploadService {
     };
   }
 
-  async bulkUpload(files: Array<Express.Multer.File>, req: Request) {
+  async bulkUpload(req: Request) {
     const apikey = req.headers["authorization"] as string;
 
     if (!apikey) {
@@ -187,194 +173,59 @@ export class UploadService {
       include: { embed_settings: true },
     });
 
-    const contentRange = req.headers["content-range"] as string;
+    if (!user) {
+      throw new BadRequestException("Invalid API key");
+    }
 
-    if (contentRange) {
-      const [start, end, total] = req.headers["content-range"]
-        .replace("bytes ", "")
-        .replace("-", "/")
-        .split("/")
-        .map((x) => +x);
+    const name = decodeURIComponent(req.headers["x-file-name"] as string);
+    const size = req.headers["x-file-size"] as string;
+    const currentChunk = req.headers["x-current-chunk"] as string;
+    const totalChunks = req.headers["x-total-chunks"] as string;
 
-      const filename = req.headers["x-file-name"] as string;
-      const mimetype = req.headers["x-file-type"] as string;
-      const fileId = req.headers["x-file-id"] as string;
-      const lastchunk = req.headers["x-file-last-chunk"] === "true";
+    const firstChunk = +currentChunk === 0;
+    const lastChunk = +currentChunk === +totalChunks - 1;
+    const ext = name.split(".").pop();
+    const data = req.body.toString().split(",")[1];
+    const buffer = Buffer.from(data, "base64");
+    const id = md5(`${name}${req.ip}`);
+    const slug = generateApiKey(12);
+    const tmpName = `tmp_${id}.${ext}`;
 
-      this.logger.debug({
-        filename,
-        mimetype,
-        fileId,
-        lastchunk,
-        start,
-        end,
-        total,
+    if (firstChunk && existsSync(join(uploadDir, tmpName))) {
+      await unlink(join(uploadDir, tmpName));
+    }
+    await writeFile(join(uploadDir, tmpName), buffer, { flag: "a" });
+    if (lastChunk) {
+      const mimetype = lookUp(name);
+
+      await rename(
+        join(uploadDir, tmpName),
+        join(uploadDir, `${slug}_${name}`)
+      );
+
+      if (mimetype.includes("image") && user.embed_settings?.enabled) {
+        this.createOEmbedJSON({
+          filename: name,
+          embedAuthor: user.embed_settings?.embedAuthor,
+          embedAuthorUrl: user.embed_settings?.embedAuthorUrl,
+          embedSite: user.embed_settings?.embedSite,
+          embedSiteUrl: user.embed_settings?.embedSiteUrl,
+        });
+      }
+
+      await this.prismaService.file.create({
+        data: {
+          userId: user.id,
+          filename: name,
+          size: +size,
+          mimetype,
+          slug,
+        },
       });
 
-      const tmpFile = join(tmpDir, `b_tmp_${fileId}_${start}_${end}`);
-      await writeFile(tmpFile, files[0].buffer);
-
-      if (lastchunk) {
-        const t = await readdir(tmpDir).then((files) =>
-          files.filter((f) => f.startsWith(`b_tmp_${fileId}`))
-        );
-
-        const readChunks = t.map((f) => {
-          const [, , , start, end] = f.split("_");
-          return {
-            start: +start,
-            end: +end,
-            filename: f,
-          };
-        });
-
-        const chunks = new Uint8Array(total);
-
-        for (let i = 0; i !== readChunks.length; i++) {
-          const chunkData = readChunks[i];
-
-          const buffer = await readFile(join(tmpDir, chunkData.filename));
-          await unlink(join(tmpDir, readChunks[i].filename));
-
-          chunks.set(buffer, chunkData.start);
-        }
-      }
-
-      if (!files) {
-        throw new BadRequestException("No files were uploaded");
-      }
-      if (files && files.length === 0) {
-        throw new BadRequestException("No files were uploaded");
-      }
-
-      for (let i = 0; i !== files.length; i++) {
-        const file = files[i];
-
-        if (!file.originalname) {
-          throw new BadRequestException("No filename");
-        }
-
-        const f = await this.prismaService.file.create({
-          data: {
-            userId: user.id,
-            filename: file.originalname,
-            mimetype: file.mimetype,
-            size: file.size,
-            slug: fileId,
-          },
-        });
-
-        return {
-          url: `${process.env.BASE_URL}/${fileId}`,
-          delete: `${process.env.BASE_URL}/delete/${f.id}`,
-        };
-      }
+      return { final: id };
+    } else {
+      return "ok";
     }
   }
-
-  // bulkUpload(file: Array<Express.Multer.File>, req: Request) {
-  //   const contentRange = req.headers["content-range"];
-
-  // if (!contentRange) {
-  //   throw new BadRequestException("Content-Range header is missing");
-  // }
-
-  // if (!fileId) {
-  //   throw new BadRequestException("X-File-Id header is missing");
-  // }
-
-  // const match = contentRange.match(/bytes=(\d+)-(\d+)\/(\d+)/);
-
-  // if (!match) {
-  //   throw new BadRequestException("Invalid Content-Range header");
-  // }
-
-  // const rangeStart = +match[1];
-  // const rangeEnd = +match[2];
-  // const fileSize = +match[3];
-
-  // const max = 1024 * 1024 * 1024 * 2; // 2GB
-
-  // if (fileSize > max) {
-  //   throw new BadRequestException("File is too large");
-  // }
-
-  // if (
-  //   rangeStart >= fileSize ||
-  //   rangeStart >= rangeEnd ||
-  //   rangeEnd > fileSize
-  // ) {
-  //   throw new BadRequestException("Invalid Content-Range header");
-  // }
-
-  // if (!fileId) {
-  //   req.pause();
-  // }
-
-  // stat(this.getFilePath(fileId))
-  //   .then(async (stats) => {
-  //     if (stats.size !== rangeStart) {
-  //       throw new BadRequestException("Bad chunk!");
-  //     }
-
-  //     const stream = createWriteStream(this.getFilePath(fileId), {
-  //       flags: "a",
-  //     });
-  //     stream.write(file.buffer);
-  //     stream.end();
-
-  //     const mime = mimetype.lookup(file.originalname);
-
-  //     await this.prismaService.file
-  //       .create({
-  //         data: {
-  //           filename: file.originalname,
-  //           mimetype: mime ? mime : "application/octet-stream",
-  //           slug: fileId,
-  //           size: file.size,
-  //           userId: (req.session as CustomSession).userId,
-  //         },
-  //         include: { user: { include: { embed_settings: true } } },
-  //       })
-  //       .then(({ user: { embed_settings } }) => {
-  //         if (
-  //           (mimetype.lookup(file.originalname) as string).includes("image")
-  //         ) {
-  //           const thumbnail = createWriteStream(
-  //             join(thumbnailDir, fileId + "_" + file.originalname),
-  //             {
-  //               flags: "a",
-  //             }
-  //           );
-  //           embed_settings &&
-  //             embed_settings.enabled &&
-  //             this.createOEmbedJSON({
-  //               filename: fileId,
-  //               embedAuthor: embed_settings?.embedAuthor,
-  //               embedAuthorUrl: embed_settings?.embedAuthorUrl,
-  //               embedSite: embed_settings?.embedSite,
-  //               embedSiteUrl: embed_settings?.embedSiteUrl,
-  //             });
-  //           thumbnail.write(file.buffer);
-  //           thumbnail.end();
-  //         }
-  //       });
-
-  //     stream.on("error", (e) => {
-  //       this.logger.error(e.message);
-  //       throw new InternalServerErrorException("Error writing chunk");
-  //     });
-  //   })
-
-  //   .catch((err) => {
-  //     if (err.code === "ENOENT") {
-  //       throw new BadRequestException("No file found");
-  //     } else {
-  //       this.logger.error(err.message);
-  //       throw new InternalServerErrorException(
-  //         "Something went wrong in our server, please try again later."
-  //       );
-  //     }
-  //   });
-  // }
 }

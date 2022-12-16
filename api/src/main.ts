@@ -9,6 +9,7 @@ import client from "./lib/redis";
 import ConnectStore from "connect-redis";
 import session from "express-session";
 import helmet from "helmet";
+import bp from "body-parser";
 import "./lib/check";
 
 async function bootstrap() {
@@ -16,15 +17,12 @@ async function bootstrap() {
   const RedisStore = ConnectStore(session);
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.useStaticAssets(join(rootDir, "thumbnails"));
+  app.useStaticAssets(join(rootDir, "uploads"));
   app.setBaseViewsDir(join(rootDir, "views"));
   app.setViewEngine("hbs");
 
-  app.use(
-    helmet({
-      contentSecurityPolicy: false,
-    })
-  );
+  app.use(bp.raw({ type: "application/octet-stream", limit: "100mb" }));
+  app.use(helmet({ contentSecurityPolicy: false }));
   app.enableCors({
     credentials: true,
     origin: process.env.CORS_ORIGIN,
@@ -38,7 +36,9 @@ async function bootstrap() {
       resave: false,
       saveUninitialized: false,
       cookie: {
-        secure: process.env.NODE_ENV === "production",
+        secure:
+          process.env.NODE_ENV === "production" &&
+          process.env.USE_SSL === "true",
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
         sameSite: "lax",

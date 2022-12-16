@@ -50,7 +50,7 @@
           <div class="card-body">
             <h5 class="card-title">{{filename}}</h5>
             <p class="card-text">{{slug}}</p>
-            <a href="#">
+            <a href="{{url}}">
               {{#if isImage}}
                 <img
                   decoding="async"
@@ -59,23 +59,24 @@
                   alt="{{filename}}"
                 />
               {{/if}}
-              {{#if isVideo}}
-                <video preload="metadata" controls loop muted>
-                  <source src="{{url}}" type="{{mimetype}}" />
-                  Your browser does&apos;t support this video type
-                </video>
-              {{/if}}
-              {{#if isAudio}}
-                <audio controls loop preload="metadata">
-                  <source src="{{url}}" type="{{mimetype}}" />
-                </audio>
-              {{/if}}
               {{#if cannotDisplay}}
                 <h5 class="text-center">
                   This file can&apos;t be displayed
                 </h5>
               {{/if}}
             </a>
+            {{#if isVideo}}
+              <video preload="metadata" controls loop muted>
+                <source src="{{url}}" type="{{mimetype}}" />
+                Your browser does&apos;t support this video type
+              </video>
+            {{/if}}
+            {{#if isAudio}}
+              <audio controls loop preload="metadata">
+                <source src="{{url}}" type="{{mimetype}}" />
+                Your browser does&apos;t support this audio type
+              </audio>
+            {{/if}}
             <h5 class="mt-3 text-center">Uploaded by
               <span class="fw-bold text-purple">{{username}}</span></h5>
             <a

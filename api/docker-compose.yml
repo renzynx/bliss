@@ -1,36 +1,44 @@
-version: '3.7'
-
+version: "3.9"
 services:
   server:
-    image: renzynx/bliss:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: renzynx/bliss:main
     container_name: bliss
     restart: always
-    env_file:
-      - .env.production
+    environment:
+      - NODE_ENV=production
+      - USE_SSL=true
+      - DATABASE_URL=postgresql://postgres:postgrespw@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379
     ports:
-      - 3000:${PORT}
+      - 69696:3000
     depends_on:
-      - mongo
+      - postgres
       - redis
+    links:
+      - postgres
+      - redis
+    networks:
+      - bliss
+    volumes:
+      - ./uploads:/app/uploads
+      - ./thumbnails:/app/thumbnails
 
-  mongo:
-    image: prismagraphql/mongo-single-replica:4.4.3-bionic
-    container_name: mongo
+  postgres:
+    image: postgres:alpine
+    container_name: bliss_postgres
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      INIT_WAIT_SEC: 3
-    ports:
-      - 27017:${MONGO_PORT}
+      - POSTGRES_PASSWORD=postgrespw
+    networks:
+      - bliss
 
   redis:
-    image: redis:latest
+    image: redis:alpine
     container_name: redis
     restart: on-failure
-    ports:
-      - 6379:${REDIS_PORT}
-    command: '--requirepass ${REDIS_PASSWORD}'
+    networks:
+      - bliss
+
+networks:
+  bliss:
+    driver: bridge

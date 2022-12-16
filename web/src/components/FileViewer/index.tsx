@@ -1,4 +1,3 @@
-import LoadingPage from '@components/LoadingPage';
 import { useGetUserFiles } from '@lib/hooks';
 import { IFile } from '@lib/types';
 import {
@@ -23,7 +22,7 @@ const FileViewer = () => {
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState<number | 'all'>(15);
 	const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
-	const { data, isLoading, isFetching, error, refetch } = useGetUserFiles({
+	const { data, isFetching, error, refetch } = useGetUserFiles({
 		currentPage: page,
 		skip: limit !== 'all' ? limit * (page - 1) : 0,
 		take: limit !== 'all' ? limit : 'all',
@@ -45,10 +44,6 @@ const FileViewer = () => {
 		}
 	}, [data?.files, refetch]);
 
-	if (isLoading) {
-		return <LoadingPage />;
-	}
-
 	return (
 		<>
 			<Flex
@@ -65,73 +60,80 @@ const FileViewer = () => {
 					</Text>
 				) : data?.files ? (
 					<>
-						<Paper withBorder p="md" sx={{ width: '100%' }}>
-							<Grid
-								gutter="xl"
-								mx="auto"
-								sx={{
-									width: '100%',
-									placeItems: 'center',
-								}}
-							>
-								<Grid.Col span={12} sm={12} lg={8} md={8}>
-									<TextInput
-										disabled={!files?.length && !value}
-										defaultValue={value}
-										onChange={(e) => setValue(e.target.value)}
-										label="Search"
-										w={{ base: '100%' }}
-									/>
-								</Grid.Col>
-								<Grid.Col sm={12} span={12} lg={4} md={4}>
-									<Stack>
-										<Select
-											label="Files per page"
-											value={value ? 'all' : limit.toString()}
-											data={[
-												{ label: '15', value: '15' },
-												{ label: '30', value: '30' },
-												{ label: '60', value: '60' },
-												{ label: '120', value: '120' },
-												{ label: 'All', value: 'all' },
-											]}
-											disabled={value ? true : false || !files?.length}
-											onChange={(value) =>
-												setLimit(value === 'all' ? 'all' : parseInt(value!))
-											}
+						<Suspense fallback={<Loader variant="dots" />}>
+							<Paper withBorder p="md" sx={{ width: '100%' }}>
+								<Grid
+									gutter="xl"
+									mx="auto"
+									sx={{
+										width: '100%',
+										placeItems: 'center',
+									}}
+								>
+									<Grid.Col span={12} sm={12} lg={8} md={8}>
+										<TextInput
+											disabled={!files?.length && !value}
+											defaultValue={value}
+											onChange={(e) => {
+												if (!files?.length) return;
+												setValue(e.target.value);
+											}}
+											label="Search"
+											w={{ base: '100%' }}
 										/>
-										<Select
-											label="Sort by"
-											defaultValue={sort}
-											data={[
-												{
-													label: 'Upload Date (Newest to Oldest)',
-													value: 'newest',
-												},
-												{
-													label: 'Upload Date (Oldest to Newest)',
-													value: 'oldest',
-												},
-												{ label: 'Filename (A-Z)', value: 'a-z' },
-												{ label: 'Filename (Z-A)', value: 'z-a' },
-												{
-													label: 'Size (Smallest to Largest)',
-													value: 'smallest',
-												},
-												{
-													label: 'Size (Largest to Smallest)',
-													value: 'largest',
-												},
-											]}
-											onChange={(value) =>
-												setSort(value as 'newest' | 'oldest')
-											}
-											disabled={!files?.length}
-										/>
-									</Stack>
-								</Grid.Col>
-							</Grid>
-						</Paper>
+									</Grid.Col>
+									<Grid.Col sm={12} span={12} lg={4} md={4}>
+										<Stack>
+											<Select
+												label="Files per page"
+												value={value ? 'all' : limit.toString()}
+												data={[
+													{ label: '15', value: '15' },
+													{ label: '30', value: '30' },
+													{ label: '60', value: '60' },
+													{ label: '120', value: '120' },
+													{ label: 'All', value: 'all' },
+												]}
+												disabled={value ? true : false || !files?.length}
+												onChange={(value) => {
+													if (!files?.length) return;
+													setLimit(value === 'all' ? 'all' : parseInt(value!));
+												}}
+											/>
+											<Select
+												label="Sort by"
+												defaultValue={sort}
+												data={[
+													{
+														label: 'Upload Date (Newest to Oldest)',
+														value: 'newest',
+													},
+													{
+														label: 'Upload Date (Oldest to Newest)',
+														value: 'oldest',
+													},
+													{ label: 'Filename (A-Z)', value: 'a-z' },
+													{ label: 'Filename (Z-A)', value: 'z-a' },
+													{
+														label: 'Size (Smallest to Largest)',
+														value: 'smallest',
+													},
+													{
+														label: 'Size (Largest to Smallest)',
+														value: 'largest',
+													},
+												]}
+												onChange={(value) => {
+													if (!files?.length) return;
+													setSort(value as 'newest' | 'oldest');
+												}}
+												disabled={!files?.length}
+											/>
+										</Stack>
+									</Grid.Col>
+								</Grid>
+							</Paper>
+						</Suspense>
 						<Pagination
 							total={limit === 'all' ? 1 : data.totalPages}
 							page={page}
@@ -164,7 +166,7 @@ const FileViewer = () => {
 							</SimpleGrid>
 						) : (
 							<Text align="center" size="lg">
-								Looks like you don&apos;t have any files in this page yet.
+								Looks like you don&apos;t have any files yet.
 							</Text>
 						)}
 						<Suspense>

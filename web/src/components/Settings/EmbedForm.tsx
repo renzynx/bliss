@@ -3,6 +3,7 @@ import {
 	Button,
 	ColorPicker,
 	Paper,
+	SegmentedControl,
 	Stack,
 	Text,
 	Textarea,
@@ -13,17 +14,16 @@ import { showNotification } from '@mantine/notifications';
 import { UseMutateFunction } from '@tanstack/react-query';
 import { FC } from 'react';
 
-const EmbedForm: FC<
-	UseFormReturnType<Partial<EmbedSettings>> & {
-		mutate: UseMutateFunction<
-			void | EmbedSettings,
-			unknown,
-			Partial<EmbedSettings>,
-			unknown
-		>;
-		loading: boolean;
-	}
-> = (form) => {
+const EmbedForm: FC<{
+	form: UseFormReturnType<Partial<EmbedSettings>, (values: any) => any>;
+	mutate: UseMutateFunction<
+		void | EmbedSettings,
+		unknown,
+		Partial<EmbedSettings>,
+		unknown
+	>;
+	loading: boolean;
+}> = ({ form, mutate, loading }) => {
 	return (
 		<Paper sx={{ width: '100%' }} withBorder p="lg">
 			<form
@@ -36,10 +36,23 @@ const EmbedForm: FC<
 						disallowClose: true,
 					});
 					delete values.id;
-					form.mutate(values);
+					mutate(values);
 				})}
 			>
 				<Stack spacing={10}>
+					<Stack spacing={0}>
+						<Text size="sm" fw="medium" align="left">
+							Enable or disable embed.
+						</Text>
+						<SegmentedControl
+							sx={{ width: '100%' }}
+							data={[
+								{ label: 'Enable', value: 'true' },
+								{ label: 'Disable', value: 'false' },
+							]}
+							{...form.getInputProps('enabled')}
+						/>
+					</Stack>
 					<Textarea
 						minRows={1}
 						maxRows={4}
@@ -87,7 +100,7 @@ const EmbedForm: FC<
 						color="#808bed"
 						mt="md"
 						radius="md"
-						loading={form.loading}
+						loading={loading}
 					>
 						Save
 					</Button>

@@ -76,17 +76,12 @@ const UserMenu = ({ user }: { user?: SessionUser }) => {
 					color="green"
 					withBorder={true}
 				>
-					{user?.image ? (
-						<Avatar
-							sx={{ cursor: 'pointer', border: '1px solid #2C2E33' }}
-							radius="xl"
-							src={user.image}
-						/>
-					) : (
-						<Avatar sx={{ cursor: 'pointer' }} radius="xl" color="teal">
-							{user?.username[0].toUpperCase()}
-						</Avatar>
-					)}
+					<Avatar
+						sx={{ cursor: 'pointer', boxShadow: '0 0 0 0.1px #FFFFFF' }}
+						radius="xl"
+						src={user?.image}
+						alt="User Avatar"
+					/>
 				</Indicator>
 			</Menu.Target>
 

@@ -4,6 +4,7 @@ import { join } from "path";
 import { readFile, writeFile } from "fs/promises";
 import { rootDir } from "./constants";
 import { lookup } from "mime-types";
+import Redis from "ioredis";
 
 export const toFieldError = (errors: string[]) => {
   const fieldErrors: FieldError[] = [];
@@ -66,21 +67,20 @@ export const matchLocalHost = (ip: string) => {
 };
 
 export const readServerSettings = async () => {
-  const data = await readFile(join(rootDir, "settings.json"), "utf-8");
+  const client = new Redis(process.env.REDIS_URL);
+  const data = await client.get("settings");
+  if (!data)
+    return {
+      INVITE_MODE: false,
+      REGISTRATION_ENABLED: true,
+    } as ServerSettings;
+  client.disconnect();
   return JSON.parse(data) as ServerSettings;
 };
 
 export const writeServerSettings = async (newData: ServerSettings) => {
-  return readServerSettings().then(async (data) => {
-    data["REGISTRATION_ENABLED"] = newData["REGISTRATION_ENABLED"];
-    data["DISABLE_INVITE"] = newData["DISABLE_INVITE"];
-
-    await writeFile(
-      join(rootDir, "settings.json"),
-      JSON.stringify(data, null, 2)
-    );
-    return readServerSettings();
-  });
+  const redis = new Redis(process.env.REDIS_URL);
+  return redis.set("settings", JSON.stringify(newData));
 };
 
 export const lookUp = (filename: string) => {
@@ -92,3 +92,6 @@ export const lookUp = (filename: string) => {
     return type;
   }
 };
+
+export const generateRandomHexColor = () =>
+  "#" + Math.floor(Math.random() * 16777215).toString(16);

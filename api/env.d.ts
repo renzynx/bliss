@@ -1,6 +1,7 @@
 declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: "development" | "production";
+    USE_SSL: "true" | "false";
     USE_PROXY: "true" | "false";
     PORT: string;
     SESSION_SECRET: string;
@@ -11,8 +12,6 @@ declare namespace NodeJS {
     MAIL_USERNAME: string;
     MAIL_PASSWORD: string;
     MAIL_FROM: string;
-    DISABLE_REGISTRATION: string;
-    DISABLE_INVITE: string;
     S3_ENDPOINT: string;
     S3_ACCESS_KEY_ID: string;
     S3_SECRET_ACCESS_KEY: string;

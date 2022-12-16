@@ -71,3 +71,12 @@ export const formatDate = (date: Date) => {
 		].join(':')
 	);
 };
+
+export const generateRandomHexColor = () => {
+	return '#' + Math.floor(Math.random() * 16777215).toString(16);
+};
+
+export const serializeURL = (url: string) => {
+	// remove http(s)://
+	return url.replace(/(^\w+:|^)\/\//, '');
+};

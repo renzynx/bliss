@@ -4,9 +4,10 @@ import {
   Param,
   Render,
   Response,
+  Request,
   UseGuards,
 } from "@nestjs/common";
-import { Response as EResponse } from "express";
+import { Response as EResponse, Request as ERequest } from "express";
 import { AuthGuard } from "modules/auth/guard/auth.guard";
 import { RootService } from "./root.service";
 
@@ -22,8 +23,8 @@ export class RootController {
 
   @Get(":slug")
   @Render("index")
-  file(@Param("slug") slug: string) {
-    return this.rootService.getFile(slug);
+  file(@Param("slug") slug: string, @Request() req: ERequest) {
+    return this.rootService.getFile(slug, req);
   }
 
   @Get("d/:filename")

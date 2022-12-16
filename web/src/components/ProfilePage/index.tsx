@@ -11,10 +11,9 @@ import {
 	Stack,
 	Text,
 	UnstyledButton,
-	useMantineTheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconCheck } from '@tabler/icons';
+import { IconMailFast } from '@tabler/icons';
 import { useAtom } from 'jotai';
 import dynamic from 'next/dynamic';
 import CredentialsForm from './CredentialsForm';
@@ -22,14 +21,10 @@ import { useSendVerificationEmail, useSignOut } from '@lib/hooks';
 import { showNotification } from '@mantine/notifications';
 import { profileStyles } from './styles';
 const Modal = dynamic(() => import('@mantine/core').then((mod) => mod.Modal));
-const Notification = dynamic(() =>
-	import('@mantine/core').then((mod) => mod.Notification)
-);
 const ChangePasswordForm = dynamic(() => import('./ChangePasswordForm'));
 
 const ProfilePage = () => {
 	const [user] = useAtom(userAtom);
-	const t = useMantineTheme();
 	const [opened, { close, open }] = useDisclosure(false);
 	const [opened2, { close: close2, open: open2 }] = useDisclosure(false);
 	const { signOut } = useSignOut();
@@ -46,7 +41,13 @@ const ProfilePage = () => {
 				>
 					<Group align="flex-end">
 						{user?.image ? (
-							<Image src={user.image} alt="user avatar" />
+							<Image
+								width={80}
+								height={80}
+								src={user.image}
+								alt="user avatar"
+								radius="md"
+							/>
 						) : (
 							<Avatar style={{ width: 80, height: 80 }} color="teal">
 								<Text size="xl">{user?.username[0]}</Text>
@@ -82,7 +83,7 @@ const ProfilePage = () => {
 									mutate();
 								}}
 							>
-								<IconCheck />
+								<IconMailFast />
 								<Text size="sm" weight="bold">
 									Verify Email
 								</Text>

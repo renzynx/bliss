@@ -23,18 +23,20 @@ const ensure = async () => {
     throw new Error("SESSION_SECRET is not defined");
   } else if (!CORS_ORIGIN) {
     throw new Error("CORS_ORIGIN is not defined");
-  } else if (!MAIL_HOST) {
-    throw new Error("MAIL_HOST is not defined");
-  } else if (!MAIL_PORT) {
-    throw new Error("MAIL_PORT is not defined");
-  } else if (!MAIL_USER) {
-    throw new Error("MAIL_USER is not defined");
-  } else if (!MAIL_PASS) {
-    throw new Error("MAIL_PASS is not defined");
-  } else if (!MAIL_FROM) {
-    throw new Error("MAIL_FROM is not defined");
-  } else if (!BASE_URL) {
-    throw new Error("BASE_URL is not defined");
+  } else if (process.env.USE_MAIL === "true") {
+    if (!MAIL_HOST) {
+      throw new Error("MAIL_HOST is not defined");
+    } else if (!MAIL_PORT) {
+      throw new Error("MAIL_PORT is not defined");
+    } else if (!MAIL_USER) {
+      throw new Error("MAIL_USER is not defined");
+    } else if (!MAIL_PASS) {
+      throw new Error("MAIL_PASS is not defined");
+    } else if (!MAIL_FROM) {
+      throw new Error("MAIL_FROM is not defined");
+    } else if (!BASE_URL) {
+      throw new Error("BASE_URL is not defined");
+    }
   }
 
   if (!existsSync(uploadDir)) {

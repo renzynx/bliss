@@ -14,18 +14,16 @@ import { FC } from 'react';
 
 const EmbedPreview: FC<Partial<EmbedSettings>> = (data) => {
 	const [user] = useAtom(userAtom);
-
 	return (
 		<Paper withBorder p="md">
 			<Group align="start">
 				<Avatar
-					sx={{ width: 42, height: 42 }}
+					sx={{ width: 42, height: 42, boxShadow: '0 0 0 0.1px #FFFFFF' }}
 					size="md"
 					radius="xl"
-					color="violet"
-				>
-					{user?.username[0]}
-				</Avatar>
+					src={user?.image}
+					alt="user avatar"
+				/>
 				<Stack spacing={0}>
 					<Group>
 						<Text variant="link" sx={{ color: '#FFFFFF' }}>
@@ -44,7 +42,7 @@ const EmbedPreview: FC<Partial<EmbedSettings>> = (data) => {
 						{process.env.NEXT_PUBLIC_API_URL}/r9fc2h89j0e
 					</Text>
 
-					{data ? (
+					{data && data.enabled === 'true' ? (
 						<Paper
 							withBorder
 							sx={{

@@ -104,7 +104,7 @@ export interface FileResponse {
 
 export interface EmbedSettings {
 	id: string;
-	enabled: boolean;
+	enabled: 'true' | 'false';
 	embedSite: string;
 	embedSiteUrl: string;
 	embedAuthor: string;

@@ -4,12 +4,12 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { Response } from "express";
+import { Request, Response } from "express";
 import fastFolderSize from "fast-folder-size";
 import { createReadStream } from "fs";
 import { stat } from "fs/promises";
 import { thumbnailDir, uploadDir } from "lib/constants";
-import { formatBytes, lookUp } from "lib/utils";
+import { formatBytes, generateRandomHexColor, lookUp } from "lib/utils";
 import mime from "mime-types";
 import { PrismaService } from "modules/prisma/prisma.service";
 import { join } from "path";
@@ -54,29 +54,36 @@ export class RootService {
       });
   }
 
-  async getFile(slug: string) {
+  async getFile(slug: string, req: Request) {
     if (!slug) {
       throw new NotFoundException();
     }
-    return stat(join(uploadDir, slug))
-      .then(async (stats) => {
-        const file = await this.prismaService.file.findUnique({
-          where: { slug },
-          include: { user: { include: { embed_settings: true } } },
-        });
+    const file = await this.prismaService.file.findUnique({
+      where: { slug },
+      include: { user: { include: { embed_settings: true } } },
+    });
 
+    if (!file) {
+      throw new NotFoundException();
+    }
+
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+
+    const baseUrl = `${protocol}://${req.headers.host}`;
+
+    return stat(join(uploadDir, `${slug}_${file.filename}`))
+      .then(async (stats) => {
         const isVideo = lookUp(file.filename).includes("video");
         const isImage = lookUp(file.filename).includes("image");
         const isAudio = lookUp(file.filename).includes("audio");
         const cannotDisplay = !isImage && !isVideo && !isAudio;
 
         return {
-          oembed: `${process.env.BASE_URL}/${slug}.json`,
-          url: `${process.env.BASE_URL}/${slug}_${file.filename}`,
-          title: file.user.embed_settings?.title || "Bliss V2",
-          description:
-            file.user.embed_settings?.description || "A fancy sharex server",
-          color: file.user.embed_settings?.color || "#808bed",
+          oembed: `${baseUrl}/${slug}.json`,
+          url: `${baseUrl}/${slug}_${file.filename}`,
+          title: file.user.embed_settings?.title,
+          description: file.user.embed_settings?.description,
+          color: file.user.embed_settings?.color ?? generateRandomHexColor(),
           ogType: isVideo ? "video.other" : isImage ? "image" : "website",
           urlType: isVideo ? "video" : isAudio ? "audio" : "image",
           mimetype: lookUp(file.filename),
@@ -84,7 +91,7 @@ export class RootService {
           slug: file.slug + "." + file.filename.split(".").pop(),
           size: stats.size,
           username: file.user.username,
-          embed_enabled: file.user.embed_settings?.enabled || false,
+          embed_enabled: file.user.embed_settings?.enabled ?? false,
           isVideo,
           isImage,
           isAudio,
@@ -104,15 +111,14 @@ export class RootService {
   async getStatistics() {
     try {
       const fastSize = promisify(fastFolderSize);
-      const [files, uploads, thumbnails] = await Promise.all([
+      const [files, uploads] = await Promise.all([
         this.prismaService.file.count(),
         fastSize(uploadDir),
-        fastSize(thumbnailDir),
       ]);
 
       return {
         files,
-        size: formatBytes(uploads + thumbnails),
+        size: formatBytes(uploads),
       };
     } catch (error) {
       this.logger.error(error.message);

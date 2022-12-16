@@ -1,5 +1,10 @@
 import { userAtom } from '@lib/atoms';
-import { APP_NAME, ROUTES, uploaderConfig } from '@lib/constants';
+import {
+	APP_NAME,
+	flameshotScript,
+	ROUTES,
+	sharexConfig,
+} from '@lib/constants';
 import { CustomNextPage } from '@lib/types';
 import {
 	Button,
@@ -26,22 +31,34 @@ const Settings: CustomNextPage<{
 		router.prefetch(ROUTES.SETTINGS);
 	}, [router]);
 
-	const download = useCallback(() => {
-		const tmp = document.createElement('a');
-		tmp.setAttribute(
-			'href',
-			'data:text/plain;charset=utf-8,' +
-				encodeURIComponent(
-					JSON.stringify(
-						uploaderConfig(user?.username!, user?.apiKey!),
-						null,
-						2
-					)
-				)
-		);
-		tmp.setAttribute('download', `${user?.username!}-config.sxcu`);
-		tmp.click();
-	}, [user?.apiKey, user?.username]);
+	const download = useCallback(
+		(type: 'sharex' | 'flameshot') => {
+			const tmp = document.createElement('a');
+			type === 'sharex'
+				? tmp.setAttribute(
+						'href',
+						'data:text/plain;charset=utf-8,' +
+							encodeURIComponent(
+								JSON.stringify(
+									sharexConfig(user?.username!, user?.apiKey!),
+									null,
+									2
+								)
+							)
+				  )
+				: tmp.setAttribute(
+						'href',
+						// bash script to upload to flameshot
+						'data:text/plain;charset=utf-8,' +
+							encodeURIComponent(flameshotScript(user?.apiKey!))
+				  );
+			type === 'sharex'
+				? tmp.setAttribute('download', `${user?.username}-config.sxcu`)
+				: tmp.setAttribute('download', `${user?.username}-flameshot.sh`);
+			tmp.click();
+		},
+		[user?.apiKey, user?.username]
+	);
 
 	return (
 		<>
@@ -77,10 +94,18 @@ const Settings: CustomNextPage<{
 								<Text align="center" size="xl" weight="bold">
 									Download upload configs
 								</Text>
-								<Button onClick={download} variant="light" color="indigo">
+								<Button
+									onClick={() => download('sharex')}
+									variant="light"
+									color="indigo"
+								>
 									Download ShareX Config
 								</Button>
-								<Button variant="light" color="indigo">
+								<Button
+									onClick={() => download('flameshot')}
+									variant="light"
+									color="indigo"
+								>
 									Download Flameshot Script
 								</Button>
 							</Stack>

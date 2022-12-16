@@ -25,6 +25,7 @@ import {
 import { RegisterDTO } from "../auth/dto/register.dto";
 import { PrismaService } from "../prisma/prisma.service";
 import { Request } from "express";
+import md5 from "md5";
 
 @Injectable()
 export class UsersService implements IUserService {
@@ -61,10 +62,16 @@ export class UsersService implements IUserService {
   }
 
   async createUser(
-    { email, username, password, invite }: RegisterDTO & { invite?: string },
+    {
+      email,
+      username,
+      password,
+      invite,
+    }: RegisterDTO & { invite?: string; username?: string | undefined },
     req: Request
   ): Promise<UserResponse> {
     const { INVITE_MODE, REGISTRATION_ENABLED } = await readServerSettings();
+    let inv: string | null = null;
 
     if (!REGISTRATION_ENABLED) {
       throw new BadRequestException({
@@ -85,132 +92,122 @@ export class UsersService implements IUserService {
       });
     }
 
-    if (!INVITE_MODE) {
-      try {
-        const hashedPassword = await argon.hash(password);
-        const user = await this.prisma.user.create({
-          data: {
-            email,
-            username: username ? username : generateUsername("-"),
-            password: hashedPassword,
-            apiKey: generateApiKey(),
-          },
-        });
-        delete user.password;
-
-        (req.session as CustomSession).userId = user.id;
-
-        return { user };
-      } catch (error) {
-        if (
-          error instanceof PrismaClientKnownRequestError &&
-          error.code === "P2002"
-        ) {
-          throw new BadRequestException({
-            errors: [
-              {
-                field: "email",
-                message: "Email or username already taken",
-              },
-              {
-                field: "username",
-                message: "Email or username already taken",
-              },
-            ],
-          });
-        } else {
-          this._logger.error(error.message);
-          throw new InternalServerErrorException({
-            errors: [
-              {
-                field: "username",
-                message: "Something went wrong in our end, try again later",
-              },
-              {
-                field: "email",
-                message: "Something went wrong in our end, try again later",
-              },
-            ],
-          });
-        }
-      }
-    } else {
-      const checkInvite = await this.prisma.verificationToken.findUnique({
-        where: {
-          token: invite,
-        },
-      });
-
-      if (!checkInvite) {
-        throw new UnauthorizedException({
+    if (username) {
+      if (username.length < 3) {
+        throw new BadRequestException({
           errors: [
             {
-              field: "invite",
-              message: "Invite code is invalid or expired",
+              field: "username",
+              message: "Username must be at least 3 characters long",
+            },
+          ],
+        });
+      }
+      if (username.length > 20) {
+        throw new BadRequestException({
+          errors: [
+            {
+              field: "username",
+              message: "Username must be at most 20 characters long",
             },
           ],
         });
       }
 
-      try {
-        const hashedPassword = await argon.hash(password);
-
-        const user = await this.prisma.user.create({
-          data: {
-            email,
-            username: username ? username : generateUsername("-"),
-            password: hashedPassword,
-            apiKey: generateApiKey(),
-            invitedBy: checkInvite.identifier,
-          },
-        });
-
-        await this.prisma.verificationToken.delete({
-          where: {
-            identifier_token: {
-              identifier: checkInvite.identifier,
-              token: checkInvite.token,
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        throw new BadRequestException({
+          errors: [
+            {
+              field: "username",
+              message: "Username can only contain letters, numbers and _",
             },
-          },
+          ],
         });
+      }
+    }
 
-        delete user.password;
+    if (INVITE_MODE) {
+      if (!invite) {
+        throw new BadRequestException({
+          errors: [
+            {
+              field: "invite",
+              message: "Invite code is required",
+            },
+          ],
+        });
+      }
 
-        (req.session as CustomSession).userId = user.id;
+      const inviteCode = await this.prisma.verificationToken.findUnique({
+        where: {
+          token: invite,
+        },
+      });
 
-        return { user };
-      } catch (error) {
-        if (
-          error instanceof PrismaClientKnownRequestError &&
-          error.code === "P2002"
-        ) {
-          throw new BadRequestException({
-            errors: [
-              {
-                field: "email",
-                message: "Email or username already taken",
-              },
-              {
-                field: "username",
-                message: "Email or username already taken",
-              },
-            ],
-          });
-        } else {
-          this._logger.error(error.message);
-          throw new InternalServerErrorException({
-            errors: [
-              {
-                field: "username",
-                message: "Something went wrong in our end, try again later",
-              },
-              {
-                field: "email",
-                message: "Something went wrong in our end, try again later",
-              },
-            ],
-          });
-        }
+      if (!inviteCode || inviteCode.type !== "INVITE_CODE") {
+        throw new BadRequestException({
+          errors: [
+            {
+              field: "invite",
+              message: "Invalid invite code",
+            },
+          ],
+        });
+      }
+
+      inv = inviteCode.identifier;
+      await this.prisma.verificationToken.delete({ where: { token: invite } });
+    }
+
+    try {
+      const avatarHash = md5(email.trim().toLowerCase());
+      const hashedPassword = await argon.hash(password);
+      const user = await this.prisma.user.create({
+        data: {
+          email,
+          username: username ? username : generateUsername("_"),
+          password: hashedPassword,
+          apiKey: generateApiKey(),
+          image: `https://www.gravatar.com/avatar/${avatarHash}`,
+          invitedBy: inv ? inv : null,
+        },
+      });
+      delete user.password;
+
+      (req.session as CustomSession).userId = user.id;
+
+      return { user };
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new BadRequestException({
+          errors: [
+            {
+              field: "email",
+              message: "Email or username already taken",
+            },
+            {
+              field: "username",
+              message: "Email or username already taken",
+            },
+          ],
+        });
+      } else {
+        this._logger.error(error.message);
+        throw new InternalServerErrorException({
+          errors: [
+            {
+              field: "username",
+              message: "Something went wrong in our end, try again later",
+            },
+            {
+              field: "email",
+              message: "Something went wrong in our end, try again later",
+            },
+          ],
+        });
       }
     }
   }
@@ -295,7 +292,14 @@ export class UsersService implements IUserService {
     return this.prisma.embedSettings.findUnique({ where: { userId: id } });
   }
 
-  async setEmbedSettings(settings: Omit<EmbedSettings, "id">, id: string) {
+  async setEmbedSettings(
+    settings: Omit<EmbedSettings, "id" | "userId">,
+    id: string
+  ) {
+    // @ts-ignore
+    settings.enabled === "false"
+      ? (settings.enabled = false)
+      : (settings.enabled = true);
     return this.prisma.embedSettings.upsert({
       where: { userId: id },
       create: { ...settings, userId: id },

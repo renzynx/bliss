@@ -1,6 +1,6 @@
 import { API_ROUTES, API_URL } from '@lib/constants';
 import { EmbedSettings } from '@lib/types';
-import { toErrorMap } from '@lib/utils';
+import { generateRandomHexColor, toErrorMap } from '@lib/utils';
 import { useForm } from '@mantine/form';
 import { updateNotification } from '@mantine/notifications';
 import { IconCheck, IconX } from '@tabler/icons';
@@ -8,9 +8,30 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 
 export const useUpdateEmbedSettings = (data: Partial<EmbedSettings>) => {
+	delete data.userId;
 	const form = useForm<Partial<EmbedSettings>>({
 		initialValues: {
 			...data,
+			enabled: data.enabled ? 'true' : 'false',
+		},
+		validate: {
+			// @ts-ignore shitty typescript
+			title: (val: string, vals: EmbedSettings) =>
+				!val && !vals.embedAuthor
+					? 'Title or author is required for embed to display properly'
+					: null,
+			// @ts-ignore shut up typescript
+			embedAuthor: (val: string, vals: EmbedSettings) =>
+				!val && !vals.embedAuthor
+					? 'Title or author is required for embed to display properly'
+					: null,
+		},
+		transformValues: (values) => {
+			if (!values.color) {
+				values.color = generateRandomHexColor();
+			}
+
+			return values;
 		},
 	});
 	const { mutate, isLoading } = useMutation(

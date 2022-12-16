@@ -1,12 +1,15 @@
+import { userAtom } from '@lib/atoms';
 import { API_ROUTES, API_URL } from '@lib/constants';
 import { toErrorMap } from '@lib/utils';
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { useAtom } from 'jotai';
 
 export const useChangeUsername = (username: string) => {
 	const form = useForm({ initialValues: { newUsername: username, username } });
+	const [user, setUser] = useAtom(userAtom);
 
 	const { mutate, isLoading, error } = useMutation(
 		['change-username'],
@@ -23,6 +26,8 @@ export const useChangeUsername = (username: string) => {
 							message: 'Your username has been changed successfully',
 							color: 'green',
 						});
+						// @ts-ignore
+						setUser({ ...user, username: res.data });
 					}
 				})
 				.catch((err) => {

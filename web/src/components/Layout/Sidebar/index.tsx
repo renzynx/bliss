@@ -108,7 +108,6 @@ const Sidebar: FC<{ admin?: boolean }> = ({ admin }) => {
 					key={index}
 					active={router.pathname === item.href}
 					color="violet"
-					sx={{ fontSize: '20px' }}
 					// eslint-disable-next-line react/no-children-prop
 					children={item.children?.map((child, index) => (
 						<NavLink

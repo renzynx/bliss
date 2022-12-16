@@ -24,7 +24,7 @@ const EmbedSetting: CustomNextPage<
 						{ maxWidth: 900, cols: 1 },
 					]}
 				>
-					<EmbedForm {...form} mutate={mutate} loading={isLoading} />
+					<EmbedForm form={form} mutate={mutate} loading={isLoading} />
 					<EmbedPreview {...form.values} />
 				</SimpleGrid>
 			</Tabs.Panel>

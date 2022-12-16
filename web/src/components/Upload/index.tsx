@@ -1,40 +1,147 @@
-// import { useUploadAndTrackFiles } from '@lib/hooks';
-import { FileRejection } from '@lib/types';
 import { Button, Group, Text, useMantineTheme } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
-import { IconCloudUpload, IconDownload, IconX } from '@tabler/icons';
+import { IconCheck, IconCloudUpload, IconDownload, IconX } from '@tabler/icons';
 import dynamic from 'next/dynamic';
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { uploadStyles } from './styles';
-import { MIME_TYPES } from '@lib/constants';
-import { useBetterUpload } from '@lib/hooks/useBetterUpload';
+import { API_ROUTES, API_URL, CHUNK_SIZE } from '@lib/constants';
+import axios from 'axios';
 import { useAtom } from 'jotai';
 import { userAtom } from '@lib/atoms';
+import { showNotification } from '@mantine/notifications';
 const ProgressCard = dynamic(() => import('./ProgressCard'));
 
 const UploadZone = () => {
-	// const { upload, progress } = useUploadAndTrackFiles();
-	const { classes } = uploadStyles();
+	const [user] = useAtom(userAtom);
 	const theme = useMantineTheme();
 	const openRef = useRef<() => void>(null);
-	const [err, setErr] = useState<FileRejection[]>([]);
-	const { handleUpload } = useBetterUpload();
-	const [user] = useAtom(userAtom);
+	const [files, setFiles] = useState<File[]>([]);
+	const [currentFileIndex, setCurrentFileIndex] = useState<number | null>(null);
+	const [lastUploadedFileIndex, setLastUploadedFileIndex] = useState<
+		number | null
+	>(null);
+	const [currentChunkIndex, setCurrentChunkIndex] = useState<number | null>(
+		null
+	);
+	const { classes } = uploadStyles();
 
-	console.log(user);
+	const uploadChunk = useCallback(
+		(e: ProgressEvent<FileReader>) => {
+			const file = files[currentFileIndex!];
+			const data = e.target?.result;
+			const headers = {
+				'Content-Type': 'application/octet-stream',
+				'X-File-Name': encodeURIComponent(file.name),
+				'X-File-Size': file.size,
+				'X-Current-Chunk': currentChunkIndex,
+				'X-Total-Chunks': Math.ceil(file.size / CHUNK_SIZE),
+				Authorization: user?.apiKey,
+			};
+			axios
+				.post(API_URL + API_ROUTES.UPLOAD_FILE, data, { headers })
+				.then((response) => {
+					const file = files[currentFileIndex!];
+					const filesize = file.size;
+					const chunks = Math.ceil(filesize / CHUNK_SIZE) - 1;
+					const isLastChunk = currentChunkIndex === chunks;
+					if (isLastChunk) {
+						// @ts-ignore
+						file.final = response.data?.final;
+						setLastUploadedFileIndex(currentFileIndex!);
+						setCurrentChunkIndex(null);
+
+						showNotification({
+							title: 'Upload complete',
+							message: `${file.name} has been uploaded successfully`,
+							color: theme.colors.green[7],
+							icon: <IconCheck />,
+						});
+
+						const isLastFile = currentFileIndex === files.length - 1;
+
+						if (isLastFile) {
+							setCurrentFileIndex(null);
+							setFiles([]);
+						}
+					} else {
+						setCurrentChunkIndex(currentChunkIndex! + 1);
+					}
+				});
+		},
+		[
+			currentChunkIndex,
+			currentFileIndex,
+			files,
+			theme.colors.green,
+			user?.apiKey,
+		]
+	);
+
+	const readAndUploadCurrentChunk = useCallback(() => {
+		const reader = new FileReader();
+		const file = files[currentFileIndex!];
+
+		if (!file) return;
+
+		const from = currentChunkIndex! * CHUNK_SIZE;
+		const to = from + CHUNK_SIZE;
+		const blob = file.slice(from, to);
+		reader.onload = (e) => uploadChunk(e);
+		reader.readAsDataURL(blob);
+	}, [currentChunkIndex, currentFileIndex, files, uploadChunk]);
+
+	useEffect(() => {
+		if (lastUploadedFileIndex === null) {
+			return;
+		}
+		const isLastFile = lastUploadedFileIndex === files.length - 1;
+		const nextFileIndex = isLastFile ? null : currentFileIndex! + 1;
+		setCurrentFileIndex(nextFileIndex);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [lastUploadedFileIndex]);
+
+	useEffect(() => {
+		if (files.length > 0) {
+			if (currentFileIndex === null) {
+				setCurrentFileIndex(
+					lastUploadedFileIndex === null ? 0 : lastUploadedFileIndex + 1
+				);
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [files.length]);
+
+	useEffect(() => {
+		if (currentFileIndex !== null) {
+			setCurrentChunkIndex(0);
+		}
+	}, [currentFileIndex]);
+
+	useEffect(() => {
+		if (currentChunkIndex !== null) {
+			readAndUploadCurrentChunk();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [currentChunkIndex]);
 
 	return (
 		<>
 			<div className={classes.wrapper}>
 				<Dropzone
 					openRef={openRef}
-					onDrop={(files) => handleUpload(files, user ? user.apiKey : '')}
-					onReject={(err) => setErr(err)}
+					onDrop={(files) => setFiles(files)}
+					onReject={(err) => {
+						showNotification({
+							title: 'Error',
+							message: err[0].errors[0].message,
+							color: 'red',
+							icon: <IconX />,
+						});
+					}}
 					className={classes.dropzone}
 					radius="md"
-					accept={MIME_TYPES}
-					//50MB
-					maxSize={50 * 1024 ** 2}
+					// accept={MIME_TYPES}
+					maxSize={5000 * 1024 ** 2}
 				>
 					<div style={{ pointerEvents: 'none' }}>
 						<Group position="center">
@@ -62,25 +169,15 @@ const UploadZone = () => {
 						</Group>
 
 						<Text align="center" weight={700} size="lg" mt="xl">
-							<Dropzone.Accept>Drop images here</Dropzone.Accept>
+							<Dropzone.Accept>Drop files here</Dropzone.Accept>
 							<Dropzone.Reject>
-								{err.map((e, i) => (
-									<Text key={i}>
-										{e.errors.map((m, i) => (
-											<Text key={i}>
-												{m.code === 'file-invalid-type'
-													? 'File type is not supported'
-													: 'File is too large'}
-											</Text>
-										))}
-									</Text>
-								))}
+								We can&apos;t accept this file. Try another one.
 							</Dropzone.Reject>
-							<Dropzone.Idle>Upload Images</Dropzone.Idle>
+							<Dropzone.Idle>Upload Files</Dropzone.Idle>
 						</Text>
 						<Text align="center" size="sm" mt="xs" color="dimmed">
-							Drag&apos;n&apos;drop images here to upload. We can accept only
-							images that are less than 50MB in size.
+							Drag&apos;n&apos;drop files here to upload. We can accept only
+							file that are less than 5GB in size.
 						</Text>
 					</div>
 				</Dropzone>
@@ -94,13 +191,25 @@ const UploadZone = () => {
 					Select files
 				</Button>
 			</div>
-			{/* {progress.map((data) => (
-				<ProgressCard
-					key={data.name}
-					filename={data.name}
-					progress={+data.percentage}
-				/>
-			))} */}
+			{files.map((file, idx) => {
+				let progress = 0;
+				// @ts-ignore
+				if (file.final) {
+					progress = 100;
+				} else {
+					const uploading = idx === currentFileIndex;
+					const chunks = Math.ceil(file.size / CHUNK_SIZE);
+
+					if (uploading) {
+						progress = Math.round((currentChunkIndex! / chunks) * 100);
+					} else {
+						progress = 0;
+					}
+				}
+				return (
+					<ProgressCard key={idx} filename={file.name} progress={progress} />
+				);
+			})}
 		</>
 	);
 };

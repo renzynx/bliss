@@ -9,6 +9,10 @@ export const uploadStyles = createStyles((theme) => ({
 	dropzone: {
 		borderWidth: 1,
 		paddingBottom: 50,
+		height: 300,
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 
 	icon: {
