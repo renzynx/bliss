@@ -1,5 +1,5 @@
 FROM node:lts-buster-slim AS builder
-RUN apk update
+RUN apt update
 
 WORKDIR /app
 
