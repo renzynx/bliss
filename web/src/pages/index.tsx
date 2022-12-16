@@ -15,7 +15,7 @@ const Home = (
 			<Navbar user={props?.user} />
 			{props.user && (
 				<Sidebar
-					admin={props.user.role === 'OWNER' || props.user.role === 'ADMIN'}
+					admin={props?.user?.role === 'OWNER' || props?.user?.role === 'ADMIN'}
 				/>
 			)}
 			<Hero />
