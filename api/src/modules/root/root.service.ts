@@ -54,7 +54,7 @@ export class RootService {
           "Content-Disposition",
           `'attachment'; filename=${fn.split("_").pop()}`
         );
-        createReadStream(join(uploadDir, filename)).pipe(res);
+        createReadStream(join(uploadDir, fn)).pipe(res);
       })
       .catch(() => {
         throw new NotFoundException();
