@@ -2,7 +2,7 @@ import { Button, Group, Text, useMantineTheme } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { IconCheck, IconCloudUpload, IconDownload, IconX } from '@tabler/icons';
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { uploadStyles } from './styles';
 import { API_ROUTES, API_URL, CHUNK_SIZE } from '@lib/constants';
 import axios from 'axios';
@@ -25,70 +25,61 @@ const UploadZone = () => {
 	);
 	const { classes } = uploadStyles();
 
-	const uploadChunk = useCallback(
-		(e: ProgressEvent<FileReader>) => {
-			const file = files[currentFileIndex!];
-			const data = e.target?.result;
-			const headers = {
-				'Content-Type': 'application/octet-stream',
-				'X-File-Name': encodeURIComponent(file.name),
-				'X-File-Size': file.size,
-				'X-Current-Chunk': currentChunkIndex,
-				'X-Total-Chunks': Math.ceil(file.size / CHUNK_SIZE),
-				Authorization: user?.apiKey,
-			};
-			axios
-				.post(API_URL + API_ROUTES.UPLOAD_FILE, data, { headers })
-				.then((response) => {
-					const file = files[currentFileIndex!];
-					const filesize = file.size;
-					const chunks = Math.ceil(filesize / CHUNK_SIZE) - 1;
-					const isLastChunk = currentChunkIndex === chunks;
-					if (isLastChunk) {
-						// @ts-ignore
-						file.final = response.data?.final;
-						setLastUploadedFileIndex(currentFileIndex!);
-						setCurrentChunkIndex(null);
+	const uploadChunk = (e: ProgressEvent<FileReader>) => {
+		if (currentFileIndex === null) return;
+		const file = files[currentFileIndex];
+		const data = e.target?.result;
+		const headers = {
+			'Content-Type': 'application/octet-stream',
+			'X-File-Name': encodeURIComponent(file.name),
+			'X-File-Size': file.size,
+			'X-Current-Chunk': currentChunkIndex,
+			'X-Total-Chunks': Math.ceil(file.size / CHUNK_SIZE),
+			Authorization: user?.apiKey,
+		};
+		axios
+			.post(API_URL + API_ROUTES.UPLOAD_FILE, data, { headers })
+			.then((response) => {
+				const file = files[currentFileIndex!];
+				const filesize = file.size;
+				const chunks = Math.ceil(filesize / CHUNK_SIZE) - 1;
+				const isLastChunk = currentChunkIndex === chunks;
+				if (isLastChunk) {
+					// @ts-ignore
+					file.final = response.data?.final;
+					setLastUploadedFileIndex(currentFileIndex!);
+					setCurrentChunkIndex(null);
 
-						showNotification({
-							title: 'Upload complete',
-							message: `${file.name} has been uploaded successfully`,
-							color: theme.colors.green[7],
-							icon: <IconCheck />,
-						});
+					showNotification({
+						title: 'Upload complete',
+						message: `${file.name} has been uploaded successfully`,
+						color: theme.colors.green[7],
+						icon: <IconCheck />,
+					});
 
-						const isLastFile = currentFileIndex === files.length - 1;
+					const isLastFile = currentFileIndex === files.length - 1;
 
-						if (isLastFile) {
-							setCurrentFileIndex(null);
-							setFiles([]);
-						}
-					} else {
-						setCurrentChunkIndex(currentChunkIndex! + 1);
+					if (isLastFile) {
+						setCurrentFileIndex(null);
+						setLastUploadedFileIndex(currentFileIndex);
 					}
-				});
-		},
-		[
-			currentChunkIndex,
-			currentFileIndex,
-			files,
-			theme.colors.green,
-			user?.apiKey,
-		]
-	);
+				} else {
+					setCurrentChunkIndex(currentChunkIndex! + 1);
+				}
+			});
+	};
 
-	const readAndUploadCurrentChunk = useCallback(() => {
+	const readAndUploadCurrentChunk = () => {
+		if (currentFileIndex === null) return;
 		const reader = new FileReader();
-		const file = files[currentFileIndex!];
-
+		const file = files[currentFileIndex];
 		if (!file) return;
-
 		const from = currentChunkIndex! * CHUNK_SIZE;
 		const to = from + CHUNK_SIZE;
 		const blob = file.slice(from, to);
 		reader.onload = (e) => uploadChunk(e);
 		reader.readAsDataURL(blob);
-	}, [currentChunkIndex, currentFileIndex, files, uploadChunk]);
+	};
 
 	useEffect(() => {
 		if (lastUploadedFileIndex === null) {
@@ -101,12 +92,10 @@ const UploadZone = () => {
 	}, [lastUploadedFileIndex]);
 
 	useEffect(() => {
-		if (files.length > 0) {
-			if (currentFileIndex === null) {
-				setCurrentFileIndex(
-					lastUploadedFileIndex === null ? 0 : lastUploadedFileIndex + 1
-				);
-			}
+		if (files.length > 0 && currentFileIndex === null) {
+			setCurrentFileIndex(
+				lastUploadedFileIndex === null ? 0 : lastUploadedFileIndex + 1
+			);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [files.length]);
@@ -129,7 +118,7 @@ const UploadZone = () => {
 			<div className={classes.wrapper}>
 				<Dropzone
 					openRef={openRef}
-					onDrop={(files) => setFiles(files)}
+					onDrop={(dropzoneFiles) => setFiles([...files, ...dropzoneFiles])}
 					onReject={(err) => {
 						showNotification({
 							title: 'Error',
@@ -201,7 +190,8 @@ const UploadZone = () => {
 					const chunks = Math.ceil(file.size / CHUNK_SIZE);
 
 					if (uploading) {
-						progress = Math.round((currentChunkIndex! / chunks) * 100);
+						const rounder = (currentChunkIndex! / chunks) * 100;
+						progress = +rounder.toFixed(2);
 					} else {
 						progress = 0;
 					}

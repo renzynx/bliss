@@ -1,3 +1,4 @@
+import LoadingPage from '@components/LoadingPage';
 import { useGetUserFiles } from '@lib/hooks';
 import { IFile } from '@lib/types';
 import {
@@ -22,7 +23,7 @@ const FileViewer = () => {
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState<number | 'all'>(15);
 	const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
-	const { data, isFetching, error, refetch } = useGetUserFiles({
+	const { data, isFetching, error, refetch, isLoading } = useGetUserFiles({
 		currentPage: page,
 		skip: limit !== 'all' ? limit * (page - 1) : 0,
 		take: limit !== 'all' ? limit : 'all',
@@ -43,6 +44,10 @@ const FileViewer = () => {
 			return null;
 		}
 	}, [data?.files, refetch]);
+
+	if (isLoading) {
+		return <LoadingPage color="yellow" />;
+	}
 
 	return (
 		<>
@@ -149,18 +154,21 @@ const FileViewer = () => {
 								},
 							})}
 						/>
-						{isFetching ? (
+						{isFetching || isLoading ? (
 							<Flex justify="center">
 								<Loader />
 							</Flex>
 						) : data.files.length > 0 ? (
 							<SimpleGrid
-								cols={4}
+								cols={3}
 								breakpoints={[
 									{ maxWidth: 1280, cols: 3, spacing: 'md' },
 									{ maxWidth: 840, cols: 2, spacing: 'sm' },
 									{ maxWidth: 600, cols: 1, spacing: 'sm' },
 								]}
+								sx={{
+									gridAutoFlow: 'dense',
+								}}
 							>
 								{files}
 							</SimpleGrid>

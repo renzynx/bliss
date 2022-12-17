@@ -1,7 +1,16 @@
 import { API_URL } from '@lib/constants';
 import { IFile } from '@lib/types';
 import { formatDate } from '@lib/utils';
-import { Button, Flex, Grid, Group, Paper, Stack, Text } from '@mantine/core';
+import {
+	Box,
+	Button,
+	Flex,
+	Grid,
+	Group,
+	// Paper,
+	Stack,
+	Text,
+} from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import { IconCheck, IconX } from '@tabler/icons';
 import {
@@ -42,8 +51,25 @@ const PreviewCard: FC<{
 	}, [file.id, refetch]);
 
 	return (
-		<Paper withBorder radius="md" sx={{ overflow: 'hidden' }}>
-			<Stack spacing={0} sx={{ height: '100%' }} justify="space-between">
+		// <Paper withBorder radius="md" sx={{ overflow: 'hidden' }}>
+		<Box>
+			<Stack
+				spacing={0}
+				p="xl"
+				justify="space-between"
+				sx={(t) => ({
+					overflow: 'scroll',
+					border: `1px solid ${t.colors.dark[4]}`,
+					borderRadius: t.radius.md,
+					boxShadow: t.shadows.sm,
+					maxHeight: 500,
+					'&::-webkit-scrollbar': {
+						display: 'none',
+					},
+					msOverflowStyle: 'none',
+					scrollbarWidth: 'none',
+				})}
+			>
 				<Flex
 					justify="center"
 					align="center"
@@ -51,20 +77,45 @@ const PreviewCard: FC<{
 					mx="auto"
 					sx={{ width: '100%', height: '100%' }}
 				>
-					{/* eslint-disable-next-line @next/next/no-img-element*/}
-					<img
-						src={`${API_URL}/${file.slug}_${file.filename}`}
-						style={{ maxWidth: '100%', maxHeight: '85%', borderRadius: '2px' }}
-						alt={file.filename}
-						decoding="async"
-					/>
+					{file.mimetype.includes('image') ? (
+						/* eslint-disable-next-line @next/next/no-img-element*/
+						<img
+							src={`${API_URL}/${file.slug}_${file.filename}`}
+							style={{
+								maxWidth: '95%',
+								maxHeight: '85%',
+								borderRadius: '2px',
+								objectFit: 'contain',
+							}}
+							alt={file.filename}
+							decoding="async"
+						/>
+					) : file.mimetype.includes('video') ? (
+						<video
+							controls
+							muted
+							loop
+							preload="metadata"
+							style={{
+								maxWidth: '95%',
+								maxHeight: '85%',
+								borderRadius: '2px',
+							}}
+						>
+							<source src={`${API_URL}/${file.slug}_${file.filename}`} />
+						</video>
+					) : file.mimetype.includes('audio') ? (
+						<audio controls loop preload="metadata">
+							<source src={`${API_URL}/${file.slug}_${file.filename}`} />
+						</audio>
+					) : (
+						<Text align="center">
+							This file type is not supported for preview.
+						</Text>
+					)}
 				</Flex>
 
-				<Stack
-					spacing={2}
-					style={{ borderBottom: '1px solid #2F3136' }}
-					justify="end"
-				>
+				<Stack spacing={2} justify="end">
 					<Group spacing={5} mt="lg" position="center" align="center">
 						<Text
 							align="center"
@@ -90,7 +141,7 @@ const PreviewCard: FC<{
 					<Text align="center" size="sm">
 						Uploaded at {formatDate(new Date(file.createdAt))}
 					</Text>
-					<Grid mx="sm" p="lg" gutter="xs" grow>
+					<Grid mx="sm" mt="lg" gutter="xs" grow>
 						<Grid.Col span={4}>
 							<Button
 								onClick={() =>
@@ -129,7 +180,8 @@ const PreviewCard: FC<{
 					</Grid>
 				</Stack>
 			</Stack>
-		</Paper>
+		</Box>
+		// </Paper>
 	);
 };
 

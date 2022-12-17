@@ -6,10 +6,9 @@ import {
   Request,
   HttpCode,
   Get,
-  Query,
-  UseGuards,
   Param,
   Response,
+  Body,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadService } from "./upload.service";

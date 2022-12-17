@@ -9,7 +9,13 @@ import fastFolderSize from "fast-folder-size";
 import { createReadStream } from "fs";
 import { stat } from "fs/promises";
 import { thumbnailDir, uploadDir } from "lib/constants";
-import { formatBytes, generateRandomHexColor, lookUp } from "lib/utils";
+import { CustomSession } from "lib/types";
+import {
+  formatBytes,
+  formatDate,
+  generateRandomHexColor,
+  lookUp,
+} from "lib/utils";
 import mime from "mime-types";
 import { PrismaService } from "modules/prisma/prisma.service";
 import { join } from "path";
@@ -73,10 +79,19 @@ export class RootService {
 
     return stat(join(uploadDir, `${slug}_${file.filename}`))
       .then(async (stats) => {
+        let vw = file.views;
+        if ((req.session as CustomSession).userId !== file.userId) {
+          const { views } = await this.prismaService.file.update({
+            where: { slug },
+            data: { views: file.views + 1 },
+          });
+          vw = views;
+        }
         const isVideo = lookUp(file.filename).includes("video");
         const isImage = lookUp(file.filename).includes("image");
         const isAudio = lookUp(file.filename).includes("audio");
         const cannotDisplay = !isImage && !isVideo && !isAudio;
+        const timezone = new Date().getTimezoneOffset() / 60;
 
         return {
           oembed: `${baseUrl}/${slug}.json`,
@@ -89,13 +104,16 @@ export class RootService {
           mimetype: lookUp(file.filename),
           filename: file.filename,
           slug: file.slug + "." + file.filename.split(".").pop(),
-          size: stats.size,
+          size: formatBytes(stats.size),
           username: file.user.username,
           embed_enabled: file.user.embed_settings?.enabled ?? false,
+          views: vw,
+          timestamp: formatDate(file.createdAt) + ` (UTC${timezone})`,
           isVideo,
           isImage,
           isAudio,
           cannotDisplay,
+          id: file.id,
         };
       })
       .catch((err) => {

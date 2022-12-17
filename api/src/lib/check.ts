@@ -63,4 +63,4 @@ const ensure = async () => {
   }
 };
 
-ensure();
+process.env.NODE_ENV === "production" && ensure();

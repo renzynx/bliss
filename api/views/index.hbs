@@ -4,9 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
-    <meta name="twitter:image" content="{{url}}" />
-    <meta name="twitter:image:src" content="{{url}}" />
-    <meta name="twitter:card" content="summary_large_image" />
+    {{#if isImage}}
+      <meta name="twitter:image" content="{{url}}" />
+      <meta name="twitter:image:src" content="{{url}}" />
+      <meta name="twitter:card" content="summary_large_image" />
+    {{/if}}
+    {{#if isVideo}}
+      <meta name="twitter:card" content="player" />
+      <meta name="twitter:player" content="{{url}}" />
+      <meta name="twitter:player:stream" content="{{url}}" />
+      <meta name="twitter:player:stream:content_type" content="{{mimetype}}" />
+    {{/if}}
     <meta property="og:{{ogType}}" content="{{url}}" />
     {{#if title}}
       <meta property="og:title" content="{{title}}" />
@@ -43,13 +51,14 @@
   </head>
   <body>
     <div class="row mt-5 mb-5 no-gutters">
-      <div class="col-md-3">
-      </div>
+      <div class="col-md-3"> </div>
       <div class="col-md-6">
         <div class="card card-shadow bg-darker text-center">
           <div class="card-body">
             <h5 class="card-title">{{filename}}</h5>
-            <p class="card-text">{{slug}}</p>
+            <p class="card-text">{{slug}}
+              <span class="text-muted"> ({{size}}) </span>
+            </p>
             <a href="{{url}}">
               {{#if isImage}}
                 <img
@@ -60,13 +69,18 @@
                 />
               {{/if}}
               {{#if cannotDisplay}}
-                <h5 class="text-center">
-                  This file can&apos;t be displayed
-                </h5>
+                <h5 class="text-center"> This file can&apos;t be displayed </h5>
               {{/if}}
             </a>
             {{#if isVideo}}
-              <video preload="metadata" controls loop muted>
+              <video
+                preload="metadata"
+                controls
+                loop
+                muted
+                style="max-height: 75vh;
+          width: auto; max-width: 100%; border-radius: 0.25rem"
+              >
                 <source src="{{url}}" type="{{mimetype}}" />
                 Your browser does&apos;t support this video type
               </video>
@@ -77,8 +91,16 @@
                 Your browser does&apos;t support this audio type
               </audio>
             {{/if}}
-            <h5 class="mt-3 text-center">Uploaded by
+            <h5 class="mt-3 text-center">Views:
+              {{views}}</h5>
+            <h5 class="mt-1 text-center">Uploaded by
               <span class="fw-bold text-purple">{{username}}</span></h5>
+            <h6 class="mt-1 text-center">
+              Uploaded at:
+              <span class="text-muted">
+                {{timestamp}}
+              </span>
+            </h6>
             <a
               href="{{url}}"
               class="btn bg-purple mt-1"
@@ -89,6 +111,5 @@
       </div>
       <div class="col-md-3"></div>
     </div>
-
   </body>
 </html>

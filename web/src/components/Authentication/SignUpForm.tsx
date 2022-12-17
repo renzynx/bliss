@@ -1,3 +1,4 @@
+import LoadingPage from '@components/LoadingPage';
 import { ROUTES } from '@lib/constants';
 import { useRegister } from '@lib/hooks';
 import { ServerSettings } from '@lib/types';
@@ -15,6 +16,10 @@ import { IconUser } from '@tabler/icons';
 
 function SignUpForm({ settings }: { settings: ServerSettings }) {
 	const { form, loading, register } = useRegister();
+
+	if (!settings) {
+		return <LoadingPage />;
+	}
 
 	return (
 		<Paper

@@ -42,7 +42,11 @@ export class UsersService implements IUserService {
       withPassword: false,
     }
   ): Promise<User | null> {
-    let user: User | null;
+    if (!username_or_email) {
+      throw new BadRequestException("Invalid request");
+    }
+    let user: User;
+
     if (byId) {
       user = await this.prisma.user.findUnique({
         where: {
@@ -58,7 +62,8 @@ export class UsersService implements IUserService {
     }
 
     !withPassword && delete user.password;
-    return user;
+
+    return user ?? null;
   }
 
   async createUser(

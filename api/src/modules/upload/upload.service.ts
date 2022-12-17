@@ -2,28 +2,20 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
   Logger,
+  NotFoundException,
+  UnauthorizedException,
 } from "@nestjs/common";
-import { generateApiKey, lookUp } from "lib/utils";
-import { createReadStream, createWriteStream, existsSync } from "fs";
-import {
-  copyFile,
-  readdir,
-  readFile,
-  rename,
-  stat,
-  unlink,
-  writeFile,
-} from "fs/promises";
-import { thumbnailDir, tmpDir, uploadDir } from "lib/constants";
-import { Request, Response } from "express";
-import { join } from "path";
-import { PrismaService } from "modules/prisma/prisma.service";
-import { CustomSession } from "lib/types";
-import mimetype from "mime-types";
 import { EmbedSettings } from "@prisma/client";
+import argon from "argon2";
+import { Request, Response } from "express";
+import { createWriteStream, existsSync } from "fs";
+import { rename, stat, unlink, writeFile } from "fs/promises";
+import { thumbnailDir, uploadDir } from "lib/constants";
+import { generateApiKey, lookUp } from "lib/utils";
 import md5 from "md5";
+import { PrismaService } from "modules/prisma/prisma.service";
+import { join } from "path";
 
 @Injectable()
 export class UploadService {
