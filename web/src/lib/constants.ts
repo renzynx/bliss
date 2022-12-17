@@ -103,11 +103,15 @@ export const MIME_TYPES = [
 	'video/ogg',
 	'video/webm',
 	'application/ogg',
-	'application/zip',
 	'application/binary',
 	'application/octet-stream',
-	// .bin
 	'application/x-msdownload',
+	'application/vnd.rar',
+	'application/x-rar-compressed',
+	'application/zip',
+	'application/octet-stream',
+	'application/x-zip-compressed',
+	'multipart/x-zip',
 ];
 
 export const CHUNK_SIZE =
