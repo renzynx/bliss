@@ -45,13 +45,14 @@ export class RootService {
     if (!filename) {
       throw new NotFoundException();
     }
-    return stat(join(uploadDir, filename))
+    const fn = decodeURIComponent(filename);
+    return stat(join(uploadDir, fn))
       .then((stats) => {
         res.setHeader("Accept-Ranges", "bytes");
         res.setHeader("Content-Length", stats.size);
         res.setHeader(
           "Content-Disposition",
-          `'attachment'; filename=${filename.split("_")[1]}`
+          `'attachment'; filename=${fn.split("_").pop()}`
         );
         createReadStream(join(uploadDir, filename)).pipe(res);
       })
