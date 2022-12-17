@@ -96,6 +96,7 @@ export class UploadService {
 
   async sharexUpload(file: Express.Multer.File, req: Request) {
     const apikey = req.headers["authorization"] as string;
+
     if (!apikey) {
       throw new BadRequestException("Authorization header is missing");
     }
@@ -111,25 +112,24 @@ export class UploadService {
 
     const slug = generateApiKey(12);
 
-    const stream = createWriteStream(join(uploadDir, slug), {
-      flags: "w",
-    }).on("error", (e) => {
-      throw new InternalServerErrorException(e);
-    });
-    const thumbnail = createWriteStream(
-      join(thumbnailDir, slug + "_" + file.originalname),
+    const stream = createWriteStream(
+      join(uploadDir, `${slug}_${file.originalname}`),
       {
         flags: "w",
       }
-    );
+    ).on("error", (e) => {
+      this.logger.error(e.message);
+      throw new InternalServerErrorException(
+        "Something went wrong in our end, please try again later."
+      );
+    });
 
     stream.write(file.buffer);
-    thumbnail.write(file.buffer);
     stream.end();
-    thumbnail.end();
 
-    user.embed_settings &&
-      user.embed_settings.enabled &&
+    const mime = lookUp(file.originalname);
+
+    if (mime.includes("image") && user.embed_settings?.enabled) {
       this.createOEmbedJSON({
         filename: slug,
         embedAuthor: user.embed_settings?.embedAuthor,
@@ -137,15 +137,14 @@ export class UploadService {
         embedSite: user.embed_settings?.embedSite,
         embedSiteUrl: user.embed_settings?.embedSiteUrl,
       });
-
-    const mime = mimetype.lookup(file.originalname);
+    }
 
     const { id } = await this.prismaService.file.create({
       data: {
         userId: user.id,
         filename: file.originalname,
         size: file.size,
-        mimetype: mime ? mime : "application/octet-stream",
+        mimetype: mime,
         slug,
       },
     });
