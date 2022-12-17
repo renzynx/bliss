@@ -29,6 +29,6 @@ export class RootController {
 
   @Get("d/:filename")
   thumbnail(@Param("filename") filename: string, @Response() res: EResponse) {
-    return this.rootService.getThumbnail(filename, res);
+    return this.rootService.downloadFile(filename, res);
   }
 }

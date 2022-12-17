@@ -41,19 +41,19 @@ export class RootService {
       });
   }
 
-  getThumbnail(filename: string, res: Response) {
+  downloadFile(filename: string, res: Response) {
     if (!filename) {
       throw new NotFoundException();
     }
-    return stat(join(thumbnailDir, filename))
+    return stat(join(uploadDir, filename))
       .then((stats) => {
         res.setHeader("Accept-Ranges", "bytes");
         res.setHeader("Content-Length", stats.size);
         res.setHeader(
           "Content-Disposition",
-          `'inline'; filename=${filename.split("_")[1]}`
+          `'attachment'; filename=${filename.split("_")[1]}`
         );
-        createReadStream(join(thumbnailDir, filename)).pipe(res);
+        createReadStream(join(uploadDir, filename)).pipe(res);
       })
       .catch(() => {
         throw new NotFoundException();
