@@ -145,7 +145,7 @@ const PreviewCard: FC<{
 						<Grid.Col span={4}>
 							<Button
 								onClick={() =>
-									window.open(`${API_URL}/d/${file.slug}_${file.filename}`)
+									window.open(`${API_URL}/${file.slug}_${file.filename}`)
 								}
 								fullWidth
 								variant="light"
