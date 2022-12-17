@@ -55,20 +55,19 @@ export class UploadService {
       throw new NotFoundException("Not found");
     }
 
-    const oembedPath = join(thumbnailDir, `${file.slug}.json`);
-    const thumbnailPath = join(thumbnailDir, `${file.slug}_${file.filename}`);
-    const isImg = lookUp(file.filename) && existsSync(oembedPath);
+    const oembedPath = join(uploadDir, `${file.slug}.json`);
+    const filePath = join(uploadDir, `${file.slug}_${file.filename}`);
+    const isImg = lookUp(file.filename).includes("image");
     const oembedExist = existsSync(oembedPath);
 
-    return stat(join(uploadDir, file.slug))
+    return stat(filePath)
       .then(async () => {
         await Promise.all([
           this.prismaService.file.delete({
             where: { id },
           }),
-          unlink(join(uploadDir, file.slug)),
-          isImg && unlink(join(thumbnailDir, `${file.slug}.json`)),
-          oembedExist && unlink(join(thumbnailDir, thumbnailPath)),
+          unlink(filePath),
+          isImg && oembedExist && unlink(oembedPath),
         ]);
         return res.send(`<pre>Successfully deleted ${file.filename}</pre>`);
       })
