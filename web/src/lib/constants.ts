@@ -110,4 +110,5 @@ export const MIME_TYPES = [
 	'application/x-msdownload',
 ];
 
-export const CHUNK_SIZE = 50 * 1024 ** 2; // 50MB
+export const CHUNK_SIZE =
+	+(process.env.NEXT_PUBLIC_CHUNK_SIZE ?? 10) * 1024 ** 2; // default: 10mb
