@@ -1,4 +1,4 @@
-import FileViewer from '@components/FileViewer';
+import FileViewer from '@components/pages/GalleryPage';
 import { CustomNextPage } from '@lib/types';
 
 const FilePage: CustomNextPage = () => {
