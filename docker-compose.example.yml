@@ -47,23 +47,15 @@ services:
     image: ghcr.io/renzynx/web:latest
     container_name: bliss_web
     restart: always
-    environment:
-      # should be your backend domain name
-      # e.g. https://uploads.amog-us.club
-      - API_URL=
-      # optional values
-      # if you want to use the default values, just leave them empty
-      # this is the limit of file size a user can upload when they are verified
-      # the default value is 2GB
-      - USER_VERIFED_LIMIT=
-      # the opposite
-      # the default value is 500MB
-      - USER_NOT_VERIFED_LIMIT=
     ports:
       # 👇 Change this to whatever port you want
       - 8500:5000
     networks:
       - bliss
+    volumes:
+      - type: bind
+        source: ./web/.env.production
+        target: /app/.env.production
 
   postgres:
     image: postgres:alpine

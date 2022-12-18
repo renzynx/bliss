@@ -22,6 +22,16 @@ cp docker-compose.example.yml docker-compose.yml
 Fill in the `docker-compose.yml` environment with the appropriate values.
 
 ```bash
+cd bliss/web
+
+cp .env.example .env.production
+```
+
+Fill in the `.env.production` file with the appropriate values.
+
+```bash
+cd ..
+
 docker compose up -d
 ```
 
