@@ -20,8 +20,8 @@ export class AdminController {
   updateServerSettings(
     @Body()
     data: {
-      REGISTRATION_ENABLED: string;
-      INVITE_MODE: string;
+      REGISTRATION_ENABLED: boolean;
+      INVITE_MODE: boolean;
     },
     @Request() req: ERequest
   ) {

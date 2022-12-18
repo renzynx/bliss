@@ -16,7 +16,6 @@ import {
   generateRandomHexColor,
   lookUp,
 } from "lib/utils";
-import mime from "mime-types";
 import { PrismaService } from "modules/prisma/prisma.service";
 import { join } from "path";
 import { promisify } from "util";
@@ -25,21 +24,6 @@ import { promisify } from "util";
 export class RootService {
   private logger = new Logger(RootService.name);
   constructor(private readonly prismaService: PrismaService) {}
-
-  async getOembed(slug: string, res: Response) {
-    return stat(join(thumbnailDir, slug + ".json"))
-      .then(async () => {
-        const stream = createReadStream(join(thumbnailDir, slug + ".json"));
-        stream.pipe(res);
-      })
-      .catch((err) => {
-        if (err.code === "ENOENT") {
-          return {};
-        } else {
-          this.logger.error(err.message);
-        }
-      });
-  }
 
   downloadFile(filename: string, res: Response) {
     if (!filename) {

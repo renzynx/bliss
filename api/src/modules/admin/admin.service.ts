@@ -8,8 +8,8 @@ export class AdminService {
 
   async changeServerSettings(
     data: {
-      REGISTRATION_ENABLED: string;
-      INVITE_MODE: string;
+      REGISTRATION_ENABLED: boolean;
+      INVITE_MODE: boolean;
     },
     id: string
   ) {
@@ -34,10 +34,7 @@ export class AdminService {
       });
     }
 
-    return writeServerSettings({
-      REGISTRATION_ENABLED: data.REGISTRATION_ENABLED === "true",
-      INVITE_MODE: data.INVITE_MODE === "true",
-    });
+    return writeServerSettings(data);
   }
 
   async getInvites(id: string) {

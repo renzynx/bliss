@@ -80,7 +80,8 @@ export const readServerSettings = async () => {
 
 export const writeServerSettings = async (newData: ServerSettings) => {
   const redis = new Redis(process.env.REDIS_URL);
-  return redis.set("settings", JSON.stringify(newData));
+  await redis.set("settings", JSON.stringify(newData));
+  return readServerSettings();
 };
 
 export const lookUp = (filename: string) => {

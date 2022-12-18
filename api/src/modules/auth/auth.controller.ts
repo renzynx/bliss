@@ -14,7 +14,6 @@ import {
 } from "@nestjs/common";
 import { Request as ERequest, Response as EResponse } from "express";
 import { CustomSession } from "lib/types";
-import { readServerSettings } from "lib/utils";
 import { ROUTES } from "../../lib/constants";
 import { HttpExceptionFilter } from "./auth.http-filter";
 import { AuthService } from "./auth.service";
@@ -25,11 +24,6 @@ import { AuthGuard } from "./guard/auth.guard";
 @Controller(ROUTES.AUTH)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  @Get("check-register")
-  check() {
-    return readServerSettings();
-  }
 
   @UseFilters(new HttpExceptionFilter())
   @UsePipes(new ValidationPipe({ transform: true }))
