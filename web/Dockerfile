@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
-RUN yarn install --pure-lockfile 
+RUN yarn install
 
 FROM node:18-alpine AS builder
 

@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 
-RUN yarn install --pure-lockfile
+RUN yarn install
 
 FROM node:lts-buster-slim AS builder
 RUN apt-get update && apt-get install --no-install-recommends -y \
