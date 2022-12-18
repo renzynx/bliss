@@ -41,7 +41,7 @@ jobs:
       - name: Build image and push to DockerHub and GitHub Container Registry
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: api/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
@@ -82,7 +82,7 @@ jobs:
       - name: Build image and push to DockerHub and GitHub Container Registry
         uses: docker/build-push-action@v3
         with:
-          context: .
+          context: web/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
