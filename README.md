@@ -26,6 +26,8 @@ Fill in the `.env` file with the appropriate values.
 ```bash
 yarn install
 
+yarn prisma migrate deploy
+
 yarn build
 
 pm2 start "yarn start:prod" --name "bliss-api"
@@ -45,8 +47,6 @@ Fill in the `.env` file with the appropriate values.
 
 ```bash
 yarn install
-
-yarn prisma migrate deploy
 
 yarn build
 
