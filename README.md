@@ -15,6 +15,8 @@ Copy and paste the following into your terminal:
 git clone https://github.com/renzynx/bliss.git
 
 cd bliss
+
+cp docker-compose.example.yml docker-compose.yml
 ```
 
 Fill in the `docker-compose.yml` environment with the appropriate values.
