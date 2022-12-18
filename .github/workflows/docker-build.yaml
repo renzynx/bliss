@@ -49,6 +49,7 @@ jobs:
           context: ./api
           file: ./api/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
+          tags: ghcr.io/renzynx/bliss:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -79,5 +80,6 @@ jobs:
         with:
           context: ./web
           file: ./web/Dockerfile
+          tags: ghcr.io/renzynx/web:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
