@@ -88,5 +88,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            renzynx/bliss:latest
-            ghcr.io/renzynx/bliss:latest
+            renzynx/web:latest
+            ghcr.io/renzynx/web:latest
