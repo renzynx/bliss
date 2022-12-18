@@ -11,3 +11,6 @@
 !/.yarn/plugins
 Dockerfile
 test
+/.yarn/*
+!/.yarn/releases
+!/.yarn/plugins

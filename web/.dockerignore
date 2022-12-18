@@ -1,0 +1,8 @@
+node_modules
+.env
+.env.example
+.dockerignore
+.gitignore
+.yarn/*
+!.yarn/releases
+!.yarn/plugins

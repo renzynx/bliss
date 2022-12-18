@@ -1,0 +1,87 @@
+version: '3.9'
+services:
+  api:
+    image: renzynx/bliss:latest
+    container_name: bliss_api
+    restart: always
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgrespw@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379
+      # should be your frontend domain
+      # e.g. https://amog-us.club
+      - CORS_ORIGIN=http://localhost:5000
+      # just smash random keys on your keyboard or use a password generator
+      - SESSION_SECRET=4289h8c923j328j8d23uj
+      # set to "true" if you want to use email verification
+      - USE_MAIL=false
+      - MAIL_HOST=
+      - MAIL_PORT=
+      - MAIL_USERNAME=
+      - MAIL_PASSWORD=
+      # e.g. ServiceName <noreply@domain.com>
+      - MAIL_FROM=
+      # should be local or s3, s3 doesn't work yet
+      - UPLOADER=local
+      # set to "true" if you are going to use a reverse proxy
+      - USE_PROXY=false
+      # set to "true" if you are going to use SSL
+      - USE_SSL=false
+      # port for the container to listen on
+      - PORT=3000
+    ports:
+      # 👇 Change this to whatever port you want
+      - 8080:3000
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
+    networks:
+      - bliss
+    volumes:
+      - ./uploads:/app/uploads
+      - ./thumbnails:/app/thumbnails
+
+  web:
+    image: renzynx/web:latest
+    container_name: bliss_web
+    restart: always
+    environment:
+      # should be your backend domain name
+      # e.g. https://uploads.amog-us.club
+      - NEXT_PUBLIC_API_URL=
+      # optional values
+      # if you want to use the default values, just leave them empty
+      # this is the limit of file size a user can upload when they are verified
+      # the default value is 2GB
+      - NEXT_PUBLIC_USER_VERIFED_LIMIT=
+      # the opposite
+      # the default value is 500MB
+      - NEXT_PUBLIC_USER_NOT_VERIFED_LIMIT=
+    ports:
+      # 👇 Change this to whatever port you want
+      - 8500:5000
+    networks:
+      - bliss
+
+  postgres:
+    image: postgres:alpine
+    container_name: bliss_postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgrespw
+    networks:
+      - bliss
+
+  redis:
+    image: redis:alpine
+    container_name: bliss_redis
+    restart: on-failure
+    networks:
+      - bliss
+
+networks:
+  bliss:
+    driver: bridge

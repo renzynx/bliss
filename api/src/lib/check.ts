@@ -12,7 +12,6 @@ const MAIL_PORT = process.env.MAIL_PORT;
 const MAIL_USER = process.env.MAIL_USER;
 const MAIL_PASS = process.env.MAIL_PASS;
 const MAIL_FROM = process.env.MAIL_FROM;
-const BASE_URL = process.env.BASE_URL;
 
 const ensure = async () => {
   if (!DATABASE_URL) {
@@ -34,32 +33,13 @@ const ensure = async () => {
       throw new Error("MAIL_PASS is not defined");
     } else if (!MAIL_FROM) {
       throw new Error("MAIL_FROM is not defined");
-    } else if (!BASE_URL) {
-      throw new Error("BASE_URL is not defined");
     }
   }
 
   if (!existsSync(uploadDir)) {
     await mkdir(uploadDir, { recursive: true });
-  } else if (!existsSync(thumbnailDir)) {
-    await mkdir(thumbnailDir, { recursive: true });
   } else if (!existsSync(logsDir)) {
     await mkdir(logsDir, { recursive: true });
-  } else if (!existsSync(join(rootDir, "settings.json"))) {
-    const stream = createWriteStream(join(rootDir, "settings.json"), {
-      flags: "w",
-    });
-    stream.write(
-      JSON.stringify(
-        {
-          REGISTRATION_ENABLED: true,
-          INVITE_MODE: true,
-        },
-        null,
-        2
-      )
-    );
-    stream.end();
   }
 };
 

@@ -1,0 +1,36 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    working-directory: api
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag renzynx/bliss:latest
+
+      - name: Login to GitHub Container Registry
+        run: echo ${{ secrets.TOKEN }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      - name: Push image to GitHub Container Registry
+        run: docker push docker.pkg.github.com/renzynx/bliss/bliss:latest
+
+  build2:
+    runs-on: ubuntu-latest
+    working-directory: web
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag renzynx/web:latest
+
+      - name: Login to GitHub Container Registry
+        run: echo ${{ secrets.TOKEN }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      - name: Push image to GitHub Container Registry
+        run: docker push docker.pkg.github.com/renzynx/bliss/web:latest
