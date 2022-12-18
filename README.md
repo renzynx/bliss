@@ -5,7 +5,7 @@
 - `node` version 16.16.0 or higher
 - `pm2` globally installed
 - `yarn` globally installed
-- `caddy` globally installed
+- `caddy` installed
 
 ### Backend Installation
 
@@ -62,3 +62,5 @@ You need to replace the placeholder with your actual domain name and port.
 sudo caddy reverse-proxy --from https://yourdomain.com --to localhost:frontend-port
 sudo caddy reverse-proxy --from https://api.yourdomain.com --to localhost:backend-port
 ```
+
+Caddy will automatically generate a certificate for you.
