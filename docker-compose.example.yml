@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgrespw@bliss_postgres:5432/postgres
+      - DATABASE_URL=postgresql://postgres:postgrespw@postgres:5432/postgres
       - REDIS_URL=redis://bliss_redis:6379
       # should be your frontend domain
       # e.g. https://amog-us.club
