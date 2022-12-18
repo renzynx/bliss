@@ -1,6 +1,6 @@
 # Installing
 
-This guild assumes you have a domain name and a server and have basic knowledge of how to use linux.
+This guide assumes you have a domain name and a server and have basic knowledge of how to use linux.
 
 ## Requirements
 
