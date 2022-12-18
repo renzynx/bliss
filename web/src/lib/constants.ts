@@ -35,7 +35,9 @@ export enum API_ROUTES {
 
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? 'Bliss V2';
 export const API_URL =
-	process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+	process.env.API_URL ??
+	process.env.NEXT_PUBLIC_API_URL ??
+	'http://localhost:3000';
 
 export const sharexConfig = (name: string, token: string) => ({
 	Version: '13.2.1',
@@ -59,7 +61,7 @@ export const flameshotScript = (token: string) => `
 IMAGEPATH="$HOME/Pictures/"
 IMAGENAME="$name-$(date +%s%N | sha256sum | base64 | head -c 32 ; echo)"
 KEY="${token}" 
-DOMAIN="${process.env.NEXT_PUBLIC_API_URL}/upload"
+DOMAIN="${API_URL}/upload"
 
 flameshot config -f "$IMAGENAME" 
 flameshot gui -r -p "$IMAGEPATH" > /dev/null 
@@ -149,9 +151,18 @@ export const USER_LIMIT = (verified: boolean, admin = false) => {
 	if (admin) return Infinity;
 
 	return verified
-		? +(process.env.NEXT_PUBLIC_USER_VERIFED_LIMIT ?? 2000)
-		: +(process.env.NEXT_PUBLIC_USER_NOT_VERIFED_LIMIT ?? 500);
+		? +(
+				process.env.USER_VERIFIED_LIMIT ??
+				process.env.NEXT_PUBLIC_USER_VERIFED_LIMIT ??
+				2000
+		  )
+		: +(
+				process.env.USER_NOT_VERIFIED_LIMIT ??
+				process.env.NEXT_PUBLIC_USER_NOT_VERIFED_LIMIT ??
+				500
+		  );
 };
 
 export const CHUNK_SIZE =
-	+(process.env.NEXT_PUBLIC_CHUNK_SIZE ?? 10) * 1024 ** 2; // default: 10mb
+	+(process.env.CHUNK_SIZE ?? process.env.NEXT_PUBLIC_CHUNK_SIZE ?? 10) *
+	1024 ** 2; // default: 10mb

@@ -10,7 +10,7 @@ services:
       - REDIS_URL=redis://bliss_redis:6379
       # should be your frontend domain
       # e.g. https://amog-us.club
-      - CORS_ORIGIN=http://localhost:3000
+      - CORS_ORIGIN=
       # just smash random keys on your keyboard or use a password generator
       - SESSION_SECRET=123
       # set to "true" if you want to use email verification
@@ -42,7 +42,6 @@ services:
       - bliss
     volumes:
       - ./uploads:/app/uploads
-      - ./thumbnails:/app/thumbnails
 
   web:
     image: ghcr.io/renzynx/web:latest
@@ -51,15 +50,15 @@ services:
     environment:
       # should be your backend domain name
       # e.g. https://uploads.amog-us.club
-      - NEXT_PUBLIC_API_URL=
+      - API_URL=
       # optional values
       # if you want to use the default values, just leave them empty
       # this is the limit of file size a user can upload when they are verified
       # the default value is 2GB
-      - NEXT_PUBLIC_USER_VERIFED_LIMIT=
+      - USER_VERIFED_LIMIT=
       # the opposite
       # the default value is 500MB
-      - NEXT_PUBLIC_USER_NOT_VERIFED_LIMIT=
+      - USER_NOT_VERIFED_LIMIT=
     ports:
       # 👇 Change this to whatever port you want
       - 8500:5000
