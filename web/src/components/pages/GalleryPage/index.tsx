@@ -1,4 +1,4 @@
-import LoadingPage from '@components/LoadingPage';
+import LoadingPage from '@components/pages/LoadingPage';
 import { useGetUserFiles } from '@lib/hooks';
 import { IFile } from '@lib/types';
 import {

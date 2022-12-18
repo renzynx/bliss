@@ -1,5 +1,5 @@
-import QuickActions from '@components/QuickActions';
-import StatisticCard from '@components/StatisticCard';
+import QuickActions from '@pages/DashboardPage';
+import StatisticCard from '@layouts/StatisticCard';
 import { API_ROUTES, API_URL, APP_NAME } from '@lib/constants';
 import { CustomNextPage } from '@lib/types';
 import { Group } from '@mantine/core';

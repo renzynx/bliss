@@ -1,4 +1,4 @@
-import { serializeURL } from './utils';
+import { MIME_TYPES } from '@mantine/dropzone';
 
 export enum ROUTES {
 	HOME = '/',
@@ -28,7 +28,7 @@ export enum API_ROUTES {
 	CHANGE_USERNAME = '/users/change-username',
 	SEND_VERIFICATION_EMAIL = '/users/verify/send',
 	VERIFY_EMAIL = '/users/verify',
-	CHECK_CLOSED = '/auth/check-register',
+	SERVER_SETTINGS = '/server-settings',
 	UPDATE_SERVER_SETTINGS = '/admin/server-settings',
 	INVITE_CODE = '/admin/invites',
 }
@@ -59,9 +59,7 @@ export const flameshotScript = (token: string) => `
 IMAGEPATH="$HOME/Pictures/"
 IMAGENAME="$name-$(date +%s%N | sha256sum | base64 | head -c 32 ; echo)"
 KEY="${token}" 
-DOMAIN="${serializeURL(
-	process.env.NEXT_PUBLIC_API_URL!
-)}" # Your upload domain (without http:// or https://)
+DOMAIN="${process.env.NEXT_PUBLIC_API_URL}/upload"
 
 flameshot config -f "$IMAGENAME" 
 flameshot gui -r -p "$IMAGEPATH" > /dev/null 
@@ -76,28 +74,61 @@ if [ -f "$FILE" ]; then
       -H "Accept: application/json" \
       -H "User-Agent: ShareX/13.4.0" \
       -H "Authorization: $KEY" \
-      -F "file=@$IMAGEPATH$IMAGENAME.png" "https://$DOMAIN/" | grep -Po '(?<="resource":")[^"]+')
-    # printf instead of echo as echo appends a newline
+      -F "file=@$IMAGEPATH$IMAGENAME.png" "$DOMAIN" | grep -Po '(?<="resource":")[^"]+')
     printf "%s" "$URL" | xclip -sel clip
-    rm "$IMAGEPATH$IMAGENAME.png" # Delete the image locally
+    rm "$IMAGEPATH$IMAGENAME.png" 
 else 
     echo "Aborted."
 fi
 `;
 
-export const MIME_TYPES = [
-	'image/png',
-	'image/gif',
-	'image/jpeg',
-	'image/svg+xml',
-	'image/webp',
-	'audio/ogg',
-	'audio/wave',
-	'audio/wav',
-	'audio/x-wav',
-	'audio/x-pn-wav',
+// export const MIME_TYPES = [
+// 	'image/png',
+// 	'image/gif',
+// 	'image/jpeg',
+// 	'image/svg+xml',
+// 	'image/webp',
+// 	'audio/ogg',
+// 	'audio/wave',
+// 	'audio/wav',
+// 	'audio/x-wav',
+// 	'audio/x-pn-wav',
+// 	'audio/mp3',
+// 	'audio/mpeg',
+
+// ];
+
+export const ACCEPT_TYPE = [
+	MIME_TYPES.png,
+	MIME_TYPES.jpeg,
+	MIME_TYPES.mp4,
+	MIME_TYPES.svg,
+	MIME_TYPES.webp,
+	MIME_TYPES.gif,
+	MIME_TYPES.zip,
+	MIME_TYPES.pdf,
+	MIME_TYPES.docx,
+	MIME_TYPES.pptx,
+	MIME_TYPES.xlsx,
+	'text/plain',
 	'audio/mp3',
+	'audio/wav',
+	'audio/ogg',
+	'audio/flac',
+	'audio/aac',
+	'audio/m4a',
+	'audio/mp4',
 	'audio/mpeg',
+	'audio/webm',
+	'audio/3gpp',
+	'audio/3gpp2',
+	'audio/aac',
+	'audio/aiff',
+	'audio/amr',
+	'audio/basic',
+	'audio/midi',
+	'audio/mid',
+	'audio/m4a',
 	'video/mp4',
 	'video/quicktime',
 	'video/ogg',
@@ -113,6 +144,14 @@ export const MIME_TYPES = [
 	'application/x-zip-compressed',
 	'multipart/x-zip',
 ];
+
+export const USER_LIMIT = (verified: boolean, admin = false) => {
+	if (admin) return Infinity;
+
+	return verified
+		? +(process.env.NEXT_PUBLIC_USER_VERIFED_LIMIT ?? 2000)
+		: +(process.env.NEXT_PUBLIC_USER_NOT_VERIFED_LIMIT ?? 500);
+};
 
 export const CHUNK_SIZE =
 	+(process.env.NEXT_PUBLIC_CHUNK_SIZE ?? 10) * 1024 ** 2; // default: 10mb

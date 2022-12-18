@@ -1,4 +1,4 @@
-import ProfilePage from '@components/ProfilePage';
+import ProfilePage from '@pages/ProfilePage';
 import { APP_NAME } from '@lib/constants';
 import { CustomNextPage } from '@lib/types';
 import Head from 'next/head';

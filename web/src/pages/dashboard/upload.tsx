@@ -1,4 +1,4 @@
-import UploadZone from '@components/Upload';
+import UploadZone from '@pages/UploadPage';
 import { APP_NAME } from '@lib/constants';
 import { CustomNextPage } from '@lib/types';
 import Head from 'next/head';

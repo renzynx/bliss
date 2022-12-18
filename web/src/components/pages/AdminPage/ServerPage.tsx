@@ -1,21 +1,11 @@
 import { useSetServerSettings } from '@lib/hooks/useSetServerSettings';
 import { ServerSettings } from '@lib/types';
-import {
-	Stack,
-	SegmentedControl,
-	Button,
-	Text,
-	SimpleGrid,
-} from '@mantine/core';
+import { Stack, Button, SimpleGrid, Switch } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import React from 'react';
 
-const AdminForm = ({ REGISTRATION_ENABLED, INVITE_MODE }: ServerSettings) => {
-	const { isLoading, update, form } = useSetServerSettings({
-		INVITE_MODE: INVITE_MODE.toString(),
-		REGISTRATION_ENABLED: REGISTRATION_ENABLED.toString(),
-	});
-
+const ServerPage = (data: ServerSettings) => {
+	const { isLoading, update, form } = useSetServerSettings(data);
 	return (
 		<form
 			onSubmit={form.onSubmit((values) => {
@@ -40,23 +30,23 @@ const AdminForm = ({ REGISTRATION_ENABLED, INVITE_MODE }: ServerSettings) => {
 					]}
 				>
 					<Stack spacing={0}>
-						<Text fw="bold">Turn on or off site registration </Text>
-						<SegmentedControl
+						<Switch
+							label="Turn on or off user registration."
+							size="lg"
+							radius="lg"
+							onLabel="ON"
+							offLabel="OFF"
+							checked={form.values.REGISTRATION_ENABLED}
 							{...form.getInputProps('REGISTRATION_ENABLED')}
-							data={[
-								{ label: 'On', value: 'true' },
-								{ label: 'Off', value: 'false' },
-							]}
 						/>
-					</Stack>
-					<Stack spacing={0}>
-						<Text fw="bold">Enable or disable invite mode on the site</Text>
-						<SegmentedControl
+						<Switch
+							label="Turn on or off invite mode."
+							size="lg"
+							radius="lg"
+							onLabel="ON"
+							offLabel="OFF"
+							checked={form.values.INVITE_MODE}
 							{...form.getInputProps('INVITE_MODE')}
-							data={[
-								{ label: 'Enable', value: 'true' },
-								{ label: 'Disable', value: 'false' },
-							]}
 						/>
 					</Stack>
 				</SimpleGrid>
@@ -73,4 +63,4 @@ const AdminForm = ({ REGISTRATION_ENABLED, INVITE_MODE }: ServerSettings) => {
 	);
 };
 
-export default AdminForm;
+export default ServerPage;

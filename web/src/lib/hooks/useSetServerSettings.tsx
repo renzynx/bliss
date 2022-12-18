@@ -7,17 +7,19 @@ import axios from 'axios';
 import { useForm } from '@mantine/form';
 import { toErrorMap } from '@lib/utils';
 
-export const useSetServerSettings = (initialData: ServerSettings) => {
-	const form = useForm<ServerSettings>({
-		initialValues: initialData,
-	});
+export const useSetServerSettings = (initialValues: ServerSettings) => {
+	const form = useForm<ServerSettings>({ initialValues });
 	const { data, mutate, isLoading, error } = useMutation(
 		['server-settings'],
 		(data: Partial<ServerSettings>) =>
 			axios
-				.post(API_URL + API_ROUTES.UPDATE_SERVER_SETTINGS, data, {
-					withCredentials: true,
-				})
+				.post<ServerSettings>(
+					API_URL + API_ROUTES.UPDATE_SERVER_SETTINGS,
+					data,
+					{
+						withCredentials: true,
+					}
+				)
 				.then((res) => {
 					updateNotification({
 						id: 'server-settings',
@@ -27,10 +29,7 @@ export const useSetServerSettings = (initialData: ServerSettings) => {
 						icon: <IconCheck />,
 					});
 
-					form.setValues({
-						INVITE_MODE: res.data.INVITE_MODE.toString(),
-						REGISTRATION_ENABLED: res.data.REGISTRATION_ENABLED.toString(),
-					});
+					form.setValues({ ...res.data });
 
 					return res.data;
 				})

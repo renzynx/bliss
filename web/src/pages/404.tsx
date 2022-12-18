@@ -1,4 +1,4 @@
-import { NotFoundTitle } from '@components/404Page';
+import { NotFoundTitle } from '@pages/404Page';
 import React from 'react';
 
 const NotFound = () => {

@@ -1,5 +1,5 @@
-import EmbedForm from '@components/Settings/EmbedForm';
-import EmbedPreview from '@components/Settings/EmbedPreview';
+import EmbedForm from '@pages/SettingPage/EmbedForm';
+import EmbedPreview from '@pages/SettingPage/EmbedPreview';
 import { API_URL, API_ROUTES } from '@lib/constants';
 import { useUpdateEmbedSettings } from '@lib/hooks';
 import { CustomNextPage, EmbedSettings } from '@lib/types';

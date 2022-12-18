@@ -12,7 +12,7 @@ import {
 //! fix weird hydration issue
 // TODO: find a better way to fix hydration issue
 const SignInForm = dynamic(
-	() => import('@components/Authentication').then((mod) => mod.SignInForm),
+	() => import('@components/pages/AuthPage').then((mod) => mod.SignInForm),
 	{ ssr: false }
 );
 

@@ -4,12 +4,13 @@ import { IconCheck, IconCloudUpload, IconDownload, IconX } from '@tabler/icons';
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
 import { uploadStyles } from './styles';
-import { API_ROUTES, API_URL, CHUNK_SIZE } from '@lib/constants';
+import { API_ROUTES, API_URL, CHUNK_SIZE, USER_LIMIT } from '@lib/constants';
 import axios from 'axios';
 import { useAtom } from 'jotai';
 import { userAtom } from '@lib/atoms';
 import { showNotification } from '@mantine/notifications';
 const ProgressCard = dynamic(() => import('./ProgressCard'));
+import { ACCEPT_TYPE } from '@lib/constants';
 
 const UploadZone = () => {
 	const [user] = useAtom(userAtom);
@@ -129,8 +130,14 @@ const UploadZone = () => {
 					}}
 					className={classes.dropzone}
 					radius="md"
-					// accept={MIME_TYPES}
-					maxSize={5000 * 1024 ** 2}
+					accept={ACCEPT_TYPE}
+					maxSize={
+						USER_LIMIT(
+							!!user?.createdAt,
+							user?.role === 'OWNER' || user?.role === 'ADMIN'
+						) *
+						1024 ** 2
+					}
 				>
 					<div style={{ pointerEvents: 'none' }}>
 						<Group position="center">

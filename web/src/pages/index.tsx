@@ -1,20 +1,15 @@
-import Hero from '@components/Hero';
-import Navbar from '@components/Layout/Navbar';
+import HomePage from '@pages/HomePage';
 import { API_ROUTES, API_URL } from '@lib/constants';
 import { SessionUser } from '@lib/types';
 import axios from 'axios';
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import dynamic from 'next/dynamic';
-const Sidebar = dynamic(() => import('@components/Layout/Sidebar'));
 
 const Home = (
 	props: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
 	return (
 		<>
-			<Navbar user={props?.user} />
-			{props.user && <Sidebar />}
-			<Hero />
+			<HomePage {...props} />
 		</>
 	);
 };

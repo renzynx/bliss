@@ -116,8 +116,8 @@ export interface EmbedSettings {
 }
 
 export interface ServerSettings {
-	REGISTRATION_ENABLED: string;
-	INVITE_MODE: string;
+	REGISTRATION_ENABLED: boolean;
+	INVITE_MODE: boolean;
 }
 
 type Token = 'INVITE_CODE' | 'EMAIL_VERIFICATION';
