@@ -2,7 +2,7 @@ version: '3.9'
 services:
   api:
     image: ghcr.io/renzynx/bliss:latest
-    container_name: bliss_api
+    container_name: api
     restart: always
     environment:
       - NODE_ENV=production
@@ -33,8 +33,9 @@ services:
       # 👇 Change this to whatever port you want
       - 8080:3000
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+
     links:
       - postgres
       - redis
@@ -45,7 +46,7 @@ services:
 
   web:
     image: ghcr.io/renzynx/web:latest
-    container_name: bliss_web
+    container_name: web
     restart: always
     ports:
       # 👇 Change this to whatever port you want
@@ -59,16 +60,21 @@ services:
 
   postgres:
     image: postgres:alpine
-    container_name: bliss_postgres
+    container_name: postgres
     restart: always
     environment:
       - POSTGRES_PASSWORD=postgrespw
     networks:
       - bliss
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:alpine
-    container_name: bliss_redis
+    container_name: redis
     restart: on-failure
     networks:
       - bliss
