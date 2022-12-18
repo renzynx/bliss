@@ -6,13 +6,13 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgrespw@postgres:5432/postgres
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://postgres:postgrespw@bliss_postgres:5432/postgres
+      - REDIS_URL=redis://bliss_redis:6379
       # should be your frontend domain
       # e.g. https://amog-us.club
-      - CORS_ORIGIN=
+      - CORS_ORIGIN=http://localhost:3000
       # just smash random keys on your keyboard or use a password generator
-      - SESSION_SECRET=
+      - SESSION_SECRET=123
       # set to "true" if you want to use email verification
       - USE_MAIL=false
       - MAIL_HOST=
