@@ -2,6 +2,32 @@
 
 This guide assumes you have a domain name and a server and have basic knowledge of how to use linux.
 
+<details>
+<summary>Expand for docker installation steps</summary>
+
+## Requirements
+
+- `docker` and `docker compose` installed
+
+Copy and paste the following into your terminal:
+
+```bash
+git clone https://github.com/renzynx/bliss.git
+
+cd bliss
+```
+
+Fill in the `docker-compose.yml` environment with the appropriate values.
+
+```bash
+docker compose up -d
+```
+
+</details>
+
+<details>
+<summary>Expand for manual installation steps</summary>
+
 ## Requirements
 
 - `node` version 16.16.0 or higher
@@ -52,6 +78,8 @@ yarn build
 
 pm2 start "yarn start" --name "bliss-web"
 ```
+
+</details>
 
 ### Domain name and SSL configuration
 

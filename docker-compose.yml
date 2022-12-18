@@ -1,18 +1,18 @@
 version: '3.9'
 services:
   api:
-    image: renzynx/bliss:latest
+    image: ghcr.io/renzynx/bliss:latest
     container_name: bliss_api
     restart: always
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:postgrespw@postgres:5432/postgres
       - REDIS_URL=redis://redis:6379
       # should be your frontend domain
       # e.g. https://amog-us.club
-      - CORS_ORIGIN=http://localhost:5000
+      - CORS_ORIGIN=
       # just smash random keys on your keyboard or use a password generator
-      - SESSION_SECRET=4289h8c923j328j8d23uj
+      - SESSION_SECRET=
       # set to "true" if you want to use email verification
       - USE_MAIL=false
       - MAIL_HOST=
@@ -45,7 +45,7 @@ services:
       - ./thumbnails:/app/thumbnails
 
   web:
-    image: renzynx/web:latest
+    image: ghcr.io/renzynx/web:latest
     container_name: bliss_web
     restart: always
     environment:
