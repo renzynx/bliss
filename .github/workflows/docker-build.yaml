@@ -9,7 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    working-directory: api
+    defaults:
+      run:
+        working-directory: api
 
     steps:
       - uses: actions/checkout@v2
@@ -23,7 +25,9 @@ jobs:
 
   build2:
     runs-on: ubuntu-latest
-    working-directory: web
+    defaults:
+      run:
+        working-directory: web
 
     steps:
       - uses: actions/checkout@v2
