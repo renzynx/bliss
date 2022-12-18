@@ -1,5 +1,6 @@
 ### Todo
 
+- [ ] Make docker installation instructions.
 - [ ] Switch verification from postgres to redis database.
 - [ ] Add user creation for admins
 - [ ] Add user administration settings (create, ban, ...etc).
