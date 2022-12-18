@@ -69,10 +69,8 @@ Caddy will automatically generate a certificate for you.
 
 ### Screenshots
 
-<p align="center">
-  <img src="https://i.ibb.co/gJ7pC12/image.png" alt="image" border="0">
-  <img src="https://i.ibb.co/5RvdxX6/image.png" alt="image" border="0">
-  <img src="https://i.ibb.co/b2LzhGd/image.png" alt="image" border="0">
-  <img src="https://i.ibb.co/84YP5pK/image.png" alt="image" border="0">
-  <img src="https://i.ibb.co/DMdnrvX/image.png" alt="image" border="0">
-</p>
+![preview](https://i.ibb.co/gJ7pC12/image.png)
+![preview](https://i.ibb.co/5RvdxX6/image.png)
+![preview](https://i.ibb.co/b2LzhGd/image.png)
+![preview](https://i.ibb.co/84YP5pK/image.png)
+![preview](https://i.ibb.co/DMdnrvX/image.png)
