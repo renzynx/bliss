@@ -3,8 +3,22 @@ name: Docker Image CI
 on:
   push:
     branches: ['main']
+    paths:
+      - 'api/src/**'
+      - 'web/src/**'
+      - 'api/prisma/**'
+      - '.github/**'
+      - 'api/Dockerfile'
+      - 'web/Dockerfile'
   pull_request:
     branches: ['main']
+    paths:
+      - 'api/src/**'
+      - 'web/src/**'
+      - 'api/prisma/**'
+      - '.github/**'
+      - 'api/Dockerfile'
+      - 'web/Dockerfile'
 
 jobs:
   build:
@@ -48,6 +62,8 @@ jobs:
           tags: |
             renzynx/bliss:latest
             ghcr.io/renzynx/bliss:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   build2:
     runs-on: ubuntu-latest
@@ -90,3 +106,5 @@ jobs:
           tags: |
             renzynx/web:latest
             ghcr.io/renzynx/web:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
