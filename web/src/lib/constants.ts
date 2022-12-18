@@ -35,7 +35,9 @@ export enum API_ROUTES {
 
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? 'Bliss V2';
 export const API_URL =
-	process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+	process.env.NODE_ENV === 'production'
+		? process.env.NEXT_PUBLIC_API_URL
+		: 'http://localhost:3000';
 
 export const sharexConfig = (name: string, token: string) => ({
 	Version: '13.2.1',
