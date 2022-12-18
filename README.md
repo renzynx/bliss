@@ -69,8 +69,10 @@ Caddy will automatically generate a certificate for you.
 
 ### Screenshots
 
-![preview](https://i.ibb.co/gJ7pC12/image.png)
-![preview](https://i.ibb.co/5RvdxX6/image.png)
-![preview](https://i.ibb.co/b2LzhGd/image.png)
-![preview](https://i.ibb.co/84YP5pK/image.png)
-![preview](https://i.ibb.co/DMdnrvX/image.png)
+<p align="center">
+  <img src="https://cdn.amog-us.club/brave_0yeRi3yz70.png" alt="image" border="0">
+  <img src="https://cdn.amog-us.club/brave_PXux828NtJ.png" alt="image" border="0">
+  <img src="https://cdn.amog-us.club/brave_fcyvLlO3eQ.png" alt="image" border="0">
+  <img src="https://cdn.amog-us.club/brave_bvZwFE2XPr.png" alt="image" border="0">
+  <img src="https://cdn.amog-us.club/brave_F2n7sQsia2.png" alt="image" border="0">
+</p>
