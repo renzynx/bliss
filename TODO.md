@@ -6,7 +6,7 @@
 - [ ] Add user administration settings (create, ban, ...etc).
 - [ ] Fix embed customizer validation.
 - [ ] Add support for multiple domains.
-- [ ] Fix download link
+- [ ] Fix download link.
 
 ### In Progress
 
