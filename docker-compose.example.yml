@@ -7,8 +7,6 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgrespw
       - POSTGRES_DATABASE=postgres
-    networks:
-      - bliss
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
@@ -19,8 +17,6 @@ services:
     image: redis:alpine
     container_name: redis
     restart: on-failure
-    networks:
-      - bliss
     volumes:
       - ./api/uploads:/app/uploads
 
@@ -56,13 +52,7 @@ services:
     ports:
       # 👇 Change this to whatever port you want
       - 8080:3000
-    networks:
-      - bliss
     depends_on:
-      - postgres
-      - redis
-
-    links:
       - postgres
       - redis
 
@@ -76,9 +66,3 @@ services:
     environment:
       # should be your backend domain e.g. https://uploads.amog-us.club
       - NEXT_PUBLIC_API_URL=
-    networks:
-      - bliss
-
-networks:
-  bliss:
-    driver: bridge
