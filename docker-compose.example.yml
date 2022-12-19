@@ -1,5 +1,28 @@
 version: '3.9'
 services:
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgrespw
+    networks:
+      - bliss
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: on-failure
+    networks:
+      - bliss
+    volumes:
+      - ./api/uploads:/app/uploads
+      - redis
   api:
     image: ghcr.io/renzynx/bliss:latest
     container_name: api
@@ -32,17 +55,14 @@ services:
     ports:
       # 👇 Change this to whatever port you want
       - 8080:3000
+    networks:
+      - bliss
     depends_on:
       postgres:
         condition: service_healthy
 
     links:
       - postgres
-      - redis
-    networks:
-      - bliss
-    volumes:
-      - ./api/uploads:/app/uploads
 
   web:
     image: ghcr.io/renzynx/web:latest
@@ -54,27 +74,6 @@ services:
     environment:
       # should be your backend domain e.g. https://uploads.amog-us.club
       - NEXT_PUBLIC_API_URL=
-    networks:
-      - bliss
-
-  postgres:
-    image: postgres:alpine
-    container_name: postgres
-    restart: always
-    environment:
-      - POSTGRES_PASSWORD=postgrespw
-    networks:
-      - bliss
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:alpine
-    container_name: redis
-    restart: on-failure
     networks:
       - bliss
 
