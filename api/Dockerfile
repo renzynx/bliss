@@ -1,4 +1,5 @@
 FROM node:lts-buster-slim AS deps
+ENV NODE_ENV production
 RUN apt-get update && apt-get install --no-install-recommends -y \
     openssl \
     && rm -rf /var/lib/apt/lists/*
@@ -8,7 +9,7 @@ WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 
-RUN yarn install
+RUN yarn install --immutable
 
 FROM node:lts-buster-slim AS builder
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -22,7 +23,6 @@ COPY src ./src
 COPY prisma ./prisma
 COPY .yarn .yarn 
 COPY package.json yarn.lock .yarnrc.yml tsconfig.json tsconfig.build.json nest-cli.json ./
-
 RUN yarn prisma generate
 RUN yarn build
 
