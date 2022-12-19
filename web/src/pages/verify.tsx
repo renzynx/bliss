@@ -1,26 +1,10 @@
-import { API_ROUTES, API_URL, ROUTES } from '@lib/constants';
-import { Button, Center, Paper, Stack, Text } from '@mantine/core';
-import { GetServerSidePropsContext } from 'next';
+import VerifyPage from '@pages/VerifyPage';
+import { API_ROUTES, API_URL } from '@lib/constants';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import { GetServerSidePropsContext } from 'next';
 
 const Verification = () => {
-	const router = useRouter();
-
-	return (
-		<Center sx={{ minHeight: '100vh' }}>
-			<Paper p="lg" withBorder>
-				<Stack justify="center">
-					<Text size="lg" align="center">
-						You have successfully verified your email!
-					</Text>
-					<Button onClick={() => router.push(ROUTES.HOME)} variant="light">
-						Go to dashboard
-					</Button>
-				</Stack>
-			</Paper>
-		</Center>
-	);
+	return <VerifyPage />;
 };
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {

@@ -1,9 +1,6 @@
-import QuickActions from '@pages/DashboardPage';
-import StatisticCard from '@layouts/StatisticCard';
 import { API_ROUTES, API_URL, APP_NAME } from '@lib/constants';
 import { CustomNextPage } from '@lib/types';
-import { Group } from '@mantine/core';
-import { IconFile, IconServer } from '@tabler/icons';
+import Dash from '@pages/DashboardPage';
 import axios from 'axios';
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import Head from 'next/head';
@@ -16,24 +13,7 @@ const Dashboard: CustomNextPage<
 			<Head>
 				<title>{APP_NAME} | Dashboard</title>
 			</Head>
-			<Group spacing={50} position="center">
-				<StatisticCard
-					label="Files Uploaded"
-					data={data.files}
-					icon={<IconFile size={40} />}
-				/>
-				<StatisticCard
-					label="Storage Used"
-					data={data.size}
-					icon={<IconServer size={40} />}
-				/>
-			</Group>
-
-			<QuickActions
-				w={{ base: '99%', lg: 600, md: 550, sm: 500 }}
-				mx="auto"
-				mt={50}
-			/>
+			<Dash files={data.files} size={data.size} />
 		</>
 	);
 };

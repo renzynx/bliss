@@ -1,28 +1,36 @@
-import { ROUTES } from '@lib/constants';
-import { Button, Paper, PaperProps, Stack, Title } from '@mantine/core';
-import { useRouter } from 'next/router';
+import StatisticCard from '@components/layouts/StatisticCard';
+import { Group } from '@mantine/core';
+import { IconFile, IconServer } from '@tabler/icons';
+import QuickActions from './QuickActions';
 
-const QuickActions = (props: PaperProps) => {
-	const router = useRouter();
-
+const Dash = ({ files, size }: { files: any; size: any }) => {
 	return (
-		<Paper withBorder {...props} shadow="sm" p="xl">
-			<Title order={3} mb="md">
-				Quick actions
-			</Title>
-			<Stack>
-				<Button onClick={() => router.push(ROUTES.SETTINGS)} variant="light">
-					Download upload config
-				</Button>
-				<Button
-					onClick={() => router.push(ROUTES.SETTINGS + '/embed')}
-					variant="light"
-				>
-					Edit embed settings
-				</Button>
-			</Stack>
-		</Paper>
+		<>
+			<Group spacing={50} position="center">
+				<StatisticCard
+					label="Files Uploaded"
+					data={files}
+					icon={<IconFile size={40} />}
+				/>
+				<StatisticCard
+					label="Storage Used"
+					data={size}
+					icon={<IconServer size={40} />}
+				/>
+			</Group>
+
+			<QuickActions
+				w={{
+					base: '99%',
+					lg: 600,
+					md: 550,
+					sm: 500,
+				}}
+				mx="auto"
+				mt={50}
+			/>
+		</>
 	);
 };
 
-export default QuickActions;
+export default Dash;
