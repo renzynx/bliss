@@ -6,6 +6,7 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DATABASE=postgres
     networks:
       - bliss
     healthcheck:
@@ -22,6 +23,7 @@ services:
       - bliss
     volumes:
       - ./api/uploads:/app/uploads
+
   api:
     image: ghcr.io/renzynx/bliss:latest
     container_name: api
@@ -57,8 +59,8 @@ services:
     networks:
       - bliss
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
+      - redis
 
     links:
       - postgres
