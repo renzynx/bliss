@@ -22,7 +22,6 @@ services:
       - bliss
     volumes:
       - ./api/uploads:/app/uploads
-      - redis
   api:
     image: ghcr.io/renzynx/bliss:latest
     container_name: api
@@ -63,6 +62,7 @@ services:
 
     links:
       - postgres
+      - redis
 
   web:
     image: ghcr.io/renzynx/web:latest
