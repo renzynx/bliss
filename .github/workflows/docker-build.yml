@@ -10,6 +10,7 @@ on:
       - '.github/**'
       - 'api/Dockerfile'
       - 'web/Dockerfile'
+      - 'web/entrypoint.sh'
   pull_request:
     branches: ['main']
     paths:
