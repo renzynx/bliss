@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - './api/src/**'
-      - './api/prisma/**'
-      - './web/src/**'
+      - 'api/src/**'
+      - 'api/prisma/**'
+      - 'web/src/**'
+      - 'api/Dockerfile'
+      - 'web/Dockerfile'
       - '.github/**'
-      - './api/Dockerfile'
-      - './web/Dockerfile'
   workflow_dispatch:
 
 jobs:
