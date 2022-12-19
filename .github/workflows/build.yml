@@ -1,12 +1,17 @@
-concurrency: build
-name: Build
+name: Build and push Docker images
+
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+    paths:
+      - './api/src/**'
+      - './api/prisma/**'
+      - './web/src/**'
+      - '.github/**'
+      - './api/Dockerfile'
+      - './web/Dockerfile'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,14 +19,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
@@ -29,22 +37,26 @@ jobs:
         with:
           context: ./api
           file: ./api/Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/bliss:latest
+          tags: ghcr.io/${{ github.actor }}/bliss:latest
 
   web:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v2
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
@@ -52,5 +64,6 @@ jobs:
         with:
           context: ./web
           file: ./web/Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/web:latest
+          tags: ghcr.io/${{ github.actor }}/web:latest
