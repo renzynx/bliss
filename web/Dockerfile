@@ -11,12 +11,10 @@ RUN yarn install --immutable
 
 FROM node:18-alpine AS builder
 
-ENV NEXT_TELEMETRY_DISABLED 1
-
 WORKDIR /app
 
-COPY . .
 COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
 RUN NEXT_PUBLIC_API_URL=APP_NEXT_PUBLIC_API_URL yarn build
 
