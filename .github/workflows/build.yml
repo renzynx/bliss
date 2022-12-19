@@ -39,9 +39,9 @@ jobs:
           file: ./api/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.actor }}/bliss:latest
-          cache-from: type=registry,ref=ghcr.io/${{ github.actor }}/bliss:latest
-          cache-to: type=registry,ref=ghcr.io/${{ github.actor }}/bliss:latest,mode=max
+          tags: ghcr.io/renzynx/bliss:latest
+          cache-from: type=registry,ref=ghcr.io/renzynx/bliss:cache
+          cache-to: type=registry,ref=ghcr.io/renzynx/bliss:cache,mode=max
 
   web:
     runs-on: ubuntu-latest
@@ -68,6 +68,6 @@ jobs:
           file: ./web/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.actor }}/web:latest
-          cache-from: type=registry,ref=ghcr.io/${{ github.actor }}/web:latest
-          cache-to: type=registry,ref=ghcr.io/${{ github.actor }}/web:latest,mode=max
+          tags: ghcr.io/renzynx/web:latest
+          cache-from: type=registry,ref=ghcr.io/renzynx/web:cache
+          cache-to: type=registry,ref=ghcr.io/renzynx/web:cache,mode=max
