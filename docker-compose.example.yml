@@ -1,7 +1,10 @@
 version: '3.9'
 services:
   api:
-    image: ghcr.io/renzynx/bliss:latest
+    image: bliss/api:latest
+    build:
+      context: ./api
+      dockerfile: Dockerfile
     container_name: api
     restart: always
     environment:
@@ -42,10 +45,13 @@ services:
     networks:
       - bliss
     volumes:
-      - ./uploads:/app/uploads
+      - ./api/uploads:/app/uploads
 
   web:
-    image: ghcr.io/renzynx/web:latest
+    image: bliss/web:latest
+    build:
+      context: ./web
+      dockerfile: Dockerfile
     container_name: web
     restart: always
     ports:

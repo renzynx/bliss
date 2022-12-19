@@ -103,20 +103,25 @@ export class UploadService {
 
     const slug = generateApiKey(12);
 
-    const stream = createWriteStream(
-      join(uploadDir, `${slug}_${file.originalname}`),
-      {
-        flags: "w",
+    const stream = createWriteStream(join(uploadDir, slug), { flags: "w" }).on(
+      "error",
+      (e) => {
+        this.logger.error(e.message);
+        throw new InternalServerErrorException(
+          "Something went wrong in our end, please try again later."
+        );
       }
-    ).on("error", (e) => {
+    );
+
+    stream.write(file.buffer);
+    stream.end();
+
+    stream.on("error", (e) => {
       this.logger.error(e.message);
       throw new InternalServerErrorException(
         "Something went wrong in our end, please try again later."
       );
     });
-
-    stream.write(file.buffer);
-    stream.end();
 
     const mime = lookUp(file.originalname);
 
@@ -140,7 +145,7 @@ export class UploadService {
       },
     });
 
-    const protocol = process.env.USE_SSL === "true" ? "https" : req.protocol;
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol;
 
     const baseUrl = `${protocol}://${req.get("host")}`;
 
@@ -177,8 +182,7 @@ export class UploadService {
     const ext = name.split(".").pop();
     const data = req.body.toString().split(",")[1];
     const buffer = Buffer.from(data, "base64");
-    const id = md5(`${name}${req.ip}`);
-    const slug = generateApiKey(12);
+    const id = md5(name + req.ip);
     const tmpName = `tmp_${id}.${ext}`;
 
     if (firstChunk && existsSync(join(uploadDir, tmpName))) {
@@ -187,11 +191,24 @@ export class UploadService {
     await writeFile(join(uploadDir, tmpName), buffer, { flag: "a" });
     if (lastChunk) {
       const mimetype = lookUp(name);
-
+      let slug = generateApiKey(12);
       await rename(
         join(uploadDir, tmpName),
-        join(uploadDir, `${slug}_${name}`)
-      );
+        join(uploadDir, `${slug}.${ext}`)
+      ).catch(async (reason) => {
+        if (reason === "EEXIST") {
+          slug = generateApiKey(12);
+          await rename(
+            join(uploadDir, tmpName),
+            join(uploadDir, `${slug}.${ext}`)
+          );
+        } else {
+          this.logger.error(reason);
+          throw new InternalServerErrorException(
+            "Something went wrong in our end, please try again later."
+          );
+        }
+      });
 
       if (mimetype.includes("image") && user.embed_settings?.enabled) {
         this.createOEmbedJSON({
