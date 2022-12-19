@@ -51,12 +51,11 @@ services:
     ports:
       # 👇 Change this to whatever port you want
       - 8500:5000
+    environment:
+      # should be your backend domain e.g. https://uploads.amog-us.club
+      - NEXT_PUBLIC_API_URL=
     networks:
       - bliss
-    volumes:
-      - type: bind
-        source: ./web/.env.production
-        target: /app/.env.production
 
   postgres:
     image: postgres:alpine

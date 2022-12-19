@@ -20,21 +20,21 @@
 		"@mantine/notifications": "^5.9.1",
 		"@tabler/icons": "^1.112.0",
 		"@tanstack/react-query": "^4.16.1",
-		"@types/node": "18.11.9",
-		"@types/react": "18.0.25",
-		"@types/react-dom": "18.0.9",
 		"axios": "^1.2.0",
-		"eslint": "^8.28.0",
-		"eslint-config-next": "^13.0.5",
-		"eslint-plugin-unused-imports": "^2.0.0",
 		"jotai": "^1.10.0",
 		"next": "13.0.4",
 		"react": "18.2.0",
-		"react-dom": "18.2.0",
-		"typescript": "4.9.3"
+		"react-dom": "18.2.0"
 	},
 	"devDependencies": {
-		"@types/eslint": "^8"
+		"@types/eslint": "^8",
+		"@types/node": "18.11.9",
+		"@types/react": "18.0.25",
+		"@types/react-dom": "18.0.9",
+		"eslint": "^8.28.0",
+		"eslint-config-next": "^13.0.5",
+		"eslint-plugin-unused-imports": "^2.0.0",
+		"typescript": "4.9.3"
 	},
 	"packageManager": "yarn@3.3.0"
 }
