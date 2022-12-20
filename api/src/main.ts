@@ -10,7 +10,7 @@ import ConnectStore from "connect-redis";
 import session from "express-session";
 import helmet from "helmet";
 import bp from "body-parser";
-import "./lib/check";
+import "./lib/setup";
 
 async function bootstrap() {
   const startTime = Date.now();

@@ -1,6 +1,10 @@
 import { createWriteStream, existsSync } from "fs";
 import { mkdir } from "fs/promises";
-import { logsDir, rootDir, thumbnailDir, uploadDir } from "./constants";
+import { logsDir, rootDir, uploadDir } from "./constants";
+import { PrismaClient } from "@prisma/client";
+import { generateApiKey } from "./utils";
+import md5 from "md5";
+import argon from "argon2";
 import { join } from "path";
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -41,6 +45,57 @@ const ensure = async () => {
   } else if (!existsSync(logsDir)) {
     await mkdir(logsDir, { recursive: true });
   }
+
+  const prisma = new PrismaClient();
+
+  await prisma.$connect();
+
+  const user = await prisma.user.findFirst({
+    where: { role: "OWNER", username: "root" },
+  });
+
+  if (!user) {
+    const p = generateApiKey(64);
+    const password = await argon.hash(p);
+
+    const stream = createWriteStream(
+      join(rootDir, "initial_root_password.txt")
+    );
+
+    stream.write(
+      `
+    Username: root
+    Password: ${p}  
+    `,
+      "utf8"
+    );
+
+    stream.end();
+
+    stream.on("finish", () => {
+      console.log(
+        "Initial root password has been written to initial_root_password.txt file."
+      );
+    });
+
+    stream.on("error", (err) => {
+      console.log(err);
+    });
+
+    await prisma.user.create({
+      data: {
+        email: "root@localhost",
+        password,
+        role: "OWNER",
+        apiKey: generateApiKey(32),
+        username: "root",
+        emailVerified: new Date(Date.now()),
+        image: `https://www.gravatar.com/avatar/${md5("root@localhost")}`,
+      },
+    });
+  }
+
+  await prisma.$disconnect();
 };
 
 process.env.NODE_ENV === "production" && ensure();

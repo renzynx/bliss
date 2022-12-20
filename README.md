@@ -25,6 +25,14 @@ Fill in the `docker-compose.yml` environment with the appropriate values.
 docker compose up -d
 ```
 
+To get the initial root password account, run the following command:
+
+```bash
+docker exec api cat /app/initial-root-password.txt
+```
+
+Now you can login with the root account with owner permissions.
+
 </details>
 
 <details>
