@@ -82,7 +82,7 @@ export class RootService {
 
         return {
           oembed: `${baseUrl}/${slug}.json`,
-          url: `${baseUrl}/${slug}_${file.filename}`,
+          url: `${baseUrl}/${file.filename}`,
           title: file.user.embed_settings?.title,
           description: file.user.embed_settings?.description,
           color: file.user.embed_settings?.color ?? generateRandomHexColor(),
