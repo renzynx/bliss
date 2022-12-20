@@ -1,13 +1,15 @@
-import { Tabs } from '@mantine/core';
-import Settings from '.';
+import { APP_NAME } from '@lib/constants';
+import DomainPage from '@pages/SettingPage/DomainPage';
+import Head from 'next/head';
 
 const DomainSetting = () => {
 	return (
-		<Settings>
-			<Tabs.Panel value="domains" pt="xl">
-				Coming Soon
-			</Tabs.Panel>
-		</Settings>
+		<>
+			<Head>
+				<title>{APP_NAME} | Domain Settings</title>
+			</Head>
+			<DomainPage />;
+		</>
 	);
 };
 

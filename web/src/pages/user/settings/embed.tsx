@@ -1,34 +1,20 @@
-import EmbedForm from '@pages/SettingPage/EmbedForm';
-import EmbedPreview from '@pages/SettingPage/EmbedPreview';
-import { API_URL, API_ROUTES } from '@lib/constants';
-import { useUpdateEmbedSettings } from '@lib/hooks';
+import EmbedPage from '@pages/SettingPage/EmbedPage';
+import { API_ROUTES, API_URL, APP_NAME } from '@lib/constants';
 import { CustomNextPage, EmbedSettings } from '@lib/types';
-import { SimpleGrid, Tabs } from '@mantine/core';
 import axios from 'axios';
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import React from 'react';
-import Settings from '.';
+import Head from 'next/head';
 
 const EmbedSetting: CustomNextPage<
 	InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ data }) => {
-	const { form, isLoading, mutate } = useUpdateEmbedSettings(data);
-
 	return (
-		<Settings>
-			<Tabs.Panel value="embed" pt="xl">
-				<SimpleGrid
-					cols={2}
-					breakpoints={[
-						{ maxWidth: 600, cols: 1 },
-						{ maxWidth: 900, cols: 1 },
-					]}
-				>
-					<EmbedForm form={form} mutate={mutate} loading={isLoading} />
-					<EmbedPreview {...form.values} />
-				</SimpleGrid>
-			</Tabs.Panel>
-		</Settings>
+		<>
+			<Head>
+				<title>{APP_NAME} | Embed Settings</title>
+			</Head>
+			<EmbedPage {...data} />;
+		</>
 	);
 };
 

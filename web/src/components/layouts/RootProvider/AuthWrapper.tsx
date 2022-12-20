@@ -5,7 +5,7 @@ import React, { FC, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 const Layout = dynamic(() => import('..'), { suspense: true });
 
-const ProtectedWrapper: FC<{ children: any; withLayout?: boolean }> = ({
+const AuthWrapper: FC<{ children: any; withLayout?: boolean }> = ({
 	children,
 	withLayout,
 }) => {
@@ -29,4 +29,4 @@ const ProtectedWrapper: FC<{ children: any; withLayout?: boolean }> = ({
 	);
 };
 
-export default ProtectedWrapper;
+export default AuthWrapper;

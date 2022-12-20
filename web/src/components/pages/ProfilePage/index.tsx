@@ -92,20 +92,22 @@ const ProfilePage = () => {
 					</Group>
 
 					<Group sx={{ '@media(max-width: 768px)': { width: '100%' } }}>
-						<Modal
-							opened={opened}
-							onClose={close}
-							size="auto"
-							title="Are you sure you wanted to logout?"
-							centered
-						>
-							<Group position="right">
-								<Button onClick={close}>Cancel</Button>
-								<Button color="red" onClick={() => signOut()}>
-									Logout
-								</Button>
-							</Group>
-						</Modal>
+						{opened && (
+							<Modal
+								opened={opened}
+								onClose={close}
+								size="auto"
+								title="Are you sure you wanted to logout?"
+								centered
+							>
+								<Group position="right">
+									<Button onClick={close}>Cancel</Button>
+									<Button color="red" onClick={() => signOut()}>
+										Logout
+									</Button>
+								</Group>
+							</Modal>
+						)}
 						<Button
 							sx={{
 								'@media(max-width: 768px)': { width: '48%' },
@@ -118,15 +120,17 @@ const ProfilePage = () => {
 							Log Out
 						</Button>
 
-						<Modal
-							opened={opened2}
-							onClose={close2}
-							size="md"
-							title="Change Password"
-							centered
-						>
-							<ChangePasswordForm />
-						</Modal>
+						{opened2 && (
+							<Modal
+								opened={opened2}
+								onClose={close2}
+								size="md"
+								title="Change Password"
+								centered
+							>
+								<ChangePasswordForm />
+							</Modal>
+						)}
 
 						<Button
 							sx={{
