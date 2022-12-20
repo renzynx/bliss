@@ -62,7 +62,9 @@ export class RootService {
 
     const baseUrl = `${protocol}://${req.headers.host}`;
 
-    return stat(join(uploadDir, `${slug}_${file.filename}`))
+    const ext = file.filename.split(".").pop();
+
+    return stat(join(uploadDir, `${slug}.${ext}`))
       .then(async (stats) => {
         let vw = file.views;
         if ((req.session as CustomSession).userId !== file.userId) {
