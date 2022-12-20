@@ -4,18 +4,16 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
-  UnauthorizedException,
 } from "@nestjs/common";
 import { EmbedSettings } from "@prisma/client";
-import argon from "argon2";
 import { Request, Response } from "express";
 import { createWriteStream, existsSync } from "fs";
 import { rename, stat, unlink, writeFile } from "fs/promises";
-import { thumbnailDir, uploadDir } from "lib/constants";
+import { uploadDir } from "lib/constants";
 import { generateApiKey, lookUp } from "lib/utils";
-import md5 from "md5";
 import { PrismaService } from "modules/prisma/prisma.service";
 import { join } from "path";
+import md5 from "md5";
 
 @Injectable()
 export class UploadService {
@@ -56,7 +54,10 @@ export class UploadService {
     }
 
     const oembedPath = join(uploadDir, `${file.slug}.json`);
-    const filePath = join(uploadDir, `${file.slug}_${file.filename}`);
+    const filePath = join(
+      uploadDir,
+      `${file.slug}.${file.filename.split(".").pop()}`
+    );
     const isImg = lookUp(file.filename).includes("image");
     const oembedExist = existsSync(oembedPath);
 
@@ -102,16 +103,16 @@ export class UploadService {
     }
 
     const slug = generateApiKey(12);
+    const ext = file.originalname.split(".").pop();
 
-    const stream = createWriteStream(join(uploadDir, slug), { flags: "w" }).on(
-      "error",
-      (e) => {
-        this.logger.error(e.message);
-        throw new InternalServerErrorException(
-          "Something went wrong in our end, please try again later."
-        );
-      }
-    );
+    const stream = createWriteStream(join(uploadDir, `${slug}.${ext}`), {
+      flags: "w",
+    }).on("error", (e) => {
+      this.logger.error(e.message);
+      throw new InternalServerErrorException(
+        "Something went wrong in our end, please try again later."
+      );
+    });
 
     stream.write(file.buffer);
     stream.end();
@@ -151,7 +152,7 @@ export class UploadService {
 
     return {
       url: `${baseUrl}/${slug}`,
-      thumbnail: `${baseUrl}/${slug}_${file.originalname}`,
+      thumbnail: `${baseUrl}/${slug}.${ext}`,
       delete: `${baseUrl}/delete/${id}`,
     };
   }
