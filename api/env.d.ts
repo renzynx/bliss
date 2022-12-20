@@ -9,8 +9,8 @@ declare namespace NodeJS {
     REDIS_URL: string;
     MAIL_HOST: string;
     MAIL_PORT: string;
-    MAIL_USERNAME: string;
-    MAIL_PASSWORD: string;
+    MAIL_USER: string;
+    MAIL_PASS: string;
     MAIL_FROM: string;
     S3_ENDPOINT: string;
     S3_ACCESS_KEY_ID: string;

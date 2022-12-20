@@ -39,8 +39,8 @@ services:
       - USE_MAIL=false
       - MAIL_HOST=
       - MAIL_PORT=
-      - MAIL_USERNAME=
-      - MAIL_PASSWORD=
+      - MAIL_USER=
+      - MAIL_PASS=
       # e.g. ServiceName <noreply@domain.com>
       - MAIL_FROM=
       # should be local or s3, s3 doesn't work yet
