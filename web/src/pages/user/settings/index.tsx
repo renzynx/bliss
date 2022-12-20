@@ -9,7 +9,7 @@ const Settings: CustomNextPage = () => {
 			<Head>
 				<title>{APP_NAME} | General Settings</title>
 			</Head>
-			<SettingPage />;
+			<SettingPage />
 		</>
 	);
 };
