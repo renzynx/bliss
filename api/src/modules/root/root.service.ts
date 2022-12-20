@@ -34,14 +34,16 @@ export class RootService {
       .then((stats) => {
         res.setHeader("Accept-Ranges", "bytes");
         res.setHeader("Content-Length", stats.size);
-        res.setHeader(
-          "Content-Disposition",
-          `'attachment'; filename=${fn.split("_").pop()}`
-        );
+        res.setHeader("Content-Disposition", `'attachment'; filename=${fn}`);
         createReadStream(join(uploadDir, fn)).pipe(res);
       })
-      .catch(() => {
-        throw new NotFoundException();
+      .catch((err) => {
+        if (err === "ENOENT") {
+          throw new NotFoundException();
+        } else {
+          this.logger.error(err);
+          throw new InternalServerErrorException();
+        }
       });
   }
 
@@ -50,7 +52,7 @@ export class RootService {
       throw new NotFoundException();
     }
     const file = await this.prismaService.file.findUnique({
-      where: { slug },
+      where: { slug: slug.split(".").shift() },
       include: { user: { include: { embed_settings: true } } },
     });
 
@@ -82,7 +84,7 @@ export class RootService {
 
         return {
           oembed: `${baseUrl}/${slug}.json`,
-          url: `${baseUrl}/${file.filename}`,
+          url: `${baseUrl}/${slug}.${ext}`,
           title: file.user.embed_settings?.title,
           description: file.user.embed_settings?.description,
           color: file.user.embed_settings?.color ?? generateRandomHexColor(),

@@ -16,6 +16,11 @@ import { RootService } from "./root.service";
 export class RootController {
   constructor(private readonly rootService: RootService) {}
 
+  @Get()
+  hello() {
+    return "<pre>Hello World!</pre>";
+  }
+
   @Get("server-settings")
   check() {
     return readServerSettings();
@@ -30,9 +35,6 @@ export class RootController {
   @Get(":slug")
   @Render("index")
   file(@Param("slug") slug: string, @Request() req: ERequest) {
-    if (!slug) {
-      return "Hello World!";
-    }
     return this.rootService.getFile(slug, req);
   }
 

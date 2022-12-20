@@ -27,7 +27,7 @@ const PreviewCard: FC<{
 		options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
 	) => Promise<QueryObserverResult<any, unknown>>;
 }> = ({ file, refetch }) => {
-	const fileURL = `${API_URL}/${file.filename}`;
+	const fileURL = `${API_URL}/${file.slug}.${file.filename.split('.').pop()}`;
 	const deleteFile = useCallback(() => {
 		return axios
 			.get(`${API_URL}/delete/${file.id}`)
@@ -52,7 +52,6 @@ const PreviewCard: FC<{
 	}, [file.id, refetch]);
 
 	return (
-		// <Paper withBorder radius="md" sx={{ overflow: 'hidden' }}>
 		<Box>
 			<Stack
 				spacing={0}
@@ -145,7 +144,13 @@ const PreviewCard: FC<{
 					<Grid mx="sm" mt="lg" gutter="xs" grow>
 						<Grid.Col span={4}>
 							<Button
-								onClick={() => window.open(`${API_URL}/d/${file.slug}`)}
+								onClick={() =>
+									window.open(
+										`${API_URL}/d/${file.slug}.${file.filename
+											.split('.')
+											.pop()}`
+									)
+								}
 								fullWidth
 								variant="light"
 								color="teal"
@@ -180,7 +185,6 @@ const PreviewCard: FC<{
 				</Stack>
 			</Stack>
 		</Box>
-		// </Paper>
 	);
 };
 
