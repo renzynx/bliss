@@ -27,6 +27,7 @@ const PreviewCard: FC<{
 		options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
 	) => Promise<QueryObserverResult<any, unknown>>;
 }> = ({ file, refetch }) => {
+	const fileURL = `${API_URL}/${file.filename}`;
 	const deleteFile = useCallback(() => {
 		return axios
 			.get(`${API_URL}/delete/${file.id}`)
@@ -80,7 +81,7 @@ const PreviewCard: FC<{
 					{file.mimetype.includes('image') ? (
 						/* eslint-disable-next-line @next/next/no-img-element*/
 						<img
-							src={`${API_URL}/${file.slug}_${file.filename}`}
+							src={fileURL}
 							style={{
 								maxWidth: '95%',
 								maxHeight: '85%',
@@ -102,11 +103,11 @@ const PreviewCard: FC<{
 								borderRadius: '2px',
 							}}
 						>
-							<source src={`${API_URL}/${file.slug}_${file.filename}`} />
+							<source src={fileURL} />
 						</video>
 					) : file.mimetype.includes('audio') ? (
 						<audio controls loop preload="metadata">
-							<source src={`${API_URL}/${file.slug}_${file.filename}`} />
+							<source src={fileURL} />
 						</audio>
 					) : (
 						<Text align="center">
@@ -144,9 +145,7 @@ const PreviewCard: FC<{
 					<Grid mx="sm" mt="lg" gutter="xs" grow>
 						<Grid.Col span={4}>
 							<Button
-								onClick={() =>
-									window.open(`${API_URL}/d/${file.slug}_${file.filename}`)
-								}
+								onClick={() => window.open(`${API_URL}/d/${file.slug}`)}
 								fullWidth
 								variant="light"
 								color="teal"
