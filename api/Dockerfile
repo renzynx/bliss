@@ -20,6 +20,7 @@ WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules 
 COPY src ./src 
+COPY views ./views
 COPY prisma ./prisma
 COPY .yarn .yarn 
 COPY package.json yarn.lock .yarnrc.yml tsconfig.json tsconfig.build.json nest-cli.json ./
