@@ -17,9 +17,15 @@ import {
 } from '@mantine/core';
 import { IconArrowBack, IconUser } from '@tabler/icons';
 import router from 'next/router';
+import { useEffect, useRef } from 'react';
 
 function SignUpPage({ settings }: { settings: ServerSettings }) {
 	const { form, loading, register } = useRegister();
+	const ref = useRef<HTMLInputElement>();
+
+	useEffect(() => {
+		ref.current?.focus();
+	}, []);
 
 	if (!settings) {
 		return <LoadingPage />;
@@ -90,6 +96,7 @@ function SignUpPage({ settings }: { settings: ServerSettings }) {
 										id="username"
 										label="Username"
 										description="Leave empty to get a random username"
+										ref={ref}
 									/>
 									<TextInput
 										{...form.getInputProps('email')}

@@ -11,11 +11,17 @@ import {
 	Text,
 	TextInput,
 } from '@mantine/core';
+import { useEffect, useRef } from 'react';
 import { signInStyles } from './styles';
 
 const SignInForm = ({ props, callback }: SignInFormProps) => {
 	const { classes } = signInStyles();
 	const { login, loading, form } = useLogin({ callback });
+	const ref = useRef<HTMLInputElement>();
+
+	useEffect(() => {
+		ref.current?.focus();
+	});
 
 	return (
 		<Paper className={classes.container} {...props}>
@@ -30,6 +36,7 @@ const SignInForm = ({ props, callback }: SignInFormProps) => {
 						id="username_email"
 						name="username_email"
 						label="Username or Email"
+						ref={ref}
 					/>
 					<PasswordInput
 						{...form.getInputProps('password')}

@@ -16,6 +16,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.modified, 'api') }}
     steps:
       - uses: actions/checkout@v3
 
@@ -45,6 +46,7 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.modified, 'web') }}
     steps:
       - uses: actions/checkout@v3
 
