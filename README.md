@@ -12,11 +12,7 @@ This guide assumes you have a domain name and a server and have basic knowledge 
 Copy and paste the following into your terminal:
 
 ```bash
-git clone https://github.com/renzynx/bliss.git
-
-cd bliss
-
-cp docker-compose.example.yml docker-compose.yml
+wget https://cdn.amog-us.club/docker-compose.yml
 ```
 
 Fill in the `docker-compose.yml` environment with the appropriate values.
