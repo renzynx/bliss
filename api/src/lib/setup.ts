@@ -66,6 +66,7 @@ const ensure = async () => {
       `
     Username: root
     Password: ${p}  
+
     `,
       "utf8"
     );
