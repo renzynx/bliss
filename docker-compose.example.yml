@@ -12,13 +12,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - postgres:/var/lib/postgresql/data
 
   redis:
     image: redis:alpine
     container_name: redis
     restart: on-failure
     volumes:
-      - ./api/uploads:/app/uploads
+      - redis:/data
 
   api:
     image: ghcr.io/renzynx/bliss:latest
@@ -55,6 +57,8 @@ services:
     depends_on:
       - postgres
       - redis
+    volumes:
+      - ./api/uploads:/app/uploads
 
   web:
     image: ghcr.io/renzynx/web:latest
@@ -66,3 +70,8 @@ services:
     environment:
       # should be your backend domain e.g. https://uploads.amog-us.club
       - NEXT_PUBLIC_API_URL=
+
+volumes:
+  postgres:
+  redis:
+  uploads:
