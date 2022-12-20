@@ -1,7 +1,7 @@
 import { Logger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { COOKIE_NAME, rootDir } from "lib/constants";
+import { COOKIE_NAME, rootDir, uploadDir } from "lib/constants";
 import { serialize } from "lib/utils";
 import { join } from "path";
 import { AppModule } from "./app.module";
@@ -17,7 +17,7 @@ async function bootstrap() {
   const RedisStore = ConnectStore(session);
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.useStaticAssets(join(rootDir, "uploads"));
+  app.useStaticAssets(uploadDir);
   app.setBaseViewsDir(join(rootDir, "views"));
   app.setViewEngine("hbs");
 
