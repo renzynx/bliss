@@ -58,7 +58,7 @@ services:
       - postgres
       - redis
     volumes:
-      - ./api/uploads:/app/uploads
+      - uploads:/app/uploads
 
   web:
     image: ghcr.io/renzynx/web:latest
