@@ -28,13 +28,13 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgrespw@postgres:5432/postgres
+      - DATABASE_URL=postgresql://postgres:postgrespw@postgres:5432/postgres?schema=public&connect_timeout=300
       - REDIS_URL=redis://redis:6379
       # should be your frontend domain
       # e.g. https://amog-us.club
       - CORS_ORIGIN=
       # just smash random keys on your keyboard or use a password generator
-      - SESSION_SECRET=123
+      - SESSION_SECRET=
       # set to "true" if you want to use email verification
       - USE_MAIL=false
       - MAIL_HOST=
@@ -58,7 +58,7 @@ services:
       - postgres
       - redis
     volumes:
-      - uploads:/app/uploads
+      - ./uploads:/app/uploads
 
   web:
     image: ghcr.io/renzynx/web:latest
@@ -74,4 +74,3 @@ services:
 volumes:
   postgres:
   redis:
-  uploads:

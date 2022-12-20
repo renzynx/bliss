@@ -33,6 +33,14 @@ docker exec api cat /app/initial_root_password.txt
 
 Now you can login with the root account with owner permissions.
 
+### Updating
+
+To update the application, run the following command:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
 </details>
 
 <details>
@@ -89,7 +97,19 @@ yarn build
 pm2 start "yarn start" --name "bliss-web"
 ```
 
+### Updating
+
+To update the application, run the following command:
+
+```bash
+git pull
+```
+
+Then go through the installation steps again.
+
 </details>
+
+<br>
 
 ### Domain name and SSL configuration
 
@@ -106,6 +126,8 @@ sudo caddy reverse-proxy --from https://api.yourdomain.com --to localhost:backen
 ```
 
 Caddy will automatically generate a certificate for you.
+
+<br>
 
 ### Screenshots
 
