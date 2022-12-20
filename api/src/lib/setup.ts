@@ -83,6 +83,8 @@ const ensure = async () => {
       console.log(err);
     });
 
+    const avatarHash = md5("root@localhost");
+
     await prisma.user.create({
       data: {
         email: "root@localhost",
@@ -91,7 +93,8 @@ const ensure = async () => {
         apiKey: generateApiKey(32),
         username: "root",
         emailVerified: new Date(Date.now()),
-        image: `https://www.gravatar.com/avatar/${md5("root@localhost")}`,
+        // image: `https://www.gravatar.com/avatar/${md5("root@localhost")}`,
+        image: `https://avatars.dicebear.com/api/identicon/${avatarHash}.svg`,
       },
     });
   }
