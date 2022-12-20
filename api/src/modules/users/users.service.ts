@@ -173,7 +173,8 @@ export class UsersService implements IUserService {
           username: username ? username : generateUsername("_"),
           password: hashedPassword,
           apiKey: generateApiKey(),
-          image: `https://www.gravatar.com/avatar/${avatarHash}`,
+          // image: `https://www.gravatar.com/avatar/${avatarHash}`,
+          image: `https://avatars.dicebear.com/api/identicon/${avatarHash}.svg`,
           invitedBy: inv ? inv : null,
         },
       });
