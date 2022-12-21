@@ -494,14 +494,19 @@ export class UsersService implements IUserService {
         },
       })
       .then((files) => {
-        if (sort === "largest") {
-          files.sort((a, b) => b.size - a.size);
-        } else if (sort === "smallest") {
-          files.sort((a, b) => a.size - b.size);
-        } else if (sort === "a-z") {
-          files.sort((a, b) => a.filename.localeCompare(b.filename));
-        } else if (sort === "z-a") {
-          files.sort((a, b) => b.filename.localeCompare(a.filename));
+        switch (sort) {
+          case "largest":
+            files.sort((a, b) => b.size - a.size);
+            break;
+          case "smallest":
+            files.sort((a, b) => a.size - b.size);
+            break;
+          case "a-z":
+            files.sort((a, b) => a.filename.localeCompare(b.filename));
+            break;
+          case "z-a":
+            files.sort((a, b) => b.filename.localeCompare(a.filename));
+            break;
         }
         return files.map((file) => ({
           ...file,
