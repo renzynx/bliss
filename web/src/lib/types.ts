@@ -105,12 +105,12 @@ export interface FileResponse {
 export interface EmbedSettings {
 	id: string;
 	enabled: 'true' | 'false';
-	embedSite: string;
-	embedSiteUrl: string;
-	embedAuthor: string;
-	embedAuthorUrl: string;
-	title: string;
-	description: string;
+	provider_name: string | null;
+	provider_url: string | null;
+	author_name: string | null;
+	author_url: string | null;
+	title: string | null;
+	description: string | null;
 	color: string;
 	userId: string;
 }

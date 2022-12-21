@@ -44,30 +44,30 @@ const EmbedPreview: FC<Partial<EmbedSettings>> = (data) => {
 
 					{data && data.enabled === 'true' ? (
 						<Paper
-							withBorder
+							withBorder={!!data.color}
 							sx={{
-								background: '#2F3136',
+								background: data.color ? '#2F3136' : '',
 								borderLeft: `4px solid ${data.color}`,
 								borderRadius: 4,
 							}}
 						>
 							<Stack spacing={5} mt={10} ml={10} mr="sm">
-								{data.embedSite && (
+								{data.provider_name && (
 									<Anchor
 										size="xs"
-										href={data.embedSiteUrl ? data.embedSiteUrl : '_blank'}
+										href={data.provider_url ? data.provider_url : ''}
 										sx={{
 											color: '#FFFFFF',
 											maxWidth: '300px',
 											wordWrap: 'break-word',
 										}}
 									>
-										{data.embedSite}
+										{data.provider_name}
 									</Anchor>
 								)}
-								{data.embedAuthor && (
+								{data.author_name && (
 									<Anchor
-										href={data.embedAuthorUrl ? data.embedAuthorUrl : '_blank'}
+										href={data.author_url ? data.author_url : ''}
 										size="sm"
 										sx={{
 											color: '#FFFFFF',
@@ -75,7 +75,7 @@ const EmbedPreview: FC<Partial<EmbedSettings>> = (data) => {
 											wordWrap: 'break-word',
 										}}
 									>
-										{data.embedAuthor}
+										{data.author_name}
 									</Anchor>
 								)}
 								{data.title && (

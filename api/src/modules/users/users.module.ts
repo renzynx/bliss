@@ -3,12 +3,12 @@ import { PrismaModule } from "../prisma/prisma.module";
 import { UsersService } from "./users.service";
 import { UsersController } from "./users.controller";
 import { MailModule } from "../mail/mail.module";
-import { AuthGuard } from "modules/auth/guard/auth.guard";
-import { APP_GUARD } from "@nestjs/core";
+import { RedisService } from "modules/redis/redis.service";
+import { ConfigService } from "@nestjs/config";
 
 @Module({
   imports: [PrismaModule, MailModule],
-  providers: [UsersService],
+  providers: [UsersService, RedisService, ConfigService],
   exports: [UsersService],
   controllers: [UsersController],
 })

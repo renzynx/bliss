@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   Post,
   Put,
   Query,
@@ -20,6 +19,7 @@ import { AuthGuard } from "modules/auth/guard/auth.guard";
 import { ChangePasswordDTO } from "./dto/ChangePasswordDTO";
 import { ChangeUsernameDTO } from "./dto/ChangeUsernameDTO";
 import { EmbedSettingDTO } from "./dto/EmbedSettingsDTO";
+import { ResetPasswordDTO } from "./dto/ResetPasswordDTO";
 import { UsersService } from "./users.service";
 
 @Controller(ROUTES.USERS)
@@ -38,6 +38,23 @@ export class UsersController {
   @Post("verify")
   async verifyEmail(@Body() { token }: { token: string }) {
     return this.usersService.verifyEmail(token);
+  }
+
+  @Post("forgot-password")
+  async forgotPassword(@Body() { email }: { email: string }) {
+    return this.usersService.sendForgotPasswordEmail(email);
+  }
+
+  @Post("check-token")
+  async checkToken(@Body() { token }: { token: string }) {
+    return this.usersService.checkToken(token);
+  }
+
+  @UseFilters(new HttpExceptionFilter())
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @Post("reset-password")
+  async resetPassword(@Body() { token, password }: ResetPasswordDTO) {
+    return this.usersService.resetPassword(token, password);
   }
 
   @UseGuards(AuthGuard)
@@ -63,8 +80,8 @@ export class UsersController {
   }
 
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe({ transform: true }))
   @UseFilters(new HttpExceptionFilter())
+  @UsePipes(new ValidationPipe({ transform: true }))
   @Put("embed-settings")
   async updateEmbedSettings(
     @Request() req: ERequest,

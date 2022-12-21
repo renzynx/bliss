@@ -17,23 +17,32 @@ import {
   SessionUser,
   UserResponse,
 } from "../../lib/types";
-import {
-  formatBytes,
-  generateApiKey,
-  readServerSettings,
-} from "../../lib/utils";
+import { formatBytes, generateApiKey } from "../../lib/utils";
 import { RegisterDTO } from "../auth/dto/register.dto";
 import { PrismaService } from "../prisma/prisma.service";
 import { Request } from "express";
 import md5 from "md5";
+import { RedisService } from "modules/redis/redis.service";
+import { Redis } from "ioredis";
+import {
+  CONFIRM_EMAIL_PREFIX,
+  FORGOT_PASSWORD_PREFIX,
+  rootDir,
+} from "lib/constants";
+import { join } from "path";
+import { readFile } from "fs/promises";
 
 @Injectable()
 export class UsersService implements IUserService {
   private readonly _logger = new Logger(UsersService.name);
+  private redis: Redis;
   constructor(
     private readonly prisma: PrismaService,
-    private readonly mailService: MailService
-  ) {}
+    private readonly mailService: MailService,
+    private readonly redisService: RedisService
+  ) {
+    this.redis = this.redisService.redis();
+  }
 
   async findUser(
     username_or_email: string,
@@ -66,17 +75,63 @@ export class UsersService implements IUserService {
     return user ?? null;
   }
 
-  async createUser(
-    {
-      email,
-      username,
-      password,
-      invite,
-    }: RegisterDTO & { invite?: string; username?: string | undefined },
-    req: Request
-  ): Promise<UserResponse> {
-    const { INVITE_MODE, REGISTRATION_ENABLED } = await readServerSettings();
-    let inv: string | null = null;
+  // validateUserInput<T>(dto: T) {
+  //   const errors = [];
+
+  //   for (const [key, value] of Object.entries(dto)) {
+  //     if (value === undefined) {
+  //       errors.push({
+  //         field: key,
+  //         message: "Field is required",
+  //       });
+  //     }
+  //   }
+
+  //   if (errors.length > 0) {
+  //     throw new BadRequestException({ errors });
+  //   }
+
+  //   return true;
+  // }
+
+  validateUsername(username: string) {
+    if (username.length < 3) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: "username",
+            message: "Username must be at least 3 characters long",
+          },
+        ],
+      });
+    }
+    if (username.length > 20) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: "username",
+            message: "Username must be at most 20 characters long",
+          },
+        ],
+      });
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: "username",
+            message: "Username can only contain letters, numbers and _",
+          },
+        ],
+      });
+    }
+  }
+
+  async validateServerSettings(invite: string): Promise<string | null> {
+    const { INVITE_MODE, REGISTRATION_ENABLED } =
+      await this.redisService.readServerSettings();
+    let inv: string = null;
 
     if (!REGISTRATION_ENABLED) {
       throw new BadRequestException({
@@ -95,40 +150,6 @@ export class UsersService implements IUserService {
           },
         ],
       });
-    }
-
-    if (username) {
-      if (username.length < 3) {
-        throw new BadRequestException({
-          errors: [
-            {
-              field: "username",
-              message: "Username must be at least 3 characters long",
-            },
-          ],
-        });
-      }
-      if (username.length > 20) {
-        throw new BadRequestException({
-          errors: [
-            {
-              field: "username",
-              message: "Username must be at most 20 characters long",
-            },
-          ],
-        });
-      }
-
-      if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-        throw new BadRequestException({
-          errors: [
-            {
-              field: "username",
-              message: "Username can only contain letters, numbers and _",
-            },
-          ],
-        });
-      }
     }
 
     if (INVITE_MODE) {
@@ -162,6 +183,24 @@ export class UsersService implements IUserService {
 
       inv = inviteCode.identifier;
       await this.prisma.verificationToken.delete({ where: { token: invite } });
+    }
+
+    return inv;
+  }
+
+  async createUser(
+    {
+      email,
+      username,
+      password,
+      invite,
+    }: RegisterDTO & { invite?: string; username?: string | undefined },
+    req: Request
+  ): Promise<UserResponse> {
+    const inv = await this.validateServerSettings(invite);
+
+    if (username) {
+      this.validateUsername(username);
     }
 
     try {
@@ -241,25 +280,33 @@ export class UsersService implements IUserService {
       throw new BadRequestException("email already verified");
     }
     try {
-      const { token } = await this.prisma.verificationToken.create({
-        data: {
-          expires: new Date(Date.now() + 60 * 2),
-          identifier: id,
-          token: generateApiKey(),
-        },
-      });
+      const token = generateApiKey(32);
 
-      await this.mailService.createInstance().sendMail(
-        user.email,
-        "Verify your email",
-        `
-				<html>
-					<p>
-					Click this <a href="${process.env.CORS_ORIGIN}/verify?token=${token}">link</a> to verify your email.
-					</p>
-				</html>
-      	`
+      await this.redis.set(
+        CONFIRM_EMAIL_PREFIX + token,
+        user.id,
+        "EX",
+        60 * 60 * 2 // 2 hours
       );
+
+      // read the html file
+      const html = await readFile(
+        join(rootDir, "templates", "verify.html"),
+        "utf8"
+      );
+
+      // replace the placeholders with the actual data
+      const htmlToSend = html
+        .replace(
+          /{{url}}/gi,
+          `${process.env.CORS_ORIGIN}/verify?token=${token}`
+        )
+        .replace(/{{username}}/gi, user.username)
+        .replace(/{{valid}}/gi, "2 hours");
+
+      await this.mailService
+        .createInstance()
+        .sendMail(user.email, "Verify your email", htmlToSend);
 
       return true;
     } catch (error) {
@@ -273,9 +320,9 @@ export class UsersService implements IUserService {
       return false;
     }
 
-    const check = await this.prisma.verificationToken.findUnique({
-      where: { token },
-    });
+    const varible = CONFIRM_EMAIL_PREFIX + token;
+
+    const check = await this.redis.get(varible);
 
     if (!check) {
       return false;
@@ -283,12 +330,10 @@ export class UsersService implements IUserService {
 
     await Promise.all([
       this.prisma.user.update({
-        where: { id: check.identifier },
+        where: { id: check },
         data: { emailVerified: new Date(Date.now()) },
       }),
-      this.prisma.verificationToken.deleteMany({
-        where: { identifier: check.identifier, type: "EMAIL_VERIFICATION" },
-      }),
+      this.redis.del(varible),
     ]);
 
     return true;
@@ -329,10 +374,10 @@ export class UsersService implements IUserService {
       search?: string;
     }
   ) {
-    // const user = await this.findUser(id, { byId: true });
-    // if (!user) {
-    //   throw new UnauthorizedException("not authorized");
-    // }
+    const user = await this.findUser(id, { byId: true });
+    if (!user) {
+      throw new UnauthorizedException("not authorized");
+    }
     const total = await this.prisma.file.count({
       where: {
         userId: id,
@@ -408,19 +453,25 @@ export class UsersService implements IUserService {
             ],
           },
           orderBy: {
-            createdAt: sort === "oldest" ? "asc" : "desc",
+            createdAt: sort === "newest" ? "desc" : "asc",
           },
         })
         .then((files) => {
-          if (sort === "largest") {
-            return files.sort((a, b) => b.size - a.size);
-          } else if (sort === "smallest") {
-            return files.sort((a, b) => a.size - b.size);
-          } else if (sort === "a-z") {
-            return files.sort((a, b) => a.filename.localeCompare(b.filename));
-          } else if (sort === "z-a") {
-            return files.sort((a, b) => b.filename.localeCompare(a.filename));
+          switch (sort) {
+            case "largest":
+              files.sort((a, b) => b.size - a.size);
+              break;
+            case "smallest":
+              files.sort((a, b) => a.size - b.size);
+              break;
+            case "a-z":
+              files.sort((a, b) => a.filename.localeCompare(b.filename));
+              break;
+            case "z-a":
+              files.sort((a, b) => b.filename.localeCompare(a.filename));
+              break;
           }
+
           return files.map((file) => ({
             ...file,
             size: formatBytes(file.size),
@@ -442,7 +493,7 @@ export class UsersService implements IUserService {
         skip: finalSkip,
         take: finalTake,
         orderBy: {
-          createdAt: sort === "oldest" ? "asc" : "desc",
+          createdAt: sort === "newest" ? "desc" : "asc",
         },
       })
       .then((files) => {
@@ -477,9 +528,7 @@ export class UsersService implements IUserService {
 
     try {
       const { username } = await this.prisma.user.update({
-        where: {
-          username: old,
-        },
+        where: { username: old },
         data: { username: newUsername },
       });
 
@@ -542,6 +591,130 @@ export class UsersService implements IUserService {
       where: { id: user.id },
       data: { password },
     });
+
+    return true;
+  }
+
+  async deleteAccount(id: string) {
+    const user = await this.findUser(id, { byId: true });
+
+    if (!user) {
+      throw new UnauthorizedException("not authorized");
+    }
+
+    await this.prisma.user.delete({ where: { id } });
+
+    return true;
+  }
+
+  async sendForgotPasswordEmail(email: string) {
+    if (!email) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: "email",
+            message: "Email is required",
+          },
+        ],
+      });
+    }
+
+    const isEmail = /\S+@\S+\.\S+/.test(email);
+
+    if (!isEmail) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: "email",
+            message: "Invalid email",
+          },
+        ],
+      });
+    }
+
+    const user = await this.findUser(email);
+
+    if (!user) {
+      return true;
+    }
+
+    try {
+      const token = generateApiKey(64);
+
+      await this.redis.set(
+        FORGOT_PASSWORD_PREFIX + token,
+        user.id,
+        "EX",
+        60 * 60 * 2 // 2 hours
+      );
+
+      const html = await readFile(
+        join(rootDir, "templates", "forgot.html"),
+        "utf-8"
+      );
+
+      const htmlToSend = html
+        .replace(
+          /{{url}}/gi,
+          `${process.env.CORS_ORIGIN}/auth/forgot-password/${token}`
+        )
+        .replace(/{{username}}/gi, user.username)
+        .replace(/{{valid}}/gi, "2 hours");
+
+      await this.mailService
+        .createInstance()
+        .sendMail(user.email, "Reset your password", htmlToSend);
+
+      return true;
+    } catch (error) {
+      this._logger.error(error.message);
+
+      throw new InternalServerErrorException({
+        errors: [
+          {
+            field: "email",
+            message:
+              "Something went wrong in our server, please try again later",
+          },
+        ],
+      });
+    }
+  }
+
+  checkToken(token: string) {
+    return this.redis.exists(FORGOT_PASSWORD_PREFIX + token);
+  }
+
+  async resetPassword(token: string, password: string) {
+    const id = await this.redis.get(FORGOT_PASSWORD_PREFIX + token);
+
+    if (!id) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: "password",
+            message:
+              "Verification token is invalid or expired, please request a new one.",
+          },
+        ],
+      });
+    }
+
+    const user = await this.findUser(id, { byId: true });
+
+    if (!user) {
+      throw new UnauthorizedException("not authorized");
+    }
+
+    const hashedPassword = await argon.hash(password);
+
+    await Promise.all([
+      this.prisma.user.update({
+        where: { id: user.id },
+        data: { password: hashedPassword },
+      }),
+      this.redis.del(FORGOT_PASSWORD_PREFIX + token),
+    ]);
 
     return true;
   }

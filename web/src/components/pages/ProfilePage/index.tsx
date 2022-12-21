@@ -28,7 +28,7 @@ const ProfilePage = () => {
 	const [opened, { close, open }] = useDisclosure(false);
 	const [opened2, { close: close2, open: open2 }] = useDisclosure(false);
 	const { signOut } = useSignOut();
-	const { mutate } = useSendVerificationEmail();
+	const { mutate, sent } = useSendVerificationEmail();
 	const { classes } = profileStyles();
 
 	return (
@@ -69,6 +69,7 @@ const ProfilePage = () => {
 							</Badge>
 						) : (
 							<UnstyledButton
+								disabled={sent}
 								className={classes['verify-button']}
 								onClick={() => {
 									showNotification({

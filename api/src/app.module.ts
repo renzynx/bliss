@@ -11,6 +11,7 @@ import { AdminModule } from "./modules/admin/admin.module";
 import { S3Module } from "./modules/s3/s3.module";
 import { PrismaService } from "modules/prisma/prisma.service";
 import { UploadModule } from "modules/upload/upload.module";
+import { RedisService } from "modules/redis/redis.service";
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { UploadModule } from "modules/upload/upload.module";
     DeleteModule,
     process.env.UPLOADER === "s3" ? S3Module : UploadModule,
   ],
-  providers: [RootService, PrismaService],
+  providers: [RootService, PrismaService, RedisService],
   controllers: [RootController],
 })
 export class AppModule implements NestModule {

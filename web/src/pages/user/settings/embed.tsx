@@ -13,7 +13,7 @@ const EmbedSetting: CustomNextPage<
 			<Head>
 				<title>{APP_NAME} | Embed Settings</title>
 			</Head>
-			<EmbedPage {...data} />;
+			<EmbedPage {...data} />
 		</>
 	);
 };

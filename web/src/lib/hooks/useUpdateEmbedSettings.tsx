@@ -1,6 +1,6 @@
 import { API_ROUTES, API_URL } from '@lib/constants';
 import { EmbedSettings } from '@lib/types';
-import { generateRandomHexColor, toErrorMap } from '@lib/utils';
+import { toErrorMap } from '@lib/utils';
 import { useForm } from '@mantine/form';
 import { updateNotification } from '@mantine/notifications';
 import { IconCheck, IconX } from '@tabler/icons';
@@ -17,21 +17,14 @@ export const useUpdateEmbedSettings = (data: Partial<EmbedSettings>) => {
 		validate: {
 			// @ts-ignore shitty typescript
 			title: (val: string, vals: EmbedSettings) =>
-				!val && !vals.embedAuthor
-					? 'Title or author is required for embed to display properly'
+				val && !vals.author_name
+					? 'Title and Author is both required for embed to display properly'
 					: null,
 			// @ts-ignore shut up typescript
-			embedAuthor: (val: string, vals: EmbedSettings) =>
-				!val && !vals.embedAuthor
-					? 'Title or author is required for embed to display properly'
+			author_name: (val: string, vals: EmbedSettings) =>
+				val && !vals.title
+					? 'Title and Author is both required for embed to display properly'
 					: null,
-		},
-		transformValues: (values) => {
-			if (!values.color) {
-				values.color = generateRandomHexColor();
-			}
-
-			return values;
 		},
 	});
 	const { mutate, isLoading } = useMutation(

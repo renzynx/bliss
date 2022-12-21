@@ -28,17 +28,17 @@ model User {
 }
 
 model EmbedSettings {
-  id             String  @id @default(cuid())
-  enabled        Boolean @default(false)
-  embedSite      String? @map("embed_site")
-  embedSiteUrl   String? @map("embed_site_url")
-  embedAuthor    String? @map("embed_author")
-  embedAuthorUrl String? @map("embed_author_url")
-  title          String?
-  description    String?
-  color          String?
+  id            String  @id @default(cuid())
+  enabled       Boolean @default(false)
+  provider_name String?
+  provider_url  String?
+  author_name   String?
+  author_url    String?
+  title         String?
+  description   String?
+  color         String
 
-  User   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique @map("user_id")
 
   @@map("embed_settings")

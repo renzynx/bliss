@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: #f1f1f1;
+      }
+
+      .container {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .card {
+        width: 400px;
+        height: 400px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .card h1 {
+        font-size: 2rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+      }
+
+      .card p {
+        font-size: 1.2rem;
+        font-weight: 400;
+        margin-bottom: 1rem;
+      }
+
+      .card .btn {
+        text-decoration: none;
+        color: #fff;
+        background-color: #000;
+        padding: 0.7rem;
+        width: 80%;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        font-weight: 400;
+        text-align: center;
+      }
+
+      .card .btn:hover {
+        background-color: #333;
+      }
+
+      .card .btn:active {
+        background-color: #666;
+      }
+
+      .card .btn:visited {
+        background-color: #999;
+      }
+
+      .card .btn:focus {
+        background-color: #ccc;
+      }
+
+      .card p {
+        text-align: center;
+        font-size: medium;
+        max-width: 80%;
+      }
+
+      .link {
+        padding-top: 1rem;
+      }
+
+      .ignore {
+        padding-top: 1rem;
+        font-size: smaller;
+        font-family: "Courier New", Courier, monospace;
+        color: rgb(167, 167, 167);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>Hello {{username}}</h1>
+        <p>
+          Click the button below to verify your email address. The link will
+          expire in {{valid}}.
+        </p>
+        <a class="btn" href="{{url}}">Verify</a>
+        <p class="link">
+          If the button above does not work, please copy and paste the following
+          link into your browser:
+          <span>
+            <a href="{{url}}">{{url}}</a>
+          </span>
+        </p>
+        <p class="ignore">
+          If you did not request this verification, please ignore this email.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

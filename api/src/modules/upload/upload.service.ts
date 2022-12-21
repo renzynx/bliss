@@ -21,21 +21,16 @@ export class UploadService {
 
   constructor(private readonly prismaService: PrismaService) {}
 
-  createOEmbedJSON({
-    embedAuthor,
-    embedAuthorUrl,
-    embedSite,
-    embedSiteUrl,
-    filename,
-  }: Partial<EmbedSettings> & { filename: string }) {
+  createOEmbedJSON(oembed: Partial<EmbedSettings> & { filename: string }) {
+    const tmp = oembed;
+    delete tmp.filename;
     const data = {
       version: "1.0",
       type: "link",
-      author_name: embedAuthor,
-      author_url: embedAuthorUrl,
-      provider_name: embedSite,
-      provider_url: embedSiteUrl,
+      ...tmp,
     };
+
+    const { filename } = oembed;
 
     const stream = createWriteStream(join(uploadDir, filename + ".json"), {
       flags: "w",
@@ -129,10 +124,7 @@ export class UploadService {
     if (mime.includes("image") && user.embed_settings?.enabled) {
       this.createOEmbedJSON({
         filename: slug,
-        embedAuthor: user.embed_settings?.embedAuthor,
-        embedAuthorUrl: user.embed_settings?.embedAuthorUrl,
-        embedSite: user.embed_settings?.embedSite,
-        embedSiteUrl: user.embed_settings?.embedSiteUrl,
+        ...user.embed_settings,
       });
     }
 
@@ -214,10 +206,7 @@ export class UploadService {
       if (mimetype.includes("image") && user.embed_settings?.enabled) {
         this.createOEmbedJSON({
           filename: name,
-          embedAuthor: user.embed_settings?.embedAuthor,
-          embedAuthorUrl: user.embed_settings?.embedAuthorUrl,
-          embedSite: user.embed_settings?.embedSite,
-          embedSiteUrl: user.embed_settings?.embedSiteUrl,
+          ...user.embed_settings,
         });
       }
 

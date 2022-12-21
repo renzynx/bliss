@@ -1,17 +1,20 @@
-import { FieldError, ServerSettings } from "./types";
 import { randomBytes } from "crypto";
-import { join } from "path";
-import { readFile, writeFile } from "fs/promises";
-import { rootDir } from "./constants";
 import { lookup } from "mime-types";
-import Redis from "ioredis";
+import { FieldError } from "./types";
 
 export const toFieldError = (errors: string[]) => {
   const fieldErrors: FieldError[] = [];
+  const special = errors.map((error) => error.includes("_")).includes(true);
 
   errors.map((error) => {
-    const [field, message] = error.split(": ");
-    fieldErrors.push({ field, message });
+    if (special) {
+      const field = error.split(" ").shift();
+      const message = error.replace(field, "").trim();
+      fieldErrors.push({ field, message });
+    } else {
+      const [field, message] = error.split(": ");
+      fieldErrors.push({ field, message });
+    }
   });
 
   return fieldErrors;
@@ -64,24 +67,6 @@ export const matchLocalHost = (ip: string) => {
   if (ip === "::1") return true;
 
   return ip.match(ipRegex);
-};
-
-export const readServerSettings = async () => {
-  const client = new Redis(process.env.REDIS_URL);
-  const data = await client.get("settings");
-  if (!data)
-    return {
-      INVITE_MODE: false,
-      REGISTRATION_ENABLED: true,
-    } as ServerSettings;
-  client.disconnect();
-  return JSON.parse(data) as ServerSettings;
-};
-
-export const writeServerSettings = async (newData: ServerSettings) => {
-  const redis = new Redis(process.env.REDIS_URL);
-  await redis.set("settings", JSON.stringify(newData));
-  return readServerSettings();
 };
 
 export const lookUp = (filename: string) => {

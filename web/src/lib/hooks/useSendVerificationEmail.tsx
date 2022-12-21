@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 
 export const useSendVerificationEmail = () => {
+	let sent = false;
 	const { mutate, isLoading } = useMutation(['verify-send'], () =>
 		axios
 			.post(
@@ -14,6 +15,7 @@ export const useSendVerificationEmail = () => {
 			)
 			.then((res) => {
 				if (res.data) {
+					sent = true;
 					updateNotification({
 						id: 'verify-send',
 						title: 'Verification email sent',
@@ -24,18 +26,30 @@ export const useSendVerificationEmail = () => {
 					});
 				}
 			})
-			.catch(() => {
-				updateNotification({
-					id: 'verify-send',
-					title: 'Error',
-					message:
-						'Something went wrong while sending the verification email. Please try again later.',
-					color: 'red',
-					autoClose: 2000,
-					icon: <IconX size={16} />,
-				});
+			.catch((err) => {
+				sent = false;
+				if (err.code === 400) {
+					updateNotification({
+						id: 'verify-send',
+						title: 'Verification email failed',
+						message: 'You have already verified your email address.',
+						color: 'red',
+						autoClose: 2000,
+						icon: <IconX size={16} />,
+					});
+				} else {
+					updateNotification({
+						id: 'verify-send',
+						title: 'Error',
+						message:
+							'Something went wrong while sending the verification email. Please try again later.',
+						color: 'red',
+						autoClose: 2000,
+						icon: <IconX size={16} />,
+					});
+				}
 			})
 	);
 
-	return { mutate, isLoading };
+	return { mutate, isLoading, sent };
 };

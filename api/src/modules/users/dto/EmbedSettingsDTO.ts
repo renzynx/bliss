@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsEmpty,
   IsHexColor,
   IsOptional,
   IsUrl,
@@ -12,37 +13,33 @@ export class EmbedSettingDTO {
 
   @IsOptional()
   @MaxLength(200, {
-    message: "embedSite: Embed site name must be at 200 characters or less.",
+    message:
+      "provider_name: Embed site name must be at 200 characters or less.",
   })
-  embedSite: string | null;
+  provider_name: string | null;
 
   @IsOptional()
-  @IsUrl({ message: "embedSiteUrl: Embed site url must be a valid url." })
-  embedSiteUrl: string | null;
+  @IsUrl()
+  provider_url: string | null;
 
   @IsOptional()
-  @MaxLength(200, {
-    message: "embedAuthor: Embed author must be at 200 characters or less.",
-  })
-  embedAuthor: string | null;
+  @MaxLength(200)
+  author_name: string | null;
 
   @IsOptional()
-  @IsUrl({ message: "embedAuthorUrl: Embed author url must be a valid url." })
-  embedAuthorUrl: string | null;
+  @IsEmpty()
+  @IsUrl()
+  author_url: string | null;
 
   @IsOptional()
-  @MaxLength(200, {
-    message: "title: Embed author must be at 200 characters or less.",
-  })
+  @MaxLength(200)
   title: string | null;
 
   @IsOptional()
-  @MaxLength(1800, {
-    message: "description: Embed description must be 1800 characters or less.",
-  })
+  @MaxLength(1800)
   description: string | null;
 
   @IsOptional()
-  @IsHexColor({ message: "color: Color must be a hex color." })
+  @IsHexColor()
   color: string | null;
 }

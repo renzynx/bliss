@@ -38,7 +38,7 @@ const SignInForm = ({ props, callback }: SignInFormProps) => {
 						label="Password"
 					/>
 					<Group mt="lg" position="apart" align="center">
-						<Anchor size="xs" color="dimmed">
+						<Anchor href={ROUTES.FORGOT_PASSWORD} size="xs" color="dimmed">
 							Forgot password?
 						</Anchor>
 						<Anchor href={ROUTES.SIGN_UP} size="xs" color="dimmed">

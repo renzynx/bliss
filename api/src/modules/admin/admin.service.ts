@@ -1,10 +1,14 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
-import { generateApiKey, writeServerSettings } from "lib/utils";
+import { generateApiKey } from "lib/utils";
 import { PrismaService } from "modules/prisma/prisma.service";
+import { RedisService } from "modules/redis/redis.service";
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService
+  ) {}
 
   async changeServerSettings(
     data: {
@@ -34,7 +38,7 @@ export class AdminService {
       });
     }
 
-    return writeServerSettings(data);
+    return this.redis.setServerSettings(data);
   }
 
   async getInvites(id: string) {

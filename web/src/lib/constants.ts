@@ -10,6 +10,7 @@ export enum ROUTES {
 	PROFILE = '/user/profile',
 	SIGN_IN = '/auth/signin',
 	SIGN_UP = '/auth/signup',
+	FORGOT_PASSWORD = '/auth/forgot-password',
 }
 
 export enum API_ROUTES {
@@ -26,6 +27,9 @@ export enum API_ROUTES {
 	EMBED_SETTINGS = '/users/embed-settings',
 	CHANGE_PASSWORD = '/users/change-password',
 	CHANGE_USERNAME = '/users/change-username',
+	FORGOT_PASSWORD = '/users/forgot-password',
+	RESET_PASSWORD = '/users/reset-password',
+	CHECK_TOKEN = '/users/check-token',
 	SEND_VERIFICATION_EMAIL = '/users/verify/send',
 	VERIFY_EMAIL = '/users/verify',
 	SERVER_SETTINGS = '/server-settings',

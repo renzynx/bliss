@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { EmbedSettings } from "@prisma/client";
-import S3Client from "aws-sdk/clients/s3";
+import { Client, ItemBucketMetadata } from "minio";
 import { Request, Response } from "express";
 import { CustomSession } from "lib/types";
 import { generateApiKey, lookUp } from "lib/utils";
@@ -14,43 +14,41 @@ import { PrismaService } from "modules/prisma/prisma.service";
 
 @Injectable()
 export class S3Service {
-  private s3: S3Client;
+  private s3: Client;
   private logger = new Logger(S3Service.name);
+  private readonly bucketName = process.env.S3_BUCKET_NAME;
 
   constructor(private readonly prismaService: PrismaService) {
-    this.s3 = new S3Client({
-      endpoint: process.env.S3_ENDPOINT,
-      accessKeyId: process.env.S3_ACCESS_KEY_ID,
-      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+    this.s3 = new Client({
+      endPoint: process.env.S3_ENDPOINT,
+      accessKey: process.env.S3_ACCESS_KEY_ID,
+      secretKey: process.env.S3_SECRET_ACCESS_KEY,
       region: process.env.S3_REGION,
-      s3ForcePathStyle: true,
+      pathStyle: true,
     });
   }
 
-  createOEmbedJSON({
-    embedAuthor,
-    embedAuthorUrl,
-    embedSite,
-    embedSiteUrl,
-    filename,
-  }: Partial<EmbedSettings> & { filename: string }) {
+  createOEmbedJSON(oembed: Partial<EmbedSettings> & { filename: string }) {
+    const tmp = oembed;
+
+    delete tmp.filename;
+
     const data = {
       version: "1.0",
       type: "link",
-      author_name: embedAuthor,
-      author_url: embedAuthorUrl,
-      provider_name: embedSite,
-      provider_url: embedSiteUrl,
+      ...tmp,
     };
 
-    const params: S3Client.PutObjectRequest = {
-      Bucket: process.env.S3_BUCKET_NAME,
-      Key: `${filename}.json`,
-      Body: JSON.stringify(data),
-      ContentType: "application/json",
+    const metadata: ItemBucketMetadata = {
+      "Content-Type": "application/json",
     };
 
-    return this.s3.upload(params).promise();
+    return this.s3.putObject(
+      this.bucketName,
+      `${oembed.filename}.json`,
+      JSON.stringify(data),
+      metadata
+    );
   }
 
   async uploadFile(req: Request, file: Express.Multer.File) {
@@ -77,33 +75,34 @@ export class S3Service {
     const extension = file.originalname.split(".").pop();
     const filename = slug + "." + extension;
 
-    const params: S3Client.PutObjectRequest = {
-      Bucket: process.env.S3_BUCKET_NAME,
-      Key: filename,
-      Body: file.buffer,
-      ContentLength: file.size,
-      ContentType: file.mimetype,
+    const params: ItemBucketMetadata = {
+      "Content-Type": file.mimetype,
+      "Content-Disposition": "inline",
+      "Content-Length": file.size,
     };
 
     const { embed_settings } = user;
 
-    lookUp(filename).includes("image") &&
-      embed_settings &&
-      embed_settings.enabled &&
-      (await this.createOEmbedJSON({
+    if (lookUp(filename).includes("image") && embed_settings?.enabled) {
+      await this.createOEmbedJSON({
         filename: slug,
-        embedAuthor: user.embed_settings?.embedAuthor,
-        embedAuthorUrl: user.embed_settings?.embedAuthorUrl,
-        embedSite: user.embed_settings?.embedSite,
-        embedSiteUrl: user.embed_settings?.embedSiteUrl,
-      }));
+        ...embed_settings,
+      });
+    }
 
-    const data = await this.s3.upload(params).promise();
-    const protocol = process.env.USE_PROXY === "true" ? "https" : req.protocol;
+    await this.s3
+      .putObject(this.bucketName, filename, file.buffer, params)
+      .catch((err) => {
+        this.logger.error(err.message);
+        throw new InternalServerErrorException("Server error");
+      });
+
+    const protocol = req.headers["x-forwarded-proto"] || "http";
+
     return {
       url: `${protocol}://${req.get("host")}/${slug}`,
-      thumbnail: `${process.env.CDN_URL}/${filename}`,
-      delete: `${protocol}://${req.get("host")}/s3/delete/${filename}`,
+      thumbnail: `${process.env.CDN_URL ?? protocol}/${filename}`,
+      delete: `${protocol}://${req.get("host")}/delete/${filename}`,
     };
   }
 
@@ -112,20 +111,16 @@ export class S3Service {
       throw new BadRequestException("Missing key.");
     }
 
-    const params: S3Client.DeleteObjectRequest = {
-      Bucket: process.env.S3_BUCKET_NAME,
-      Key: key,
-    };
+    await this.s3.removeObject(this.bucketName, key, (error) => {
+      if (error.message.includes("The specified key does not exist.")) {
+        throw new BadRequestException("File does not exist");
+      } else {
+        this.logger.error(error.message);
+        throw new InternalServerErrorException("Server error");
+      }
+    });
 
-    try {
-      const data = await this.s3.deleteObject(params).promise();
-      return data.DeleteMarker
-        ? res.send(`<pre>Successfully deleted ${key}</pre>`)
-        : res.send("<pre>File does not exist</pre>");
-    } catch (error) {
-      this.logger.error(error.message);
-      return res.send("File does not exist or server error.");
-    }
+    return res.status(200).json({ message: "File deleted successfully" });
   }
 
   async bulkUpload(req: Request, files: Express.Multer.File[]) {
@@ -147,25 +142,28 @@ export class S3Service {
         const extension = file.originalname.split(".").pop();
         const filename = slug + "." + extension;
 
-        const params: S3Client.PutObjectRequest = {
-          Bucket: process.env.S3_BUCKET_NAME,
-          Key: filename,
-          Body: file.buffer,
-          ContentLength: file.size,
-          ContentType: file.mimetype,
+        const params: ItemBucketMetadata = {
+          "Content-Length": file.size,
+          "Content-Type": file.mimetype,
+          "Content-Disposition": "inline",
         };
 
-        embed_settings &&
-          embed_settings.enabled &&
-          (await this.createOEmbedJSON({
+        if (
+          lookUp(file.originalname).includes("image") &&
+          embed_settings?.enabled
+        ) {
+          await this.createOEmbedJSON({
             filename: slug,
-            embedAuthor: user.embed_settings?.embedAuthor,
-            embedAuthorUrl: user.embed_settings?.embedAuthorUrl,
-            embedSite: user.embed_settings?.embedSite,
-            embedSiteUrl: user.embed_settings?.embedSiteUrl,
-          }));
+            ...embed_settings,
+          });
+        }
 
-        return this.s3.upload(params).promise();
+        return this.s3.putObject(
+          this.bucketName,
+          filename,
+          file.buffer,
+          params
+        );
       });
 
       return Promise.all(promises);

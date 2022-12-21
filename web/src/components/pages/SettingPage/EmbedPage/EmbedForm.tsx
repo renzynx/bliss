@@ -28,6 +28,13 @@ const EmbedForm: FC<{
 		<Paper sx={{ width: '100%' }} withBorder p="lg">
 			<form
 				onSubmit={form.onSubmit((values) => {
+					// remove empty values
+					Object.keys(values).forEach((key) => {
+						if (values[key] === '') {
+							delete values[key];
+						}
+					});
+
 					showNotification({
 						id: 'embed-settings',
 						title: 'Updating embed settings',
@@ -57,21 +64,21 @@ const EmbedForm: FC<{
 						minRows={1}
 						maxRows={4}
 						label="Embed Author"
-						{...form.getInputProps('embedAuthor')}
+						{...form.getInputProps('author_name')}
 					/>
 					<TextInput
 						label="Embed Author URL"
-						{...form.getInputProps('embedAuthorUrl')}
+						{...form.getInputProps('author_url')}
 					/>
 					<Textarea
 						minRows={1}
 						maxRows={4}
 						label="Embed Sitename"
-						{...form.getInputProps('embedSite')}
+						{...form.getInputProps('provider_name')}
 					/>
 					<TextInput
 						label="Embed Site URL"
-						{...form.getInputProps('embedSiteUrl')}
+						{...form.getInputProps('provider_url')}
 					/>
 					<Textarea
 						minRows={1}

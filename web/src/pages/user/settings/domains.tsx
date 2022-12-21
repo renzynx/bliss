@@ -8,7 +8,7 @@ const DomainSetting = () => {
 			<Head>
 				<title>{APP_NAME} | Domain Settings</title>
 			</Head>
-			<DomainPage />;
+			<DomainPage />
 		</>
 	);
 };
