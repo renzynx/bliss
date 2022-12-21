@@ -82,12 +82,18 @@ export class RootService {
         const cannotDisplay = !isImage && !isVideo && !isAudio;
         const timezone = new Date().getTimezoneOffset() / 60;
 
+        const {
+          user: { embed_settings },
+        } = file;
+
         return {
           oembed: `${baseUrl}/${slug}.json`,
           url: `${baseUrl}/${slug}.${ext}`,
-          title: file.user.embed_settings?.title,
-          description: file.user.embed_settings?.description,
-          color: file.user.embed_settings?.color ?? generateRandomHexColor(),
+          title: embed_settings.enabled ? embed_settings?.title : null,
+          description: embed_settings.enabled
+            ? embed_settings?.description
+            : null,
+          color: embed_settings?.color ?? generateRandomHexColor(),
           ogType: isVideo ? "video.other" : isImage ? "image" : "website",
           urlType: isVideo ? "video" : isAudio ? "audio" : "image",
           mimetype: lookUp(file.filename),
@@ -95,7 +101,7 @@ export class RootService {
           slug: file.slug + "." + file.filename.split(".").pop(),
           size: formatBytes(stats.size),
           username: file.user.username,
-          embed_enabled: file.user.embed_settings?.enabled ?? false,
+          embed_enabled: embed_settings?.enabled,
           views: vw,
           timestamp: formatDate(file.createdAt) + ` (UTC${timezone})`,
           isVideo,
