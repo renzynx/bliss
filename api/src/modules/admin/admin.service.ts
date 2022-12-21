@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
+import { INVITE_PREFIX } from "lib/constants";
 import { generateApiKey } from "lib/utils";
 import { PrismaService } from "modules/prisma/prisma.service";
 import { RedisService } from "modules/redis/redis.service";
@@ -52,12 +53,22 @@ export class AdminService {
       throw new ForbiddenException();
     }
 
-    return this.prisma.verificationToken.findMany({
-      where: {
-        type: "INVITE_CODE",
-        identifier: user.username,
-      },
-    });
+    const invites = await this.redis.redis().keys(INVITE_PREFIX + "*");
+
+    const values = await this.redis.redis().mget(...invites);
+
+    const keys = invites.map((i) => i.replace(INVITE_PREFIX, ""));
+
+    const data: { invite: string; username: string }[] = [];
+
+    for (let i = 0; i < keys.length; i++) {
+      data.push({
+        invite: keys[i],
+        username: values[i],
+      });
+    }
+
+    return data.filter((v) => v.username === user.username);
   }
 
   async createInvite(id: string) {
@@ -71,13 +82,12 @@ export class AdminService {
       throw new ForbiddenException();
     }
 
-    return this.prisma.verificationToken.create({
-      data: {
-        token: generateApiKey(32),
-        type: "INVITE_CODE",
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 2),
-        identifier: user.username,
-      },
-    });
+    const invite = generateApiKey(64);
+
+    await this.redis
+      .redis()
+      .set(INVITE_PREFIX + invite, user.username, "EX", 60 * 60 * 24 * 7);
+
+    return invite;
   }
 }

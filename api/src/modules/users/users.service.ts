@@ -27,6 +27,7 @@ import { Redis } from "ioredis";
 import {
   CONFIRM_EMAIL_PREFIX,
   FORGOT_PASSWORD_PREFIX,
+  INVITE_PREFIX,
   rootDir,
 } from "lib/constants";
 import { join } from "path";
@@ -164,13 +165,9 @@ export class UsersService implements IUserService {
         });
       }
 
-      const inviteCode = await this.prisma.verificationToken.findUnique({
-        where: {
-          token: invite,
-        },
-      });
+      const inviter = await this.redis.get(INVITE_PREFIX + invite);
 
-      if (!inviteCode || inviteCode.type !== "INVITE_CODE") {
+      if (!inviter) {
         throw new BadRequestException({
           errors: [
             {
@@ -181,8 +178,8 @@ export class UsersService implements IUserService {
         });
       }
 
-      inv = inviteCode.identifier;
-      await this.prisma.verificationToken.delete({ where: { token: invite } });
+      await this.redis.del(INVITE_PREFIX + invite);
+      inv = inviter;
     }
 
     return inv;
@@ -197,7 +194,7 @@ export class UsersService implements IUserService {
     }: RegisterDTO & { invite?: string; username?: string | undefined },
     req: Request
   ): Promise<UserResponse> {
-    const inv = await this.validateServerSettings(invite);
+    const inviter = await this.validateServerSettings(invite);
 
     if (username) {
       this.validateUsername(username);
@@ -214,7 +211,7 @@ export class UsersService implements IUserService {
           apiKey: generateApiKey(),
           // image: `https://www.gravatar.com/avatar/${avatarHash}`,
           image: `https://avatars.dicebear.com/api/identicon/${avatarHash}.svg`,
-          invitedBy: inv ? inv : null,
+          invitedBy: inviter ? inviter : null,
         },
       });
       delete user.password;

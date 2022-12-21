@@ -120,14 +120,9 @@ export interface ServerSettings {
 	INVITE_MODE: boolean;
 }
 
-type Token = 'INVITE_CODE' | 'EMAIL_VERIFICATION';
-
 export interface Invite {
-	id: string;
-	identifier: string;
-	token: string;
-	expires: Date;
-	type: Token;
+	invite: string;
+	username: string;
 }
 
 export interface FileRejection {

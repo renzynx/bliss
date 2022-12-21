@@ -1,25 +1,18 @@
 import InvitePage from '@components/pages/AdminPage/InvitePage';
 import { API_ROUTES, API_URL, APP_NAME } from '@lib/constants';
-import {
-	CustomNextPage,
-	Invite,
-	ServerSettings,
-	SessionUser,
-} from '@lib/types';
+import { CustomNextPage, SessionUser } from '@lib/types';
 import axios from 'axios';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 
-const AdminDash: CustomNextPage<ServerSettings & { invites: Invite[] }> = (
-	data
-) => {
+const AdminDash: CustomNextPage = () => {
 	return (
 		<>
 			<Head>
 				<title>{APP_NAME} | Admin</title>
 			</Head>
 
-			<InvitePage invites={data.invites} />
+			<InvitePage />
 		</>
 	);
 };
@@ -43,14 +36,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 			};
 		}
 
-		const invites = await axios.get<Invite>(API_URL + API_ROUTES.INVITE_CODE, {
-			headers: {
-				cookie: ctx.req.headers.cookie,
-			},
-		});
-
 		return {
-			props: { invites: invites.data },
+			props: {},
 		};
 	} catch (error) {
 		return {
