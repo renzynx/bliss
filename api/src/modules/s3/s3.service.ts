@@ -19,13 +19,15 @@ export class S3Service {
   private readonly bucketName = process.env.S3_BUCKET_NAME;
 
   constructor(private readonly prismaService: PrismaService) {
-    this.s3 = new Client({
-      endPoint: process.env.S3_ENDPOINT,
-      accessKey: process.env.S3_ACCESS_KEY_ID,
-      secretKey: process.env.S3_SECRET_ACCESS_KEY,
-      region: process.env.S3_REGION,
-      pathStyle: true,
-    });
+    this.s3 =
+      process.env.UPLOADER === "s3" &&
+      new Client({
+        endPoint: process.env.S3_ENDPOINT,
+        accessKey: process.env.S3_ACCESS_KEY_ID,
+        secretKey: process.env.S3_SECRET_ACCESS_KEY,
+        region: process.env.S3_REGION,
+        pathStyle: true,
+      });
   }
 
   createOEmbedJSON(oembed: Partial<EmbedSettings> & { filename: string }) {
