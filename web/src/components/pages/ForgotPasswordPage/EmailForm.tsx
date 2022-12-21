@@ -83,10 +83,10 @@ const EmailForm = () => {
 						onSubmit={form.onSubmit(() => {
 							mutate();
 							showNotification({
+								id: 'forgot-password',
 								title: 'Sending email',
 								message: 'Please wait...',
 								loading: isLoading,
-								id: 'forgot-password',
 							});
 						})}
 					>

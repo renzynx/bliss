@@ -95,7 +95,6 @@ const ResetPasswordPage: FC<{ token: string }> = ({ token }) => {
 					<form
 						onSubmit={form.onSubmit(() => {
 							mutate();
-
 							showNotification({
 								id: 'reset-password',
 								title: 'Resetting password...',
