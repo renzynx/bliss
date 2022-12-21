@@ -393,7 +393,7 @@ export class UsersService implements IUserService {
           },
         },
         orderBy: {
-          createdAt: sort === "newest" ? "desc" : "asc",
+          createdAt: sort === "newest" ? "asc" : "desc",
         },
       });
 
@@ -450,7 +450,7 @@ export class UsersService implements IUserService {
             ],
           },
           orderBy: {
-            createdAt: sort === "newest" ? "desc" : "asc",
+            createdAt: sort === "newest" ? "asc" : "desc",
           },
         })
         .then((files) => {
@@ -490,7 +490,7 @@ export class UsersService implements IUserService {
         skip: finalSkip,
         take: finalTake,
         orderBy: {
-          createdAt: sort === "newest" ? "desc" : "asc",
+          createdAt: sort === "newest" ? "asc" : "desc",
         },
       })
       .then((files) => {
