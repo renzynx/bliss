@@ -121,7 +121,9 @@ export class UploadService {
 
     const mime = lookUp(file.originalname);
 
-    if (mime.includes("image") && user.embed_settings?.enabled) {
+    const { embed_settings } = user;
+
+    if (mime.includes("image") && embed_settings && embed_settings.enabled) {
       this.createOEmbedJSON({
         filename: slug,
         ...user.embed_settings,
@@ -203,7 +205,13 @@ export class UploadService {
         }
       });
 
-      if (mimetype.includes("image") && user.embed_settings?.enabled) {
+      const { embed_settings } = user;
+
+      if (
+        mimetype.includes("image") &&
+        embed_settings &&
+        embed_settings.enabled
+      ) {
         this.createOEmbedJSON({
           filename: name,
           ...user.embed_settings,
