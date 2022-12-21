@@ -21,6 +21,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules 
 COPY src ./src 
 COPY views ./views
+COPY templates ./templates
 COPY prisma ./prisma
 COPY .yarn .yarn 
 COPY package.json yarn.lock .yarnrc.yml tsconfig.json tsconfig.build.json nest-cli.json ./
@@ -38,6 +39,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/views ./views
+COPY --from=builder /app/templates ./templates
 COPY --from=builder /app/nest-cli.json ./nest-cli.json
 COPY --from=builder /app/prisma ./prisma 
 
