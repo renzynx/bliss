@@ -10,7 +10,7 @@ on:
       - 'web/src/**'
       - 'api/Dockerfile'
       - 'web/Dockerfile'
-      - '.github/**'
+      - '.github/build.yml'
   workflow_dispatch:
 
 jobs:
