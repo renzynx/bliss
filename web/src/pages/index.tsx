@@ -10,7 +10,7 @@ const Home: NextPage = () => {
 
 	useEffect(() => {
 		axios
-			.get(API_URL + API_ROUTES.ME)
+			.get(API_URL + API_ROUTES.ME, { withCredentials: true })
 			.then((res) => {
 				setUser(res.data);
 			})
