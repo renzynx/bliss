@@ -26,6 +26,8 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 			{
 				headers: {
 					cookie: ctx.req.headers.cookie,
+					'Content-Type': 'application/json',
+					'Accept-Charset': 'utf-8',
 				},
 			}
 		);

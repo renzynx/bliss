@@ -69,7 +69,7 @@ const SettingPage: FC<{ children?: any }> = ({ children }) => {
 				variant="pills"
 				value={activeTab}
 				onTabChange={(value) =>
-					router.push(`${ROUTES.SETTINGS}/${value === 'index' ? '/' : value}`)
+					router.push(`${ROUTES.SETTINGS}/${value === 'index' ? '' : value}`)
 				}
 			>
 				<Tabs.List pt="xl" position="center" grow>
