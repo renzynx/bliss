@@ -60,7 +60,6 @@ export class AuthController {
     return res
       .setHeader("Cache-Control", "no-store")
       .setHeader("Pragma", "no-cache")
-      .setDefaultEncoding("utf-8")
       .setHeader("Content-Type", "application/json")
       .json(user);
   }
