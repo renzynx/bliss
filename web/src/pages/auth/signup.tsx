@@ -2,28 +2,23 @@ import { SignUpPage } from '@pages/AuthPage';
 import { API_ROUTES, API_URL } from '@lib/constants';
 import { ServerSettings } from '@lib/types';
 import axios from 'axios';
-import { InferGetServerSidePropsType, NextPage } from 'next';
+import { useQuery } from '@tanstack/react-query';
+import LoadingPage from '@components/pages/LoadingPage';
 
-const SignUp: NextPage<
-	InferGetServerSidePropsType<typeof getServerSideProps>
-> = (data) => {
+const SignUp = () => {
+	const { data, isLoading } = useQuery(['server-settings'], () =>
+		axios
+			.get<ServerSettings>(API_URL + API_ROUTES.SERVER_SETTINGS)
+			.then((res) => res.data)
+	);
+
+	if (isLoading) return <LoadingPage color="yellow" />;
+
 	return (
 		<>
-			<SignUpPage settings={data} />
+			<SignUpPage settings={data!} />
 		</>
 	);
-};
-
-export const getServerSideProps = async () => {
-	const resp = await axios.get<ServerSettings>(
-		API_URL + API_ROUTES.SERVER_SETTINGS
-	);
-
-	return {
-		props: {
-			...resp.data,
-		},
-	};
 };
 
 export default SignUp;
