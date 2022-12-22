@@ -71,6 +71,7 @@ export class UsersController {
       (req.session as CustomSession).userId,
       {
         skip: +skip,
+        // @ts-ignore
         take: take === "all" ? "all" : +take,
         currentPage: +currentPage,
         sort,

@@ -103,6 +103,7 @@ const FileViewer = () => {
 												onChange={(value) => {
 													if (!files?.length) return;
 													setLimit(value === 'all' ? 'all' : parseInt(value!));
+													value === 'all' ? setPage(1) : null;
 												}}
 											/>
 											<Select
@@ -162,7 +163,7 @@ const FileViewer = () => {
 							<SimpleGrid
 								cols={3}
 								breakpoints={[
-									{ maxWidth: 1280, cols: 3, spacing: 'md' },
+									{ maxWidth: 1024, cols: 2, spacing: 'md' },
 									{ maxWidth: 840, cols: 2, spacing: 'sm' },
 									{ maxWidth: 600, cols: 1, spacing: 'sm' },
 								]}

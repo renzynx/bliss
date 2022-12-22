@@ -365,7 +365,7 @@ export class UsersService implements IUserService {
       search = "",
     }: {
       skip: number;
-      take: number | "all";
+      take: number;
       currentPage: number;
       sort?: string;
       search?: string;
@@ -375,36 +375,13 @@ export class UsersService implements IUserService {
     if (!user) {
       throw new UnauthorizedException("not authorized");
     }
-    const total = await this.prisma.file.count({
-      where: {
-        userId: id,
-      },
-    });
+    const total = await this.prisma.file.count({ where: { userId: id } });
 
-    if (take === "all") {
-      const files = await this.prisma.file.findMany({
-        where: {
-          userId: id,
-          filename: {
-            contains: search,
-          },
-          slug: {
-            contains: search,
-          },
-        },
-        orderBy: {
-          createdAt: sort === "newest" ? "asc" : "desc",
-        },
-      });
+    let finalSkip!: number;
+    let finalTake!: number;
 
-      return {
-        files,
-        totalFiles: total,
-        pages: 1,
-      };
-    }
-
-    const pages = Math.ceil(total / take);
+    // @ts-ignore
+    const pages = take === "all" ? 1 : Math.ceil(total / take);
 
     //[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     //                          	^^
@@ -412,10 +389,8 @@ export class UsersService implements IUserService {
     // 1 to 10 is page 1
     // total = 20, take = 10, skip = 0
 
-    let finalSkip!: number;
-    let finalTake!: number;
-
-    if (sort === "newest") {
+    // @ts-ignore
+    if (sort === "newest" && take !== "all") {
       // total = 20, take = 10, skip = 0 page: 1
       // total = 20, take = 12, skip = 10 page: 2 error
       // take = total - skip
@@ -427,65 +402,20 @@ export class UsersService implements IUserService {
         finalTake = take;
       }
     } else {
-      finalSkip = skip;
-      finalTake = take;
-    }
-
-    if (search) {
-      const files = await this.prisma.file
-        .findMany({
-          where: {
-            userId: id,
-            OR: [
-              {
-                filename: {
-                  contains: search,
-                },
-              },
-              {
-                slug: {
-                  contains: search,
-                },
-              },
-            ],
-          },
-          orderBy: {
-            createdAt: sort === "newest" ? "asc" : "desc",
-          },
-        })
-        .then((files) => {
-          switch (sort) {
-            case "largest":
-              files.sort((a, b) => b.size - a.size);
-              break;
-            case "smallest":
-              files.sort((a, b) => a.size - b.size);
-              break;
-            case "a-z":
-              files.sort((a, b) => a.filename.localeCompare(b.filename));
-              break;
-            case "z-a":
-              files.sort((a, b) => b.filename.localeCompare(a.filename));
-              break;
-          }
-
-          return files.map((file) => ({
-            ...file,
-            size: formatBytes(file.size),
-          }));
-        });
-
-      return {
-        files,
-        totalFiles: files.length,
-        totalPages: 1,
-      };
+      // @ts-ignore
+      finalSkip = take === "all" ? 0 : skip;
+      // @ts-ignore
+      finalTake = take === "all" ? total : take;
     }
 
     const files = await this.prisma.file
       .findMany({
         where: {
           userId: id,
+          OR: [
+            { filename: { contains: search } },
+            { slug: { contains: search } },
+          ],
         },
         skip: finalSkip,
         take: finalTake,
@@ -507,6 +437,8 @@ export class UsersService implements IUserService {
           case "z-a":
             files.sort((a, b) => b.filename.localeCompare(a.filename));
             break;
+          case "newest":
+            take !== total && files.reverse();
         }
         return files.map((file) => ({
           ...file,

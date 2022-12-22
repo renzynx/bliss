@@ -1,4 +1,10 @@
-import { Button, Group, Text, useMantineTheme } from '@mantine/core';
+import {
+	Button,
+	Group,
+	SimpleGrid,
+	Text,
+	useMantineTheme,
+} from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { IconCheck, IconCloudUpload, IconDownload, IconX } from '@tabler/icons';
 import dynamic from 'next/dynamic';
@@ -11,6 +17,7 @@ import { userAtom } from '@lib/atoms';
 import { showNotification } from '@mantine/notifications';
 const ProgressCard = dynamic(() => import('./ProgressCard'));
 import { ACCEPT_TYPE } from '@lib/constants';
+import { formatBytes } from '@lib/utils';
 
 const UploadZone = () => {
 	const [user] = useAtom(userAtom);
@@ -39,10 +46,19 @@ const UploadZone = () => {
 			Authorization: user?.apiKey,
 		};
 		axios
-			.post(API_URL + API_ROUTES.UPLOAD_FILE, data, { headers })
+			.post(API_URL + API_ROUTES.UPLOAD_FILE, data, {
+				headers,
+				onUploadProgress: (evt) => {
+					// @ts-ignore
+					// prettier-ignore
+					file.speed = evt.loaded / ((new Date().getTime() - file.start) / 1000);
+				},
+			})
 			.then((response) => {
 				const file = files[currentFileIndex!];
 				const filesize = file.size;
+				// @ts-ignore
+				file.start = new Date().getTime();
 				const chunks = Math.ceil(filesize / CHUNK_SIZE) - 1;
 				const isLastChunk = currentChunkIndex === chunks;
 				if (isLastChunk) {
@@ -61,8 +77,8 @@ const UploadZone = () => {
 					const isLastFile = currentFileIndex === files.length - 1;
 
 					if (isLastFile) {
-						setCurrentFileIndex(null);
 						setLastUploadedFileIndex(currentFileIndex);
+						setCurrentFileIndex(null);
 					}
 				} else {
 					setCurrentChunkIndex(currentChunkIndex! + 1);
@@ -187,26 +203,34 @@ const UploadZone = () => {
 					Select files
 				</Button>
 			</div>
-			{files.map((file, idx) => {
-				let progress = 0;
-				// @ts-ignore
-				if (file.final) {
-					progress = 100;
-				} else {
-					const uploading = idx === currentFileIndex;
-					const chunks = Math.ceil(file.size / CHUNK_SIZE);
-
-					if (uploading) {
-						const rounder = (currentChunkIndex! / chunks) * 100;
-						progress = +rounder.toFixed(2);
+			<SimpleGrid cols={2} breakpoints={[{ maxWidth: 768, cols: 1 }]}>
+				{files.map((file, idx) => {
+					let progress = 0;
+					// @ts-ignore
+					if (file.final) {
+						progress = 100;
 					} else {
-						progress = 0;
+						const uploading = idx === currentFileIndex;
+						const chunks = Math.ceil(file.size / CHUNK_SIZE);
+
+						if (uploading) {
+							const rounder = (currentChunkIndex! / chunks) * 100;
+							progress = +rounder.toFixed(2);
+						} else {
+							progress = 0;
+						}
 					}
-				}
-				return (
-					<ProgressCard key={idx} filename={file.name} progress={progress} />
-				);
-			})}
+					return (
+						<ProgressCard
+							key={idx}
+							filename={file.name}
+							progress={progress}
+							// @ts-ignore
+							speed={file.speed ? `${formatBytes(file.speed)}/s` : 'Waiting...'}
+						/>
+					);
+				})}
+			</SimpleGrid>
 		</>
 	);
 };
