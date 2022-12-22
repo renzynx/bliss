@@ -1,11 +1,21 @@
 import InvitePage from '@components/pages/AdminPage/InvitePage';
-import { API_ROUTES, API_URL, APP_NAME } from '@lib/constants';
-import { CustomNextPage, SessionUser } from '@lib/types';
-import axios from 'axios';
-import { GetServerSidePropsContext } from 'next';
+import { userAtom } from '@lib/atoms';
+import { APP_NAME } from '@lib/constants';
+import { CustomNextPage } from '@lib/types';
+import { useAtom } from 'jotai';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
 const AdminDash: CustomNextPage = () => {
+	const [user] = useAtom(userAtom);
+	const router = useRouter();
+
+	useEffect(() => {
+		if (user?.role !== 'OWNER' && user?.role !== 'ADMIN')
+			router.push('/dashboard');
+	}, [router, user?.role]);
+
 	return (
 		<>
 			<Head>
@@ -18,35 +28,6 @@ const AdminDash: CustomNextPage = () => {
 };
 
 export default AdminDash;
-
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-	try {
-		const { data }: { data: SessionUser } = await axios.get(
-			API_URL + API_ROUTES.ME,
-			{
-				headers: {
-					cookie: ctx.req.headers.cookie,
-					'Content-Type': 'application/json',
-					'Accept-Charset': 'utf-8',
-				},
-			}
-		);
-
-		if (data.role !== 'ADMIN' && data.role !== 'OWNER') {
-			return {
-				notFound: true,
-			};
-		}
-
-		return {
-			props: {},
-		};
-	} catch (error) {
-		return {
-			notFound: true,
-		};
-	}
-};
 
 AdminDash.options = {
 	auth: true,

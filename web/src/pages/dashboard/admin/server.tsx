@@ -1,47 +1,30 @@
-import ServerPage from '@pages/AdminPage/ServerPage';
+import LoadingPage from '@pages/LoadingPage';
+import { userAtom } from '@lib/atoms';
 import { API_ROUTES, API_URL } from '@lib/constants';
-import { CustomNextPage, ServerSettings, SessionUser } from '@lib/types';
+import { CustomNextPage } from '@lib/types';
+import ServerPage from '@pages/AdminPage/ServerPage';
+import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import { useAtom } from 'jotai';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 
-const Owner: CustomNextPage<
-	InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ data }) => {
-	return <ServerPage {...data} />;
+const Owner: CustomNextPage = () => {
+	const [user] = useAtom(userAtom);
+	const router = useRouter();
+	const { data, isLoading } = useQuery(['server-settings'], () =>
+		axios.get(API_URL + API_ROUTES.SERVER_SETTINGS).then((res) => res.data)
+	);
+
+	useEffect(() => {
+		if (user?.role !== 'OWNER' && user?.role !== 'ADMIN')
+			router.push('/dashboard');
+	}, [router, user?.role]);
+
+	return isLoading ? <LoadingPage /> : <ServerPage {...data} />;
 };
 
 export default Owner;
-
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-	try {
-		const { data }: { data: SessionUser } = await axios.get(
-			API_URL + API_ROUTES.ME,
-			{
-				headers: {
-					cookie: ctx.req.headers.cookie,
-				},
-			}
-		);
-
-		if (data.role !== 'OWNER') {
-			return {
-				notFound: true,
-			};
-		}
-
-		const serverData = await axios.get<ServerSettings>(
-			API_URL + API_ROUTES.SERVER_SETTINGS
-		);
-
-		return {
-			props: { data: serverData.data },
-		};
-	} catch (error) {
-		return {
-			notFound: true,
-		};
-	}
-};
 
 Owner.options = {
 	auth: true,
