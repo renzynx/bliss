@@ -11,6 +11,7 @@ import session from "express-session";
 import helmet from "helmet";
 import bp from "body-parser";
 import "./lib/setup";
+import "./lib/clean";
 
 async function bootstrap() {
   const startTime = Date.now();
