@@ -2,52 +2,26 @@ import HomePage from '@pages/HomePage';
 import { API_ROUTES, API_URL } from '@lib/constants';
 import { SessionUser } from '@lib/types';
 import axios from 'axios';
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
+import { NextPage } from 'next';
+import { useEffect, useState } from 'react';
 
-const Home = (
-	props: InferGetServerSidePropsType<typeof getServerSideProps>
-) => {
+const Home: NextPage = () => {
+	const [user, setUser] = useState<SessionUser>();
+
+	useEffect(() => {
+		axios
+			.get(API_URL + API_ROUTES.ME)
+			.then((res) => {
+				setUser(res.data);
+			})
+			.catch(() => null);
+	}, []);
+
 	return (
 		<>
-			<HomePage {...props} />
+			<HomePage user={user} />
 		</>
 	);
 };
 
 export default Home;
-
-export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
-	const { req } = ctx;
-	try {
-		if (!req.headers.cookie) {
-			return {
-				props: {},
-			};
-		}
-		const response = await axios.get<SessionUser>(API_URL + API_ROUTES.ME, {
-			headers: {
-				cookie: req.headers.cookie,
-				'Content-Type': 'application/json',
-			},
-		});
-
-		if (response?.data) {
-			return {
-				props: {
-					user: response.data,
-				},
-			};
-		} else {
-			return {
-				props: {},
-			};
-		}
-	} catch (error) {
-		if ((error as any).response?.status !== 403) {
-			console.log(error);
-		}
-		return {
-			props: {},
-		};
-	}
-};
