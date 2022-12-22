@@ -32,6 +32,7 @@ import {
 } from "lib/constants";
 import { join } from "path";
 import { readFile } from "fs/promises";
+import { EmbedSettingDTO } from "./dto/EmbedSettingsDTO";
 
 @Injectable()
 export class UsersService implements IUserService {
@@ -340,10 +341,7 @@ export class UsersService implements IUserService {
     return this.prisma.embedSettings.findUnique({ where: { userId: id } });
   }
 
-  async setEmbedSettings(
-    settings: Omit<EmbedSettings, "id" | "userId">,
-    id: string
-  ) {
+  async setEmbedSettings(settings: EmbedSettingDTO, id: string) {
     // @ts-ignore
     settings.enabled === "false"
       ? (settings.enabled = false)
