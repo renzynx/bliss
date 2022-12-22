@@ -52,7 +52,16 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get("me")
-  async me(@Request() req: ERequest) {
-    return this.authService.me((req.session as CustomSession).userId);
+  async me(@Request() req: ERequest, @Response() res: EResponse) {
+    const user = await this.authService.me(
+      (req.session as CustomSession).userId
+    );
+
+    return res
+      .setHeader("Cache-Control", "no-store")
+      .setHeader("Pragma", "no-cache")
+      .setDefaultEncoding("utf-8")
+      .setHeader("Content-Type", "application/json")
+      .json(user);
   }
 }
