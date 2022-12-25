@@ -1,16 +1,16 @@
 ### Todo
 
 - [ ] Add user creation for admins
-- [ ] Add user administration settings (create, ban, ...etc).
-- [ ] Add support for multiple domains.
 
 ### In Progress
 
-- [ ] Add S3 intergration.
-- [ ] Add file adminstration settings.
+- [ ] Add support for multiple domains.
 
 ### Done
 
+- [x] Add user administration settings (create, ban, ...etc).
+- [x] Add file adminstration settings.
+- [x] Add S3 intergration.
 - [x] Make docker installation instructions.
 - [x] Fix download link.
 - [x] Add embed customizer.
