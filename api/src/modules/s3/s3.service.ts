@@ -238,8 +238,10 @@ export class S3Service {
       throw new BadRequestException("Missing key.");
     }
 
+    const decodedId = Buffer.from(key, "base64").toString("utf-8");
+
     const file = await this.prismaService.file.findUnique({
-      where: { id: key },
+      where: { id: decodedId },
     });
 
     if (!file) {
