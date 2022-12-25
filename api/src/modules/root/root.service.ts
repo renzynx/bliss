@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import fastFolderSize from "fast-folder-size";
-import { createReadStream } from "fs";
+import { createReadStream, existsSync } from "fs";
 import { stat } from "fs/promises";
 import { thumbnailDir, uploadDir } from "lib/constants";
 import { CustomSession } from "lib/types";
@@ -61,64 +61,72 @@ export class RootService {
     }
 
     const protocol = req.headers["x-forwarded-proto"] || req.protocol;
-
-    const baseUrl = `${protocol}://${req.headers.host}`;
-
     const ext = file.filename.split(".").pop();
 
-    return stat(join(uploadDir, `${slug}.${ext}`))
-      .then(async (stats) => {
-        let vw = file.views;
-        if ((req.session as CustomSession).userId !== file.userId) {
-          const { views } = await this.prismaService.file.update({
-            where: { slug },
-            data: { views: file.views + 1 },
-          });
-          vw = views;
-        }
-        const isVideo = lookUp(file.filename).includes("video");
-        const isImage = lookUp(file.filename).includes("image");
-        const isAudio = lookUp(file.filename).includes("audio");
-        const cannotDisplay = !isImage && !isVideo && !isAudio;
-        const timezone = new Date().getTimezoneOffset() / 60;
+    let oembed: string;
+    let url: string;
+    let baseUrl: string;
+    let vw = file.views;
 
-        const {
-          user: { embed_settings },
-        } = file;
+    if (
+      !existsSync(join(uploadDir, `${file.slug}.${ext}`)) &&
+      process.env.UPLOADER === "local"
+    ) {
+      throw new NotFoundException();
+    }
 
-        return {
-          oembed: `${baseUrl}/${slug}.json`,
-          url: `${baseUrl}/${slug}.${ext}`,
-          title: embed_settings.enabled ? embed_settings?.title : null,
-          description: embed_settings.enabled
-            ? embed_settings?.description
-            : null,
-          color: embed_settings?.color ?? generateRandomHexColor(),
-          ogType: isVideo ? "video.other" : isImage ? "image" : "website",
-          urlType: isVideo ? "video" : isAudio ? "audio" : "image",
-          mimetype: lookUp(file.filename),
-          filename: file.filename,
-          slug: file.slug + "." + file.filename.split(".").pop(),
-          size: formatBytes(stats.size),
-          username: file.user.username,
-          embed_enabled: embed_settings?.enabled,
-          views: vw,
-          timestamp: formatDate(file.createdAt) + ` (UTC${timezone})`,
-          isVideo,
-          isImage,
-          isAudio,
-          cannotDisplay,
-          id: file.id,
-        };
-      })
-      .catch((err) => {
-        if (err.code === "ENOENT") {
-          throw new NotFoundException();
-        } else {
-          this.logger.error(err.message);
-          throw new InternalServerErrorException("Something went wrong");
-        }
+    if ((req.session as CustomSession).userId !== file.userId) {
+      const { views } = await this.prismaService.file.update({
+        where: { slug },
+        data: { views: file.views + 1 },
       });
+      vw = views;
+    }
+
+    const isVideo = lookUp(file.filename).includes("video");
+    const isImage = lookUp(file.filename).includes("image");
+    const isAudio = lookUp(file.filename).includes("audio");
+    const cannotDisplay = !isImage && !isVideo && !isAudio;
+    const timezone = new Date().getTimezoneOffset() / 60;
+
+    if (process.env.UPLOADER === "s3") {
+      baseUrl =
+        process.env.CDN_URL ??
+        "https://" + process.env.BUCKET_NAME + process.env.S3_ENDPOINT;
+      oembed = `${baseUrl}/${slug}.json`;
+      url = `${baseUrl}/${slug}.${ext}`;
+    } else {
+      baseUrl = `${protocol}://${req.headers.host}`;
+      oembed = `${baseUrl}/${slug}.json`;
+      url = `${baseUrl}/${slug}.${ext}`;
+    }
+
+    const {
+      user: { embed_settings },
+    } = file;
+
+    return {
+      oembed,
+      url,
+      title: embed_settings.enabled ? embed_settings?.title : null,
+      description: embed_settings.enabled ? embed_settings?.description : null,
+      color: embed_settings?.color ?? generateRandomHexColor(),
+      ogType: isVideo ? "video.other" : isImage ? "image" : "website",
+      urlType: isVideo ? "video" : isAudio ? "audio" : "image",
+      mimetype: lookUp(file.filename),
+      filename: file.filename,
+      slug: file.slug + "." + file.filename.split(".").pop(),
+      size: formatBytes(file.size),
+      username: file.user.username,
+      embed_enabled: embed_settings?.enabled,
+      views: vw,
+      timestamp: formatDate(file.createdAt) + ` (UTC${timezone})`,
+      isVideo,
+      isImage,
+      isAudio,
+      cannotDisplay,
+      id: file.id,
+    };
   }
 
   async getStatistics() {

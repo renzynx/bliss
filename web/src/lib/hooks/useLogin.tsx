@@ -23,7 +23,14 @@ export const useLogin = ({ callback }: { callback?: string } = {}) => {
 					callback ? Router.push(callback) : Router.push(ROUTES.ROOT);
 				}
 			})
-			.catch((err) => form.setErrors(toErrorMap(err.response.data.errors)))
+			.catch((err) => {
+				if (err.response.status === 429) {
+					form.setErrors({
+						username_email: 'Too many login attempts, please try again later',
+					});
+				}
+				form.setErrors(toErrorMap(err.response.data.errors));
+			})
 	);
 
 	return {

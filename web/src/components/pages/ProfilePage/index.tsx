@@ -20,6 +20,7 @@ import CredentialsForm from './CredentialsForm';
 import { useSendVerificationEmail, useSignOut } from '@lib/hooks';
 import { showNotification } from '@mantine/notifications';
 import { profileStyles } from './styles';
+import DeleteAccount from './DeleteAccount';
 const Modal = dynamic(() => import('@mantine/core').then((mod) => mod.Modal));
 const ChangePasswordForm = dynamic(() => import('./ChangePasswordForm'));
 
@@ -148,6 +149,8 @@ const ProfilePage = () => {
 				</Group>
 				<Divider mt="xl" mb="xl" />
 				<CredentialsForm username={user?.username!} />
+				<Divider mt="xl" mb="xl" />
+				<DeleteAccount />
 			</Box>
 		</Paper>
 	);

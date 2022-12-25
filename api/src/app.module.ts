@@ -12,9 +12,16 @@ import { S3Module } from "./modules/s3/s3.module";
 import { PrismaService } from "modules/prisma/prisma.service";
 import { UploadModule } from "modules/upload/upload.module";
 import { RedisService } from "modules/redis/redis.service";
+import { ThrottlerModule } from "@nestjs/throttler";
+import { APP_GUARD } from "@nestjs/core";
+import { ThrottlerBehindProxyGuard } from "modules/root/root.guard";
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     ConfigModule.forRoot(),
     AuthModule,
     UsersModule,
@@ -22,7 +29,15 @@ import { RedisService } from "modules/redis/redis.service";
     DeleteModule,
     process.env.UPLOADER === "s3" ? S3Module : UploadModule,
   ],
-  providers: [RootService, PrismaService, RedisService],
+  providers: [
+    RootService,
+    PrismaService,
+    RedisService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerBehindProxyGuard,
+    },
+  ],
   controllers: [RootController],
 })
 export class AppModule implements NestModule {

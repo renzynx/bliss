@@ -381,6 +381,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mantine/modals@npm:^5.9.5":
+  version: 5.9.5
+  resolution: "@mantine/modals@npm:5.9.5"
+  dependencies:
+    "@mantine/utils": 5.9.5
+  peerDependencies:
+    "@mantine/core": 5.9.5
+    "@mantine/hooks": 5.9.5
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 6a10de6fe887f681845fa9f37fd58961687d42a29d06f9c5f53d239085b56b82986404aa2c3b1e16e62b9f997f213f6458948624158dacae312ca6a75701e636
+  languageName: node
+  linkType: hard
+
 "@mantine/next@npm:^5.8.2":
   version: 5.8.2
   resolution: "@mantine/next@npm:5.8.2"
@@ -463,6 +477,15 @@ __metadata:
   peerDependencies:
     react: ">=16.8.0"
   checksum: 0db21024bf44aafcdbbf533aed2aceb34387f2bb326ee318bb6fea9a91288a2529b265e17a98c824332e2aae3ca0c413c435abb4f760fae067786d57367c16c3
+  languageName: node
+  linkType: hard
+
+"@mantine/utils@npm:5.9.5":
+  version: 5.9.5
+  resolution: "@mantine/utils@npm:5.9.5"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 12a4874b2319f418a5bf0287e2af33e7bcd0f8a3e8afce4f48d387f60bc0e1431423e402c821bfbf14462d7d7dd7f631c4ea70be1ca0737fbd85b98640b49288
   languageName: node
   linkType: hard
 
@@ -1163,6 +1186,7 @@ __metadata:
     "@mantine/dropzone": ^5.8.4
     "@mantine/form": ^5.8.3
     "@mantine/hooks": ^5.8.2
+    "@mantine/modals": ^5.9.5
     "@mantine/next": ^5.8.2
     "@mantine/notifications": ^5.9.1
     "@tabler/icons": ^1.112.0

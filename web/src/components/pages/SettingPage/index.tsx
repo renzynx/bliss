@@ -5,6 +5,7 @@ import {
 	flameshotScript,
 	APP_NAME,
 } from '@lib/constants';
+import { useRegenerateApiKey } from '@lib/hooks/useRegenerateApiKey';
 import {
 	Tabs,
 	SimpleGrid,
@@ -14,6 +15,8 @@ import {
 	PasswordInput,
 	Text,
 } from '@mantine/core';
+import { showNotification } from '@mantine/notifications';
+import { IconCheck, IconX } from '@tabler/icons';
 import { useAtom } from 'jotai';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -22,7 +25,8 @@ import { useEffect, useCallback, FC } from 'react';
 const SettingPage: FC<{ children?: any }> = ({ children }) => {
 	const router = useRouter();
 	const activeTab = router.pathname.split('/')[3] || 'index';
-	const [user] = useAtom(userAtom);
+	const [user, setUser] = useAtom(userAtom);
+	const { regen, isLoading } = useRegenerateApiKey();
 
 	useEffect(() => {
 		router.prefetch(ROUTES.SETTINGS);
@@ -113,7 +117,34 @@ const SettingPage: FC<{ children?: any }> = ({ children }) => {
 									API Key
 								</Text>
 								<PasswordInput sx={{ width: '100%' }} value={user?.apiKey} />
-								<Button variant="light" color="violet">
+								<Button
+									loading={isLoading}
+									onClick={() =>
+										regen()
+											.then((res) => {
+												// @ts-ignore
+												setUser({ ...user, apiKey: res.data });
+												showNotification({
+													title: 'Success',
+													message: 'Your API Key has been regenerated',
+													color: 'green',
+													icon: <IconCheck />,
+													autoClose: 5000,
+												});
+											})
+											.catch((err) => {
+												showNotification({
+													title: 'Error',
+													message: err.message,
+													color: 'red',
+													icon: <IconX />,
+													autoClose: 5000,
+												});
+											})
+									}
+									variant="light"
+									color="violet"
+								>
 									Regenerate API Key
 								</Button>
 							</Stack>

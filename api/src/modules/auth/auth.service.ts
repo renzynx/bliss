@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+} from "@nestjs/common";
 import { CustomSession, UserResponse } from "../../lib/types";
 import { UsersService } from "../users/users.service";
 import { LoginDTO } from "./dto/login.dto";
@@ -13,7 +18,14 @@ export class AuthService {
   constructor(private readonly usersService: UsersService) {}
 
   async me(id: string) {
-    return this.usersService.findUser(id, { byId: true });
+    const user = await this.usersService.findUser(id, {
+      byId: true,
+      totalUsed: true,
+    });
+    if (user.disabled) {
+      throw new ForbiddenException();
+    }
+    return user;
   }
 
   async login(data: LoginDTO, req: Request): Promise<UserResponse> {
@@ -23,7 +35,6 @@ export class AuthService {
 
     if (!user) {
       throw new BadRequestException({
-        user: null,
         errors: [
           {
             field: "username_email",
@@ -41,7 +52,6 @@ export class AuthService {
 
     if (!valid) {
       throw new BadRequestException({
-        user: null,
         errors: [
           {
             field: "username_email",
@@ -50,6 +60,17 @@ export class AuthService {
           {
             field: "password",
             message: "Invalid password",
+          },
+        ],
+      });
+    }
+
+    if (user.disabled) {
+      throw new ForbiddenException({
+        errors: [
+          {
+            field: "username_email",
+            message: "Your account has been disabled",
           },
         ],
       });

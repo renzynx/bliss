@@ -32,4 +32,5 @@ export default AdminDash;
 AdminDash.options = {
 	auth: true,
 	withLayout: true,
+	admin: true,
 };

@@ -15,7 +15,7 @@ const cleanUp = async () => {
   const currentTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const job = new CronJob(
-    // every 24 hours
+    // every 24 hours at 12 AM
     "0 0 * * *",
     async () => {
       for (const file of tmpFiles) {

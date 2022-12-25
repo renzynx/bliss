@@ -5,7 +5,7 @@ import {
   Logger,
   UnauthorizedException,
 } from "@nestjs/common";
-import { EmbedSettings, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import * as argon from "argon2";
 import { MailService } from "../mail/mail.service";
@@ -17,7 +17,7 @@ import {
   SessionUser,
   UserResponse,
 } from "../../lib/types";
-import { formatBytes, generateApiKey } from "../../lib/utils";
+import { formatBytes, generateRandomString } from "../../lib/utils";
 import { RegisterDTO } from "../auth/dto/register.dto";
 import { PrismaService } from "../prisma/prisma.service";
 import { Request } from "express";
@@ -33,6 +33,7 @@ import {
 import { join } from "path";
 import { readFile } from "fs/promises";
 import { EmbedSettingDTO } from "./dto/EmbedSettingsDTO";
+import cuid from "cuid";
 
 @Injectable()
 export class UsersService implements IUserService {
@@ -48,15 +49,19 @@ export class UsersService implements IUserService {
 
   async findUser(
     username_or_email: string,
-    { byId, withPassword }: findUserOptions = {
+    { byId, withPassword, totalUsed }: findUserOptions = {
       byId: false,
       withPassword: false,
+      totalUsed: false,
     }
   ): Promise<User | null> {
     if (!username_or_email) {
       throw new BadRequestException("Invalid request");
     }
     let user: User;
+    let total: number;
+
+    // get total used space of user
 
     if (byId) {
       user = await this.prisma.user.findUnique({
@@ -64,37 +69,47 @@ export class UsersService implements IUserService {
           id: username_or_email,
         },
       });
+      if (totalUsed) {
+        const tmp = await this.prisma.file.aggregate({
+          where: {
+            userId: username_or_email,
+          },
+          _sum: {
+            size: true,
+          },
+        });
+
+        // convert to mb
+        total = Math.round(tmp._sum.size / 1000000);
+      }
     } else {
       user = await this.prisma.user.findUnique({
         where: username_or_email.includes("@")
           ? { email: username_or_email }
           : { username: username_or_email },
       });
+
+      if (totalUsed) {
+        const tmp = await this.prisma.file.aggregate({
+          where: {
+            userId: user.id,
+          },
+          _sum: {
+            size: true,
+          },
+        });
+
+        total = Math.round(tmp._sum.size / 1000000);
+      }
     }
 
     !withPassword && delete user.password;
 
-    return user ?? null;
+    // @ts-ignore
+    if (totalUsed) return { ...user, total };
+
+    return user;
   }
-
-  // validateUserInput<T>(dto: T) {
-  //   const errors = [];
-
-  //   for (const [key, value] of Object.entries(dto)) {
-  //     if (value === undefined) {
-  //       errors.push({
-  //         field: key,
-  //         message: "Field is required",
-  //       });
-  //     }
-  //   }
-
-  //   if (errors.length > 0) {
-  //     throw new BadRequestException({ errors });
-  //   }
-
-  //   return true;
-  // }
 
   validateUsername(username: string) {
     if (username.length < 3) {
@@ -179,7 +194,6 @@ export class UsersService implements IUserService {
         });
       }
 
-      await this.redis.del(INVITE_PREFIX + invite);
       inv = inviter;
     }
 
@@ -202,19 +216,20 @@ export class UsersService implements IUserService {
     }
 
     try {
-      const avatarHash = md5(email.trim().toLowerCase());
+      const avatarHash = md5(generateRandomString(32) + Date.now().toString());
       const hashedPassword = await argon.hash(password);
       const user = await this.prisma.user.create({
         data: {
           email,
           username: username ? username : generateUsername("_"),
           password: hashedPassword,
-          apiKey: generateApiKey(),
-          // image: `https://www.gravatar.com/avatar/${avatarHash}`,
+          apiKey: generateRandomString(),
           image: `https://avatars.dicebear.com/api/identicon/${avatarHash}.svg`,
           invitedBy: inviter ? inviter : null,
         },
       });
+      await this.redis.del(INVITE_PREFIX + invite);
+
       delete user.password;
 
       (req.session as CustomSession).userId = user.id;
@@ -278,7 +293,7 @@ export class UsersService implements IUserService {
       throw new BadRequestException("email already verified");
     }
     try {
-      const token = generateApiKey(32);
+      const token = generateRandomString(32);
 
       await this.redis.set(
         CONFIRM_EMAIL_PREFIX + token,
@@ -534,6 +549,14 @@ export class UsersService implements IUserService {
       throw new UnauthorizedException("not authorized");
     }
 
+    if (
+      user.email === "root@localhost" ||
+      user.username === "root" ||
+      user.role === "OWNER"
+    ) {
+      throw new BadRequestException("You cannot delete root account");
+    }
+
     await this.prisma.user.delete({ where: { id } });
 
     return true;
@@ -571,7 +594,7 @@ export class UsersService implements IUserService {
     }
 
     try {
-      const token = generateApiKey(64);
+      const token = generateRandomString(64);
 
       await this.redis.set(
         FORGOT_PASSWORD_PREFIX + token,
@@ -649,5 +672,22 @@ export class UsersService implements IUserService {
     ]);
 
     return true;
+  }
+
+  async regenerateApiKey(id: string) {
+    const user = await this.findUser(id, { byId: true });
+
+    if (!user) {
+      throw new UnauthorizedException("not authorized");
+    }
+
+    const apiKey = cuid();
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { apiKey },
+    });
+
+    return apiKey;
   }
 }

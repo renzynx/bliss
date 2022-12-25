@@ -20,7 +20,7 @@ export const toFieldError = (errors: string[]) => {
   return fieldErrors;
 };
 
-export const generateApiKey = (len = 32) => {
+export const generateRandomString = (len = 32) => {
   return randomBytes(20).toString("hex").substring(0, len);
 };
 

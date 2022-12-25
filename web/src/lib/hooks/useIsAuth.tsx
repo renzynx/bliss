@@ -34,6 +34,7 @@ export const useIsAuth = ({
 						Router.push(
 							`${redirectTo}${callbackUrl ? `?callbackUrl=${callbackUrl}` : ''}`
 						);
+					setUser(null);
 					return null;
 				}),
 		{ refetchOnWindowFocus: false }

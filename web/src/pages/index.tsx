@@ -1,25 +1,17 @@
 import HomePage from '@pages/HomePage';
-import { API_ROUTES, API_URL } from '@lib/constants';
-import { SessionUser } from '@lib/types';
-import axios from 'axios';
-import { NextPage } from 'next';
-import { useEffect, useState } from 'react';
+import { useIsAuth } from '@lib/hooks';
+import LoadingPage from '@components/pages/LoadingPage';
 
-const Home: NextPage = () => {
-	const [user, setUser] = useState<SessionUser>();
+const Home = () => {
+	const { data, isLoading } = useIsAuth();
 
-	useEffect(() => {
-		axios
-			.get(API_URL + API_ROUTES.ME, { withCredentials: true })
-			.then((res) => {
-				setUser(res.data);
-			})
-			.catch(() => null);
-	}, []);
+	if (isLoading) {
+		return <LoadingPage color="orange" />;
+	}
 
 	return (
 		<>
-			<HomePage user={user} />
+			<HomePage user={data!} />
 		</>
 	);
 };

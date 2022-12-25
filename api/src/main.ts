@@ -12,6 +12,7 @@ import helmet from "helmet";
 import bp from "body-parser";
 import "./lib/setup";
 import "./lib/clean";
+import { NextFunction, Request, Response } from "express";
 
 async function bootstrap() {
   const startTime = Date.now();
@@ -22,8 +23,23 @@ async function bootstrap() {
   app.setBaseViewsDir(join(rootDir, "views"));
   app.setViewEngine("hbs");
 
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    if (req.originalUrl.includes("favicon.ico")) {
+      return res.sendStatus(204).end();
+    }
+    next();
+  });
   app.use(bp.raw({ type: "application/octet-stream", limit: "100mb" }));
-  app.use(helmet({ contentSecurityPolicy: false }));
+  app.use(
+    helmet({
+      crossOriginEmbedderPolicy: false,
+      contentSecurityPolicy: {
+        directives: {
+          "img-src": ["'self'", "https: data:"],
+        },
+      },
+    })
+  );
   app.enableCors({
     credentials: true,
     origin: process.env.CORS_ORIGIN,

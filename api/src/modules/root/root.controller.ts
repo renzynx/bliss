@@ -7,11 +7,13 @@ import {
   Request,
   UseGuards,
 } from "@nestjs/common";
+import { SkipThrottle } from "@nestjs/throttler";
 import { Response as EResponse, Request as ERequest } from "express";
 import { AuthGuard } from "modules/auth/guard/auth.guard";
 import { RedisService } from "modules/redis/redis.service";
 import { RootService } from "./root.service";
 
+@SkipThrottle()
 @Controller()
 export class RootController {
   constructor(

@@ -14,7 +14,9 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadService } from "./upload.service";
 import { Request as ERequest, Response as EResponse } from "express";
 import { ROUTES } from "lib/constants";
+import { SkipThrottle } from "@nestjs/throttler";
 
+@SkipThrottle()
 @Controller(ROUTES.UPLOAD)
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}

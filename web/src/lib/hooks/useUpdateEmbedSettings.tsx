@@ -8,7 +8,6 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 
 export const useUpdateEmbedSettings = (data: Partial<EmbedSettings>) => {
-	delete data.userId;
 	const form = useForm<Partial<EmbedSettings>>({
 		initialValues: {
 			...data,

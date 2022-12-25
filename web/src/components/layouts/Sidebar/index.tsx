@@ -5,7 +5,9 @@ import {
 	Burger,
 	Drawer,
 	Group,
+	LoadingOverlay,
 	NavLink,
+	Progress,
 	Stack,
 	Text,
 	UnstyledButton,
@@ -14,8 +16,13 @@ import {
 import { useMediaQuery } from '@mantine/hooks';
 import {
 	IconBrandAppgallery,
+	IconBrandDiscord,
+	IconCircleDashed,
+	IconDots,
 	IconGauge,
 	IconHome2,
+	IconMailForward,
+	IconServer,
 	IconSettings,
 	IconUser,
 } from '@tabler/icons';
@@ -52,17 +59,17 @@ const items: Item[] = [
 		href: ROUTES.SETTINGS,
 		children: [
 			{
-				icon: IconSettings,
+				icon: IconCircleDashed,
 				label: 'General',
 				href: ROUTES.SETTINGS,
 			},
 			{
-				icon: IconSettings,
+				icon: IconBrandDiscord,
 				label: 'Embed',
 				href: ROUTES.SETTINGS + '/embed',
 			},
 			{
-				icon: IconSettings,
+				icon: IconDots,
 				label: 'Domains',
 				href: ROUTES.SETTINGS + '/domains',
 			},
@@ -75,16 +82,22 @@ const items: Item[] = [
 		admin: true,
 		children: [
 			{
-				icon: IconUser,
+				icon: IconServer,
 				label: 'Server',
 				href: ROUTES.ADMIN + '/server',
 				admin: true,
 			},
 			{
-				icon: IconUser,
+				icon: IconMailForward,
 				label: 'Invites',
 				href: ROUTES.ADMIN + '/invites',
 				admin: true,
+			},
+			{
+				icon: IconUser,
+				label: 'Users',
+				href: ROUTES.ADMIN + '/users',
+				owner: true,
 			},
 		],
 	},
@@ -97,9 +110,48 @@ const Sidebar = () => {
 	const mobile_screens = useMediaQuery('(max-width: 480px)');
 	const theme = useMantineTheme();
 	const admin = user?.role === 'OWNER' || user?.role === 'ADMIN';
+	const owner = user?.role === 'OWNER';
+
+	const storageUsed = useMemo(() => {
+		if (!user) {
+			return <LoadingOverlay visible={!!user} />;
+		}
+
+		// calculate storage used in percentage
+		const used = ((user.total ?? 0) / user.uploadLimit) * 100;
+
+		return (
+			<Stack mx="auto" my="xl" spacing={5} sx={{ width: '90%' }}>
+				<Text align="center" size="sm">
+					{user.uploadLimit === 0
+						? `${user.total ?? 0} MB / Unlimited`
+						: `${user.total ?? 0} MB / ${user.uploadLimit} MB`}
+				</Text>
+				<Progress
+					mx="auto"
+					sx={{ width: '100%' }}
+					value={user.uploadLimit === 0 ? 100 : used}
+					color={
+						user.uploadLimit === 0
+							? 'violet'
+							: user.total > user.uploadLimit
+							? 'red'
+							: 'blue'
+					}
+				/>
+			</Stack>
+		);
+	}, [user]);
 
 	const links = useMemo(() => {
-		return (admin ? items : items.filter((item) => !item.admin)).map(
+		const final = owner
+			? items
+			: items.map((item) => ({
+					...item,
+					children: item.children?.filter((child) => !child.owner),
+			  }));
+
+		return (admin ? final : final.filter((item) => !item.admin)).map(
 			(item, index) => (
 				<NavLink
 					icon={<item.icon />}
@@ -117,13 +169,14 @@ const Sidebar = () => {
 							component="a"
 							key={index}
 							active={router.pathname === child.href}
+							icon={<child.icon />}
 							color="violet"
 						/>
 					))}
 				/>
 			)
 		);
-	}, [admin, router.pathname]);
+	}, [admin, owner, router.pathname]);
 
 	return (
 		<Drawer
@@ -140,24 +193,34 @@ const Sidebar = () => {
 			opened={opened}
 			onClose={() => setOpened(false)}
 		>
-			<Group
-				position="right"
-				p="xl"
-				sx={{
-					width: '100%',
-					alignItems: 'center',
-					borderBottom: '1px solid #2C2E33',
-				}}
+			<Stack
+				spacing={0}
+				justify="space-between"
+				sx={{ height: '100%' }}
+				align="center"
 			>
-				<Burger
-					sx={{ marginLeft: 8 }}
-					opened={opened}
-					onClick={() => setOpened(!opened)}
-				/>
-			</Group>
+				<Stack spacing={0} sx={{ width: '100%' }}>
+					<Group
+						position="right"
+						p="xl"
+						sx={{
+							width: '100%',
+							alignItems: 'center',
+							borderBottom: '1px solid #2C2E33',
+						}}
+					>
+						<Burger
+							sx={{ marginLeft: 8 }}
+							opened={opened}
+							onClick={() => setOpened(!opened)}
+						/>
+					</Group>
 
-			<Stack mt={20} spacing={0}>
-				{links}
+					<Stack mt={20} spacing={0}>
+						{links}
+					</Stack>
+				</Stack>
+				{storageUsed}
 			</Stack>
 		</Drawer>
 	);

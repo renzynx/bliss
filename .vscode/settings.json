@@ -1,0 +1,10 @@
+{
+	"terminal.integrated.fontFamily": "Hack",
+	"[prisma]": {
+		"editor.defaultFormatter": "Prisma.prisma"
+	},
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": true
+	}
+}

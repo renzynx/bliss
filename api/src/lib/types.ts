@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { Role, User } from "@prisma/client";
 import { Request } from "express";
 import { Session, SessionData } from "express-session";
 import { RegisterDTO } from "modules/auth/dto/register.dto";
@@ -16,6 +16,7 @@ export interface UserResponse {
 export interface findUserOptions {
   byId?: boolean;
   withPassword?: boolean;
+  totalUsed?: boolean;
 }
 
 export interface IUserService {
@@ -43,4 +44,11 @@ export type CustomSession = Session &
 export interface ServerSettings {
   REGISTRATION_ENABLED: boolean;
   INVITE_MODE: boolean;
+}
+
+export interface UpdateUsers {
+  id: string;
+  role: Role;
+  disabled: boolean;
+  uploadLimit: number;
 }

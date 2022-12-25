@@ -2,7 +2,7 @@ import { createWriteStream, existsSync } from "fs";
 import { mkdir } from "fs/promises";
 import { logsDir, rootDir, uploadDir } from "./constants";
 import { PrismaClient } from "@prisma/client";
-import { generateApiKey } from "./utils";
+import { generateRandomString } from "./utils";
 import md5 from "md5";
 import argon from "argon2";
 import { join } from "path";
@@ -40,12 +40,6 @@ const ensure = async () => {
     }
   }
 
-  if (!existsSync(uploadDir)) {
-    await mkdir(uploadDir, { recursive: true });
-  } else if (!existsSync(logsDir)) {
-    await mkdir(logsDir, { recursive: true });
-  }
-
   const prisma = new PrismaClient();
 
   await prisma.$connect();
@@ -55,7 +49,7 @@ const ensure = async () => {
   });
 
   if (!user) {
-    const p = generateApiKey(64);
+    const p = generateRandomString(64);
     const password = await argon.hash(p);
 
     const stream = createWriteStream(
@@ -75,7 +69,7 @@ const ensure = async () => {
 
     stream.on("finish", () => {
       console.log(
-        "Initial root password has been written to initial_root_password.txt file."
+        "Initial root password has been written to initial_root_account.txt file."
       );
     });
 
@@ -83,18 +77,17 @@ const ensure = async () => {
       console.log(err);
     });
 
-    const avatarHash = md5("root@localhost");
+    const avatarHash = md5(generateRandomString(32) + Date.now().toString());
 
     await prisma.user.create({
       data: {
         email: "root@localhost",
         password,
         role: "OWNER",
-        apiKey: generateApiKey(32),
         username: "root",
         emailVerified: new Date(Date.now()),
-        // image: `https://www.gravatar.com/avatar/${md5("root@localhost")}`,
         image: `https://avatars.dicebear.com/api/identicon/${avatarHash}.svg`,
+        uploadLimit: 0,
       },
     });
   }
@@ -102,4 +95,13 @@ const ensure = async () => {
   await prisma.$disconnect();
 };
 
+const ensureDirs = async () => {
+  if (!existsSync(uploadDir)) {
+    await mkdir(uploadDir, { recursive: true });
+  } else if (!existsSync(logsDir)) {
+    await mkdir(logsDir, { recursive: true });
+  }
+};
+
+ensureDirs();
 process.env.NODE_ENV === "production" && ensure();

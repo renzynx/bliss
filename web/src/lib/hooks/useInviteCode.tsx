@@ -1,7 +1,8 @@
-import { API_ROUTES, API_URL } from '@lib/constants';
+import { API_ROUTES, API_URL, ROUTES } from '@lib/constants';
 import { Invite } from '@lib/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import Router from 'next/router';
 
 export const useGetInvites = () => {
 	const { data, isLoading, error, refetch } = useQuery(['invites'], () =>
@@ -11,6 +12,9 @@ export const useGetInvites = () => {
 			})
 			.then((res) => res.data)
 			.catch((error) => {
+				if (error.response.status === 403) {
+					Router.replace(ROUTES.ROOT);
+				}
 				throw new Error(error.response.data.message);
 			})
 	);

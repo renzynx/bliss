@@ -19,6 +19,7 @@ export interface CustomAppProps extends AppProps {
 export interface CustomPageOptions {
 	auth?: boolean;
 	withLayout?: boolean;
+	admin?: boolean;
 }
 
 export type CustomNextPage<P = {}, IP = P> = NextPage<P, IP> & {
@@ -41,6 +42,9 @@ export type SessionUser = {
 	createdAt: Date;
 	emailVerified: Date;
 	apiKey: string;
+	total: number;
+	uploadLimit: number;
+	disabled: boolean;
 };
 
 export interface Item {
@@ -49,7 +53,8 @@ export interface Item {
 	href: string;
 	active?: boolean;
 	admin?: boolean;
-	children?: Item[];
+	owner?: boolean;
+	children?: Omit<Item, 'children'>[];
 }
 
 export interface NavbarLinkProps {
@@ -137,4 +142,11 @@ export interface Chunk {
 	blob: Blob;
 	start: number;
 	end: number;
+}
+
+export interface UpdateUsers {
+	id: string;
+	role: Role;
+	disabled: boolean;
+	uploadLimit: number;
 }

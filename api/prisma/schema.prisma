@@ -11,18 +11,21 @@ datasource db {
 }
 
 model User {
-  id             String         @id @default(uuid())
-  username       String         @unique
-  image          String?
-  email          String         @unique
-  password       String
-  role           Role           @default(USER)
-  createdAt      DateTime       @default(now()) @map("created_at")
-  emailVerified  DateTime?      @map("email_verified")
-  invitedBy      String?        @map("invited_by")
-  apiKey         String         @unique @map("api_key")
+  id            String    @id @default(uuid())
+  username      String    @unique
+  image         String?
+  email         String    @unique
+  disabled      Boolean   @default(false)
+  password      String
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  emailVerified DateTime? @map("email_verified")
+  invitedBy     String?   @map("invited_by")
+  apiKey        String    @unique @default(cuid()) @map("api_key")
+  uploadLimit   Int       @default(500) @map("upload_limit")
+
   embed_settings EmbedSettings?
-  File           File[]
+  files          File[]
 
   @@map("users")
 }

@@ -10,7 +10,7 @@ import { Request, Response } from "express";
 import { createWriteStream, existsSync } from "fs";
 import { rename, stat, unlink, writeFile } from "fs/promises";
 import { uploadDir } from "lib/constants";
-import { generateApiKey, lookUp } from "lib/utils";
+import { generateRandomString, lookUp } from "lib/utils";
 import { PrismaService } from "modules/prisma/prisma.service";
 import { join } from "path";
 import md5 from "md5";
@@ -31,6 +31,8 @@ export class UploadService {
     };
 
     const { filename } = oembed;
+
+    delete data.userId;
 
     const stream = createWriteStream(join(uploadDir, filename + ".json"), {
       flags: "w",
@@ -97,7 +99,25 @@ export class UploadService {
       throw new BadRequestException("Invalid API key");
     }
 
-    const slug = generateApiKey(12);
+    const tmp = await this.prismaService.file.aggregate({
+      where: {
+        user: {
+          apiKey: apikey,
+        },
+      },
+      _sum: { size: true },
+    });
+
+    if (
+      (tmp._sum.size > user.uploadLimit && user.role !== "OWNER") ||
+      user.uploadLimit !== 0
+    ) {
+      throw new BadRequestException(
+        "You have no space left for upload, maybe delete a few files first?"
+      );
+    }
+
+    const slug = generateRandomString(12);
     const ext = file.originalname.split(".").pop();
 
     const stream = createWriteStream(join(uploadDir, `${slug}.${ext}`), {
@@ -167,6 +187,23 @@ export class UploadService {
       throw new BadRequestException("Invalid API key");
     }
 
+    const tmp = await this.prismaService.file.aggregate({
+      where: {
+        user: {
+          apiKey: apikey,
+        },
+      },
+      _sum: { size: true },
+    });
+
+    const final = Math.round(tmp._sum.size / 1e6);
+
+    if (final > user.uploadLimit && user.uploadLimit !== 0) {
+      throw new BadRequestException(
+        "You have no space left for upload, maybe delete a few files first?"
+      );
+    }
+
     const name = decodeURIComponent(req.headers["x-file-name"] as string);
     const size = req.headers["x-file-size"] as string;
     const currentChunk = req.headers["x-current-chunk"] as string;
@@ -186,17 +223,21 @@ export class UploadService {
     await writeFile(join(uploadDir, tmpName), buffer, { flag: "a" });
     if (lastChunk) {
       const mimetype = lookUp(name);
-      let slug = generateApiKey(12);
+      let slug = generateRandomString(12);
       await rename(
         join(uploadDir, tmpName),
         join(uploadDir, `${slug}.${ext}`)
       ).catch(async (reason) => {
         if (reason === "EEXIST") {
-          slug = generateApiKey(12);
+          slug = generateRandomString(12);
           await rename(
             join(uploadDir, tmpName),
             join(uploadDir, `${slug}.${ext}`)
           );
+          await this.prismaService.file.update({
+            where: { slug: tmpName.split(".").shift() },
+            data: { slug },
+          });
         } else {
           this.logger.error(reason);
           throw new InternalServerErrorException(
@@ -214,7 +255,7 @@ export class UploadService {
       ) {
         this.createOEmbedJSON({
           filename: name,
-          ...user.embed_settings,
+          ...embed_settings,
         });
       }
 

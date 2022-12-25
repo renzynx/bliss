@@ -6,7 +6,13 @@ import {
 	useMantineTheme,
 } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
-import { IconCheck, IconCloudUpload, IconDownload, IconX } from '@tabler/icons';
+import {
+	IconCheck,
+	IconCloudUpload,
+	IconDownload,
+	IconExclamationMark,
+	IconX,
+} from '@tabler/icons';
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
 import { uploadStyles } from './styles';
@@ -23,6 +29,7 @@ const UploadZone = () => {
 	const [user] = useAtom(userAtom);
 	const theme = useMantineTheme();
 	const openRef = useRef<() => void>(null);
+	const [error, setError] = useState(false);
 	const [files, setFiles] = useState<File[]>([]);
 	const [currentFileIndex, setCurrentFileIndex] = useState<number | null>(null);
 	const [lastUploadedFileIndex, setLastUploadedFileIndex] = useState<
@@ -32,6 +39,7 @@ const UploadZone = () => {
 		null
 	);
 	const { classes } = uploadStyles();
+	const [uploading, setUploading] = useState(false);
 
 	const uploadChunk = (e: ProgressEvent<FileReader>) => {
 		if (currentFileIndex === null) return;
@@ -45,6 +53,7 @@ const UploadZone = () => {
 			'X-Total-Chunks': Math.ceil(file.size / CHUNK_SIZE),
 			Authorization: user?.apiKey,
 		};
+		setUploading(true);
 		axios
 			.post(API_URL + API_ROUTES.UPLOAD_FILE, data, {
 				headers,
@@ -79,9 +88,30 @@ const UploadZone = () => {
 					if (isLastFile) {
 						setLastUploadedFileIndex(currentFileIndex);
 						setCurrentFileIndex(null);
+						setUploading(false);
 					}
 				} else {
 					setCurrentChunkIndex(currentChunkIndex! + 1);
+				}
+			})
+			.catch((err) => {
+				setError(true);
+				if (err.response.status === 400) {
+					showNotification({
+						title: 'Error',
+						message: err.response.data.message,
+						color: 'red',
+						icon: <IconExclamationMark />,
+						autoClose: 5000,
+					});
+				} else {
+					showNotification({
+						title: 'Error',
+						message: 'Something went wrong, please try again later',
+						color: 'red',
+						icon: <IconExclamationMark />,
+						autoClose: 5000,
+					});
 				}
 			});
 	};
@@ -134,6 +164,7 @@ const UploadZone = () => {
 		<>
 			<div className={classes.wrapper}>
 				<Dropzone
+					loading={uploading}
 					openRef={openRef}
 					onDrop={(dropzoneFiles) => setFiles([...files, ...dropzoneFiles])}
 					onReject={(err) => {
@@ -222,6 +253,7 @@ const UploadZone = () => {
 					}
 					return (
 						<ProgressCard
+							error={error}
 							key={idx}
 							filename={file.name}
 							progress={progress}

@@ -17,8 +17,9 @@ const Owner: CustomNextPage = () => {
 	);
 
 	useEffect(() => {
-		if (user?.role !== 'OWNER' && user?.role !== 'ADMIN')
-			router.push('/dashboard');
+		if (user?.role !== 'OWNER' && user?.role !== 'ADMIN') {
+			void router.push('/dashboard');
+		}
 	}, [router, user?.role]);
 
 	return isLoading ? <LoadingPage /> : <ServerPage {...data} />;
@@ -29,4 +30,5 @@ export default Owner;
 Owner.options = {
 	auth: true,
 	withLayout: true,
+	admin: true,
 };

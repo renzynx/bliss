@@ -27,14 +27,18 @@ export enum API_ROUTES {
 	EMBED_SETTINGS = '/users/embed-settings',
 	CHANGE_PASSWORD = '/users/change-password',
 	CHANGE_USERNAME = '/users/change-username',
+	REGENERATE_API_KEY = '/users/regenerate-api-key',
 	FORGOT_PASSWORD = '/users/forgot-password',
 	RESET_PASSWORD = '/users/reset-password',
+	DELETE_ACCOUNT = '/users/delete-account',
 	CHECK_TOKEN = '/users/check-token',
 	SEND_VERIFICATION_EMAIL = '/users/verify/send',
 	VERIFY_EMAIL = '/users/verify',
 	SERVER_SETTINGS = '/server-settings',
 	UPDATE_SERVER_SETTINGS = '/admin/server-settings',
 	INVITE_CODE = '/admin/invites',
+	MANAGE_USERS = '/admin/users',
+	PURGE_FILES = '/admin/purge-files',
 }
 
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? 'Bliss V2';

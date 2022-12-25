@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Post,
   Put,
@@ -11,6 +12,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
+import { SkipThrottle, Throttle } from "@nestjs/throttler";
 import { Request as ERequest } from "express";
 import { ROUTES } from "lib/constants";
 import { CustomSession } from "lib/types";
@@ -22,10 +24,12 @@ import { EmbedSettingDTO } from "./dto/EmbedSettingsDTO";
 import { ResetPasswordDTO } from "./dto/ResetPasswordDTO";
 import { UsersService } from "./users.service";
 
+@SkipThrottle()
 @Controller(ROUTES.USERS)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @SkipThrottle(false)
   @UseGuards(AuthGuard)
   @Post("verify/send")
   async sendVerifyMail(@Request() req: ERequest) {
@@ -40,11 +44,13 @@ export class UsersController {
     return this.usersService.verifyEmail(token);
   }
 
+  @SkipThrottle(false)
   @Post("forgot-password")
   async forgotPassword(@Body() { email }: { email: string }) {
     return this.usersService.sendForgotPasswordEmail(email);
   }
 
+  @SkipThrottle(false)
   @Post("check-token")
   async checkToken(@Body() { token }: { token: string }) {
     return this.usersService.checkToken(token);
@@ -102,6 +108,7 @@ export class UsersController {
     );
   }
 
+  @SkipThrottle(false)
   @UseGuards(AuthGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
   @UseFilters(new HttpExceptionFilter())
@@ -118,6 +125,7 @@ export class UsersController {
     );
   }
 
+  @SkipThrottle(false)
   @UseGuards(AuthGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
   @UseFilters(new HttpExceptionFilter())
@@ -127,5 +135,23 @@ export class UsersController {
     { username, newUsername }: ChangeUsernameDTO
   ) {
     return this.usersService.changeUsername(username, newUsername);
+  }
+
+  @SkipThrottle(false)
+  @Throttle(1, 300)
+  @UseGuards(AuthGuard)
+  @Put("regenerate-api-key")
+  async regnerateApiKey(@Request() req: ERequest) {
+    return this.usersService.regenerateApiKey(
+      (req.session as CustomSession).userId
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete("delete-account")
+  async deleteAccount(@Request() req: ERequest) {
+    return this.usersService.deleteAccount(
+      (req.session as CustomSession).userId
+    );
   }
 }
