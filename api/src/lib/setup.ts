@@ -52,9 +52,7 @@ const ensure = async () => {
     const p = generateRandomString(64);
     const password = await argon.hash(p);
 
-    const stream = createWriteStream(
-      join(rootDir, "initial_root_password.txt")
-    );
+    const stream = createWriteStream(join(rootDir, "initial_root_account.txt"));
 
     stream.write(
       `
