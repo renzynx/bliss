@@ -210,6 +210,10 @@ export class UploadService {
     const currentChunk = req.headers["x-current-chunk"] as string;
     const totalChunks = req.headers["x-total-chunks"] as string;
 
+    if (!name || !size || !currentChunk || !totalChunks) {
+      throw new BadRequestException("Missing headers");
+    }
+
     const firstChunk = +currentChunk === 0;
     const lastChunk = +currentChunk === +totalChunks - 1;
     const ext = name.split(".").pop();
