@@ -64,7 +64,7 @@ export class UploadService {
       .then(async () => {
         await Promise.all([
           this.prismaService.file.delete({
-            where: { id },
+            where: { id: decodedId },
           }),
           unlink(filePath),
           isImg && oembedExist && unlink(oembedPath),

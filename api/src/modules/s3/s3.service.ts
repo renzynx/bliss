@@ -252,7 +252,7 @@ export class S3Service {
     const full = `${file.slug}.${ext}`;
 
     await Promise.all([
-      this.prismaService.file.delete({ where: { id: key } }),
+      this.prismaService.file.delete({ where: { id: decodedId } }),
       this.s3.removeObject(this.bucketName, full, (error) => {
         if (error.message.toLowerCase().includes("exist")) {
           throw new NotFoundException("File does not exist");
