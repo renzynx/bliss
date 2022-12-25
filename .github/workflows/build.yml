@@ -119,7 +119,7 @@ jobs:
           context: ./web
           file: ./web/Dockerfile
           push: true
-          tags: ghcr.io/renzynx/latest:dev
+          tags: ghcr.io/renzynx/web:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
