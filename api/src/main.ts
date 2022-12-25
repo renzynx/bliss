@@ -9,7 +9,7 @@ import client from "./lib/redis";
 import ConnectStore from "connect-redis";
 import session from "express-session";
 import helmet from "helmet";
-import bp from "body-parser";
+import bodyparser from "body-parser";
 import "./lib/setup";
 import "./lib/clean";
 import { NextFunction, Request, Response } from "express";
@@ -29,7 +29,7 @@ async function bootstrap() {
     }
     next();
   });
-  app.use(bp.raw({ type: "application/octet-stream", limit: "100mb" }));
+  app.use(bodyparser.raw({ type: "application/octet-stream", limit: "100mb" }));
   app.use(
     helmet({
       crossOriginEmbedderPolicy: false,
