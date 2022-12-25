@@ -27,7 +27,6 @@ export class EmbedSettingDTO {
   author_name: string | null;
 
   @IsOptional()
-  @IsEmpty()
   @IsUrl()
   author_url: string | null;
 
