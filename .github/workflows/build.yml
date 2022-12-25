@@ -47,11 +47,11 @@ jobs:
           context: ./api
           file: ./api/Dockerfile
           push: true
-          tags: ghcr.io/renzynx/bliss:latest
+          tags: ghcr.io/renzynx/bliss:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  api_arm64:
+  api-arm64:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
@@ -84,7 +84,7 @@ jobs:
           context: ./api
           file: ./api/Dockerfile
           push: true
-          tags: ghcr.io/renzynx/bliss:dev
+          tags: ghcr.io/renzynx/bliss:dev-arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -123,7 +123,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  web_arm64:
+  web-arm64:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
@@ -154,6 +154,6 @@ jobs:
           context: ./web
           file: ./web/Dockerfile
           push: true
-          tags: ghcr.io/renzynx/web:dev
+          tags: ghcr.io/renzynx/web:dev-arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max

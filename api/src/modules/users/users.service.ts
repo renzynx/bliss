@@ -216,7 +216,7 @@ export class UsersService implements IUserService {
     }
 
     try {
-      const avatarHash = md5(generateRandomString(32) + Date.now().toString());
+      const avatarHash = md5(generateRandomString(16) + Date.now().toString());
       const hashedPassword = await argon.hash(password);
       const user = await this.prisma.user.create({
         data: {
