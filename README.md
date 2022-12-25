@@ -1,3 +1,18 @@
+# Features
+
+- Invite only registration or disable registration completely.
+- Upload files, images, and videos.
+- Manage users, roles.
+- Limit user quota.
+- Discord Embed customizer.
+- Download and delete files.
+- File preview.
+- Downloadable upload config for ShareX, Flameshot.
+- A view page for each file.
+- S3 support (AWS, DigitalOcean, etc.).
+- Easy installation with docker.
+- Easy to use admin panel.
+
 # Installing
 
 This guide assumes you have a domain name and a server and have basic knowledge of how to use linux.
@@ -128,9 +143,9 @@ Caddy will automatically generate a certificate for you.
 ### Screenshots
 
 <p align="center">
-  <img src="https://cdn.amog-us.club/brave_0yeRi3yz70.png" alt="image" border="0">
-  <img src="https://cdn.amog-us.club/brave_PXux828NtJ.png" alt="image" border="0">
-  <img src="https://cdn.amog-us.club/brave_fcyvLlO3eQ.png" alt="image" border="0">
-  <img src="https://cdn.amog-us.club/brave_bvZwFE2XPr.png" alt="image" border="0">
-  <img src="https://cdn.amog-us.club/brave_F2n7sQsia2.png" alt="image" border="0">
+  <img src="https://cdn.amog-us.club/brave_waFaBL2KOu.png" alt="image" border="0">
+  <img src="https://cdn.amog-us.club/brave_xMcC4PJwC2.png" alt="image" border="0">
+  <img src="https://cdn.amog-us.club/brave_gik4VjMZZh.png" alt="image" border="0">
+  <img src="https://cdn.amog-us.club/brave_5WBnr1445k.png" alt="image" border="0">
+  <img src="https://cdn.amog-us.club/brave_lMi9EsTOsO.png" alt="image" border="0">
 </p>
