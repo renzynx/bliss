@@ -42,8 +42,10 @@ export class UploadService {
   }
 
   async deleteFile(id: string, res: Response) {
+    const decodedId = Buffer.from(id, "base64").toString("utf-8");
+
     const file = await this.prismaService.file.findUnique({
-      where: { id },
+      where: { id: decodedId },
     });
 
     if (!file) {

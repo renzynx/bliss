@@ -30,7 +30,7 @@ const PreviewCard: FC<{
 	const fileURL = `${API_URL}/${file.slug}.${file.filename.split('.').pop()}`;
 	const deleteFile = useCallback(() => {
 		return axios
-			.get(`${API_URL}/delete/${file.id}`)
+			.get(`${API_URL}/delete/${Buffer.from(file.id).toString('base64')}`)
 			.then((res) => {
 				const data = res.data.replace(/<pre>|<\/pre>/g, '');
 				showNotification({
