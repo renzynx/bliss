@@ -110,7 +110,7 @@ export class UploadService {
 
     const final = Math.round(tmp._sum.size / 1e6);
 
-    if (final > user.uploadLimit || user.uploadLimit !== 0) {
+    if (final > user.uploadLimit && user.uploadLimit !== 0) {
       throw new BadRequestException(
         "You have no space left for upload, maybe delete a few files first?"
       );
