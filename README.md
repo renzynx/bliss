@@ -39,7 +39,7 @@ docker compose up -d
 To get the initial root account, run the following command:
 
 ```bash
-docker exec api cat /app/initial_root_password.txt
+docker exec api cat /app/initial_root_account.txt
 ```
 
 Now you can login with the root account with owner permissions.
