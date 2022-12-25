@@ -108,10 +108,9 @@ export class UploadService {
       _sum: { size: true },
     });
 
-    if (
-      (tmp._sum.size > user.uploadLimit && user.role !== "OWNER") ||
-      user.uploadLimit !== 0
-    ) {
+    const final = Math.round(tmp._sum.size / 1e6);
+
+    if (final > user.uploadLimit || user.uploadLimit !== 0) {
       throw new BadRequestException(
         "You have no space left for upload, maybe delete a few files first?"
       );
