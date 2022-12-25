@@ -3,7 +3,7 @@ name: Build and push Docker images
 on:
   push:
     branches:
-      - main
+      - dev
     paths:
       - 'api/src/**'
       - 'api/prisma/**'
@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  api:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -30,10 +30,7 @@ jobs:
             api/prisma/**
             api/Dockerfile
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Buildx
+      - name: Set up BuildX
         uses: docker/setup-buildx-action@v2
 
       - name: Login to GitHub Container Registry
@@ -49,9 +46,45 @@ jobs:
         with:
           context: ./api
           file: ./api/Dockerfile
-          platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/renzynx/bliss:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  api_arm64:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v35
+        with:
+          files: |
+            api/src/**
+            api/prisma/**
+            api/Dockerfile
+
+      - name: Set up BuildX
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: docker/build-push-action@v3
+        with:
+          context: ./api
+          file: ./api/Dockerfile
+          push: true
+          tags: ghcr.io/renzynx/bliss:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -69,9 +102,6 @@ jobs:
             web/public/**
             web/Dockerfile
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -88,8 +118,42 @@ jobs:
         with:
           context: ./web
           file: ./web/Dockerfile
-          platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/renzynx/web:latest
+          tags: ghcr.io/renzynx/web:dev
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  web_arm64:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get changed files
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v35
+        with:
+          files: |
+            web/src/**
+            web/public/**
+            web/Dockerfile
+
+      - name: Set up BuildX
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: docker/build-push-action@v3
+        with:
+          context: ./web
+          file: ./web/Dockerfile
+          push: true
+          tags: ghcr.io/renzynx/web:dev
           cache-from: type=gha
           cache-to: type=gha,mode=max
