@@ -125,7 +125,6 @@ export class RootService {
       isImage,
       isAudio,
       cannotDisplay,
-      id: file.id,
     };
   }
 

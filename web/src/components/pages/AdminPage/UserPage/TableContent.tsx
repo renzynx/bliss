@@ -40,6 +40,7 @@ const TableContent: FC<{
 			</td>
 			<td>
 				<Switch
+					my="auto"
 					size="md"
 					defaultChecked={element.role === 'ADMIN'}
 					value={String(element.role === 'ADMIN')}
@@ -58,6 +59,7 @@ const TableContent: FC<{
 			</td>
 			<td>
 				<Switch
+					my="auto"
 					size="md"
 					defaultChecked={element.disabled}
 					value={String(element.disabled)}
