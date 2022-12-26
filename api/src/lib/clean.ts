@@ -18,6 +18,7 @@ const cleanUp = async () => {
     // every 24 hours at 12 AM
     "0 0 * * *",
     async () => {
+      console.log("Cleaning up tmp files...");
       for (const file of tmpFiles) {
         await fs.unlink(join(uploadDir, file));
       }
