@@ -31,8 +31,6 @@ wget https://cdn.amog-us.club/docker-compose.yml
 ```
 
 Fill in the `docker-compose.yml` environment with the appropriate values.
-<br>
-For arm64 CPUs like the Raspberry Pi 4 change the image to `ghcr.io/renzynx/bliss:latest-arm64` and `ghcr.io/renzynx/web:latest-arm64`.
 
 ```bash
 docker compose up -d
