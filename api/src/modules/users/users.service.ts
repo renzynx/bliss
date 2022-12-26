@@ -5,7 +5,7 @@ import {
   Logger,
   UnauthorizedException,
 } from "@nestjs/common";
-import { User } from "@prisma/client";
+import { EmbedSettings, User } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import * as argon from "argon2";
 import { MailService } from "../mail/mail.service";
@@ -357,22 +357,30 @@ export class UsersService implements IUserService {
   }
 
   async setEmbedSettings(settings: EmbedSettingDTO, id: string) {
+    const defaultSettings: Omit<EmbedSettings, "id"> = {
+      enabled: false,
+      title: null,
+      description: null,
+      color: null,
+      author_name: null,
+      author_url: null,
+      provider_name: null,
+      provider_url: null,
+      userId: id,
+    };
+
     // @ts-ignore
     settings.enabled === "false"
       ? (settings.enabled = false)
       : (settings.enabled = true);
 
-    // find missing keys
-    const missingKeys = Object.keys(settings).filter(
-      (key) => !Object.keys(settings).includes(key)
-    );
-
-    missingKeys.forEach((key) => (settings[key] = null));
+    // replace all missing keys with null
+    const finalSettings = Object.assign(defaultSettings, settings);
 
     return this.prisma.embedSettings.upsert({
       where: { userId: id },
-      create: { ...settings, userId: id },
-      update: { ...settings, userId: id },
+      update: { ...finalSettings },
+      create: { ...finalSettings, userId: id },
     });
   }
 
