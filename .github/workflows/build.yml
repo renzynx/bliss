@@ -8,6 +8,7 @@ on:
       - 'api/src/**'
       - 'api/prisma/**'
       - 'web/src/**'
+      - 'web/public/**'
       - 'api/Dockerfile'
       - 'web/Dockerfile'
       - '.github/build.yml'
