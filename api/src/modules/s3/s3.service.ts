@@ -55,7 +55,7 @@ export class S3Service {
 
     return this.s3.putObject(
       this.bucketName,
-      `${oembed.filename}.json`,
+      `${filename}.json`,
       JSON.stringify(data),
       metadata
     );

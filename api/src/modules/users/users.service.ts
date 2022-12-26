@@ -361,6 +361,14 @@ export class UsersService implements IUserService {
     settings.enabled === "false"
       ? (settings.enabled = false)
       : (settings.enabled = true);
+
+    // find missing keys
+    const missingKeys = Object.keys(settings).filter(
+      (key) => !Object.keys(settings).includes(key)
+    );
+
+    missingKeys.forEach((key) => (settings[key] = null));
+
     return this.prisma.embedSettings.upsert({
       where: { userId: id },
       create: { ...settings, userId: id },
