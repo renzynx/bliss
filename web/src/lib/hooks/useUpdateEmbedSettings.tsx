@@ -9,10 +9,7 @@ import axios from 'axios';
 
 export const useUpdateEmbedSettings = (data: Partial<EmbedSettings>) => {
 	const form = useForm<Partial<EmbedSettings>>({
-		initialValues: {
-			...data,
-			enabled: data.enabled ? 'true' : 'false',
-		},
+		initialValues: { ...data, enabled: data.enabled ? 'true' : 'false' },
 	});
 	const { mutate, isLoading } = useMutation(
 		['embed-settings'],
