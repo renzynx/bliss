@@ -57,17 +57,25 @@ const PreviewCard: FC<{
 				spacing={0}
 				p="xl"
 				justify="space-between"
-				sx={(t) => ({
+				sx={(theme) => ({
 					overflow: 'scroll',
-					border: `1px solid ${t.colors.dark[4]}`,
-					borderRadius: t.radius.md,
-					boxShadow: t.shadows.sm,
+					border: `1px solid ${theme.colors.dark[4]}`,
+					borderRadius: theme.radius.md,
+					boxShadow: theme.shadows.sm,
 					maxHeight: 500,
-					'&::-webkit-scrollbar': {
-						display: 'none',
-					},
 					msOverflowStyle: 'none',
-					scrollbarWidth: 'none',
+					scrollbarWidth: 'thin',
+					scrollbarColor: `${theme.colors.dark[5]} ${theme.colors.dark[7]}`,
+					'::-webkit-scrollbar': {
+						width: 8,
+					},
+					'::webkit-scrollbar-track': {
+						background: theme.colors.dark[7],
+					},
+					'::-webkit-scrollbar-thumb': {
+						background: theme.colors.dark[5],
+						borderRadius: 8,
+					},
 				})}
 			>
 				<Flex

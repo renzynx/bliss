@@ -18,6 +18,27 @@ const RootProvider: FC<CustomAppProps> = ({ pageProps, Component }) => {
 				colorScheme: 'dark',
 				fontFamily: `'DM Sans', sans-serif`,
 				headings: { fontFamily: 'Greycliff CF, sans-serif' },
+				// thin scrollbars
+				globalStyles: (theme) => ({
+					scrollbarWidth: 'thin',
+					scrollbarColor: `${theme.colors.dark[5]} ${theme.colors.dark[7]}`,
+					'::-webkit-scrollbar': {
+						width: 8,
+					},
+					'::webkit-scrollbar-track': {
+						background: theme.colors.dark[5],
+					},
+					'::-webkit-scrollbar-thumb': {
+						background: theme.colors.dark[3],
+						borderRadius: 10,
+					},
+					'::-webkit-scrollbar-thumb:hover': {
+						background: theme.colors.dark[4],
+					},
+					'::-webkit-scrollbar-corner': {
+						background: 'transparent',
+					},
+				}),
 			}}
 		>
 			<QueryClientProvider client={queryClient}>
