@@ -13,18 +13,6 @@ export const useUpdateEmbedSettings = (data: Partial<EmbedSettings>) => {
 			...data,
 			enabled: data.enabled ? 'true' : 'false',
 		},
-		validate: {
-			// @ts-ignore shitty typescript
-			title: (val: string, vals: EmbedSettings) =>
-				val && !vals.author_name
-					? 'Title and Author is both required for embed to display properly'
-					: null,
-			// @ts-ignore shut up typescript
-			author_name: (val: string, vals: EmbedSettings) =>
-				val && !vals.title
-					? 'Title and Author is both required for embed to display properly'
-					: null,
-		},
 	});
 	const { mutate, isLoading } = useMutation(
 		['embed-settings'],

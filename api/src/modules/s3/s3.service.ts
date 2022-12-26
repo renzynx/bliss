@@ -37,21 +37,21 @@ export class S3Service {
   }
 
   createOEmbedJSON(oembed: Partial<EmbedSettings> & { filename: string }) {
-    const tmp = oembed;
-
-    delete tmp.filename;
+    const { author_name, author_url, provider_name, provider_url, filename } =
+      oembed;
 
     const data = {
       version: "1.0",
       type: "link",
-      ...tmp,
+      author_name,
+      author_url,
+      provider_name,
+      provider_url,
     };
 
     const metadata: ItemBucketMetadata = {
       "Content-Type": "application/json",
     };
-
-    delete data.userId;
 
     return this.s3.putObject(
       this.bucketName,

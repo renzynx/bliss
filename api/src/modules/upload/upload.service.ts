@@ -22,17 +22,17 @@ export class UploadService {
   constructor(private readonly prismaService: PrismaService) {}
 
   createOEmbedJSON(oembed: Partial<EmbedSettings> & { filename: string }) {
-    const tmp = oembed;
-    delete tmp.filename;
+    const { author_name, author_url, provider_name, provider_url, filename } =
+      oembed;
+
     const data = {
       version: "1.0",
       type: "link",
-      ...tmp,
+      author_name,
+      author_url,
+      provider_name,
+      provider_url,
     };
-
-    const { filename } = oembed;
-
-    delete data.userId;
 
     const stream = createWriteStream(join(uploadDir, filename + ".json"), {
       flags: "w",
