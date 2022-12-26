@@ -3,7 +3,7 @@ import { Button, Center, Stack, Text } from '@mantine/core';
 import Head from 'next/head';
 import Router from 'next/router';
 
-export default function Error({ statusCode, oauthError }: any) {
+export default function Error({ statusCode }: any) {
 	return (
 		<>
 			<Head>
