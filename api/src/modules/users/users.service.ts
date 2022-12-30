@@ -35,6 +35,7 @@ import { join } from "path";
 import { readFile, unlink } from "fs/promises";
 import { EmbedSettingDTO } from "./dto/EmbedSettingsDTO";
 import cuid from "cuid";
+import { existsSync } from "fs";
 
 @Injectable()
 export class UsersService implements IUserService {
@@ -391,7 +392,7 @@ export class UsersService implements IUserService {
   }
 
   async getUserFiles(
-    id: string,
+    req: Request,
     {
       skip,
       take,
@@ -406,7 +407,10 @@ export class UsersService implements IUserService {
       search?: string;
     }
   ) {
-    const user = await this.findUser(id, { byId: true });
+    const id = (req.session as CustomSession).userId;
+    const user = await this.findUser(id, {
+      byId: true,
+    });
     if (!user) {
       throw new UnauthorizedException("not authorized");
     }
@@ -475,10 +479,24 @@ export class UsersService implements IUserService {
           case "newest":
             take !== total && files.reverse();
         }
-        return files.map((file) => ({
-          ...file,
-          size: formatBytes(file.size),
-        }));
+        return files.map((file) => {
+          let albumCover = null;
+
+          if (
+            file.mimetype.includes("audio") &&
+            existsSync(join(uploadDir, `${file.slug}.jpg`))
+          ) {
+            const protocol = req.headers["x-forwarded-proto"] || "http";
+            const host = req.headers.host;
+            albumCover = `${protocol}://${host}/${file.slug}.jpg`;
+          }
+
+          return {
+            ...file,
+            size: formatBytes(file.size),
+            albumCover,
+          };
+        });
       });
 
     return {

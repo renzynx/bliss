@@ -99,6 +99,7 @@ export interface IFile {
 	size: number;
 	userId: string;
 	createdAt: Date;
+	albumCover: string | null;
 }
 
 export interface FileResponse {

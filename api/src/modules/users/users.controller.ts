@@ -73,17 +73,14 @@ export class UsersController {
     @Query("sort") sort?: string,
     @Query("search") search?: string
   ) {
-    return this.usersService.getUserFiles(
-      (req.session as CustomSession).userId,
-      {
-        skip: +skip,
-        // @ts-ignore
-        take: take === "all" ? "all" : +take,
-        currentPage: +currentPage,
-        sort,
-        search,
-      }
-    );
+    return this.usersService.getUserFiles(req, {
+      skip: +skip,
+      // @ts-ignore
+      take: take === "all" ? "all" : +take,
+      currentPage: +currentPage,
+      sort,
+      search,
+    });
   }
 
   @UseGuards(AuthGuard)

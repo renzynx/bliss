@@ -123,12 +123,14 @@ const PreviewCard: FC<{
 						</video>
 					) : file.mimetype.includes('audio') ? (
 						<Stack align="center">
-							<Image
-								width={300}
-								height={300}
-								src={`${API_URL}/${file.slug}.jpg`}
-								alt="Album Cover"
-							/>
+							{file.albumCover && (
+								<Image
+									width={300}
+									height={300}
+									src={`${API_URL}/${file.slug}.jpg`}
+									alt="Album Cover"
+								/>
+							)}
 							<audio controls loop preload="metadata">
 								<source src={fileURL} />
 							</audio>
