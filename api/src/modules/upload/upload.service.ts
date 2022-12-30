@@ -264,16 +264,12 @@ export class UploadService {
 
       if (mimetype.includes("audio")) {
         // get album cover if exists
-        const { stderr } = await exec(
+        await exec(
           `${ffmpegPath} -i ${join(
             uploadDir,
             `${slug}.${ext}`
           )} -an -vcodec copy ${join(uploadDir, `${slug}.jpg`)}`
         );
-
-        if (stderr) {
-          return;
-        }
 
         if (
           embed_settings?.enabled &&
