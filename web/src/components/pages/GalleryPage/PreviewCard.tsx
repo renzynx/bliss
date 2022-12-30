@@ -19,7 +19,12 @@ import { FC, useCallback } from 'react';
 
 const PreviewCard: FC<{
 	file: IFile;
-}> = ({ file }) => {
+	skip: number;
+	take: any;
+	sort: any;
+	search: string;
+	currentPage: number;
+}> = ({ file, skip, take, sort, search, currentPage }) => {
 	const queryClient = useQueryClient();
 	const fileURL = `${API_URL}/${file.slug}.${file.filename.split('.').pop()}`;
 	const deleteFile = useCallback(() => {
@@ -33,14 +38,17 @@ const PreviewCard: FC<{
 					message: data,
 					icon: <IconCheck />,
 				});
-				queryClient.setQueryData<FileResponse>(['files'], (oldData) => {
-					if (!oldData) return { files: [], totalFiles: 0, totalPages: 0 };
-					return {
-						files: oldData?.files.filter((f: IFile) => f.id !== file.id),
-						totalFiles: oldData?.totalFiles - 1,
-						totalPages: oldData?.totalPages,
-					};
-				});
+				queryClient.setQueryData<FileResponse>(
+					['files', skip, take, sort, search, currentPage],
+					(oldData) => {
+						if (!oldData) return { files: [], totalFiles: 0, totalPages: 0 };
+						return {
+							files: oldData?.files.filter((f: IFile) => f.id !== file.id),
+							totalFiles: oldData?.totalFiles - 1,
+							totalPages: oldData?.totalPages,
+						};
+					}
+				);
 			})
 			.catch((err) => {
 				if (err.response.status === 429) {

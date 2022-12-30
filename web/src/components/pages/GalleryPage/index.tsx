@@ -34,12 +34,20 @@ const FileViewer = () => {
 	const files = useMemo(() => {
 		if (data?.files) {
 			return data.files.map((file: IFile) => (
-				<PreviewCard key={file.id} file={file} />
+				<PreviewCard
+					key={file.id}
+					file={file}
+					skip={limit !== 'all' ? limit * (page - 1) : 0}
+					take={limit !== 'all' ? limit : 'all'}
+					sort={sort}
+					search={value}
+					currentPage={page}
+				/>
 			));
 		} else {
 			return null;
 		}
-	}, [data?.files]);
+	}, [data?.files, limit, page, sort, value]);
 
 	if (isLoading) {
 		return <LoadingPage color="yellow" />;
