@@ -5,7 +5,7 @@ import {
   Logger,
   UnauthorizedException,
 } from "@nestjs/common";
-import { EmbedSettings, User } from "@prisma/client";
+import { EmbedSettings, File, User } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import * as argon from "argon2";
 import { MailService } from "../mail/mail.service";
@@ -29,9 +29,10 @@ import {
   FORGOT_PASSWORD_PREFIX,
   INVITE_PREFIX,
   rootDir,
+  uploadDir,
 } from "lib/constants";
 import { join } from "path";
-import { readFile } from "fs/promises";
+import { readFile, unlink } from "fs/promises";
 import { EmbedSettingDTO } from "./dto/EmbedSettingsDTO";
 import cuid from "cuid";
 
@@ -49,12 +50,13 @@ export class UsersService implements IUserService {
 
   async findUser(
     username_or_email: string,
-    { byId, withPassword, totalUsed }: findUserOptions = {
+    { byId, withPassword, totalUsed, withFiles }: findUserOptions = {
       byId: false,
       withPassword: false,
       totalUsed: false,
+      withFiles: false,
     }
-  ): Promise<User | null> {
+  ): Promise<(User & { files?: File[] }) | null> {
     if (!username_or_email) {
       throw new BadRequestException("Invalid request");
     }
@@ -67,6 +69,9 @@ export class UsersService implements IUserService {
       user = await this.prisma.user.findUnique({
         where: {
           id: username_or_email,
+        },
+        include: {
+          files: withFiles,
         },
       });
       if (totalUsed) {
@@ -87,6 +92,7 @@ export class UsersService implements IUserService {
         where: username_or_email.includes("@")
           ? { email: username_or_email }
           : { username: username_or_email },
+        include: { files: withFiles },
       });
 
       if (totalUsed) {
@@ -558,8 +564,31 @@ export class UsersService implements IUserService {
     return true;
   }
 
+  async wipeFiles(id: string) {
+    const files = await this.prisma.file.findMany({ where: { userId: id } });
+
+    const promises = files.map((file) => {
+      const ext = file.filename.split(".").pop();
+      const filename = `${file.slug}.${ext}`;
+      if (file.mimetype.includes("audio")) {
+        return Promise.all([
+          unlink(join(uploadDir, filename)),
+          unlink(join(uploadDir, `${file.slug}.jpg`)),
+        ]);
+      }
+      return unlink(join(uploadDir, filename));
+    });
+
+    await Promise.all([
+      this.prisma.file.deleteMany({ where: { userId: id } }),
+      ...promises,
+    ]).catch(() => {});
+
+    return true;
+  }
+
   async deleteAccount(id: string) {
-    const user = await this.findUser(id, { byId: true });
+    const user = await this.findUser(id, { byId: true, withFiles: true });
 
     if (!user) {
       throw new UnauthorizedException("not authorized");
@@ -573,9 +602,11 @@ export class UsersService implements IUserService {
       throw new BadRequestException("You cannot delete root account");
     }
 
-    await this.prisma.user.delete({ where: { id } });
+    const wiped = await this.wipeFiles(id);
 
-    return true;
+    await this.prisma.user.delete({ where: { id } }).catch(() => {});
+
+    return wiped;
   }
 
   async sendForgotPasswordEmail(email: string) {
@@ -590,7 +621,12 @@ export class UsersService implements IUserService {
       });
     }
 
-    const isEmail = /\S+@\S+\.\S+/.test(email);
+    // RFC 5322 Official Standard
+    const emailRegex = new RegExp(
+      /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/g
+    );
+
+    const isEmail = emailRegex.test(email);
 
     if (!isEmail) {
       throw new BadRequestException({

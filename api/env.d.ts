@@ -19,5 +19,8 @@ declare namespace NodeJS {
     S3_REGION: string;
     CDN_URL: string;
     UPLOADER: "local" | "s3";
+    // optional env vars
+    COOKIE_NAME?: string;
+    UPLOAD_DIR?: string;
   }
 }

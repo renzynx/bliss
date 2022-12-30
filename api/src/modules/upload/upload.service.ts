@@ -14,6 +14,8 @@ import { generateRandomString, lookUp } from "lib/utils";
 import { PrismaService } from "modules/prisma/prisma.service";
 import { join } from "path";
 import md5 from "md5";
+import { exec } from "node:child_process";
+import ffmpegPath from "ffmpeg-static";
 
 @Injectable()
 export class UploadService {
@@ -206,7 +208,7 @@ export class UploadService {
     }
 
     const name = decodeURIComponent(req.headers["x-file-name"] as string);
-    const size = req.headers["x-file-size"] as string;
+    let size = req.headers["x-file-size"] as string;
     const currentChunk = req.headers["x-current-chunk"] as string;
     const totalChunks = req.headers["x-total-chunks"] as string;
 
@@ -253,15 +255,35 @@ export class UploadService {
 
       const { embed_settings } = user;
 
-      if (
-        mimetype.includes("image") &&
-        embed_settings &&
-        embed_settings.enabled
-      ) {
+      if (mimetype.includes("image") && embed_settings?.enabled) {
         this.createOEmbedJSON({
           filename: name,
           ...embed_settings,
         });
+      }
+
+      if (mimetype.includes("audio")) {
+        // get album cover if exists
+        const { stderr } = await exec(
+          `${ffmpegPath} -i ${join(
+            uploadDir,
+            `${slug}.${ext}`
+          )} -an -vcodec copy ${join(uploadDir, `${slug}.jpg`)}`
+        );
+
+        if (stderr) {
+          return;
+        }
+
+        if (
+          embed_settings?.enabled &&
+          existsSync(join(uploadDir, `${slug}.jpg`))
+        ) {
+          this.createOEmbedJSON({
+            filename: name,
+            ...embed_settings,
+          });
+        }
       }
 
       await this.prismaService.file.create({

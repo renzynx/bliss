@@ -1,1 +1,3 @@
 docker-compose.yml
+db_data
+redis_data

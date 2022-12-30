@@ -2,16 +2,16 @@
 
 - Invite only registration or disable registration completely.
 - Upload files, images, and videos.
-- Manage users, roles.
+- Manage users role.
 - Limit user quota.
 - Discord Embed customizer.
-- Download and delete files.
-- File preview.
+- Download and delete files from the dashboard.
 - Downloadable upload config for ShareX, Flameshot.
 - A view page for each file.
 - S3 support (AWS, DigitalOcean, etc.).
 - Easy installation with docker.
 - Easy to use admin panel.
+- Email verification.
 
 # Installing
 
@@ -63,6 +63,7 @@ docker compose pull && docker compose up -d
 - `pm2` globally installed
 - `yarn` globally installed
 - `caddy` installed
+- `ffmpeg` installed
 
 ### Backend Installation
 
@@ -125,6 +126,7 @@ Then go through the installation steps again.
 ### Domain name and SSL configuration
 
 If you don't have caddy installed already
+<br>
 [Click Here](https://caddyserver.com/docs/install)
 
 Copy and paste the following into your terminal:

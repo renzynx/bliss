@@ -86,6 +86,14 @@
               </video>
             {{/if}}
             {{#if isAudio}}
+              {{#if albumCover}}
+                <img
+                  decoding="async"
+                  src="{{albumCover}}"
+                  class="card-img-top mb-3"
+                  alt="Album Cover"
+                />
+              {{/if}}
               <audio controls loop preload="metadata">
                 <source src="{{url}}" type="{{mimetype}}" />
                 Your browser does&apos;t support this audio type

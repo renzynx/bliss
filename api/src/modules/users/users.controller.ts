@@ -32,7 +32,7 @@ export class UsersController {
   @SkipThrottle(false)
   @UseGuards(AuthGuard)
   @Post("verify/send")
-  async sendVerifyMail(@Request() req: ERequest) {
+  sendVerifyMail(@Request() req: ERequest) {
     return this.usersService.sendVerifyEmail(
       (req.session as CustomSession).userId
     );
@@ -40,32 +40,32 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Post("verify")
-  async verifyEmail(@Body() { token }: { token: string }) {
+  verifyEmail(@Body() { token }: { token: string }) {
     return this.usersService.verifyEmail(token);
   }
 
   @SkipThrottle(false)
   @Post("forgot-password")
-  async forgotPassword(@Body() { email }: { email: string }) {
+  forgotPassword(@Body() { email }: { email: string }) {
     return this.usersService.sendForgotPasswordEmail(email);
   }
 
   @SkipThrottle(false)
   @Post("check-token")
-  async checkToken(@Body() { token }: { token: string }) {
+  checkToken(@Body() { token }: { token: string }) {
     return this.usersService.checkToken(token);
   }
 
   @UseFilters(new HttpExceptionFilter())
   @UsePipes(new ValidationPipe({ transform: true }))
   @Post("reset-password")
-  async resetPassword(@Body() { token, password }: ResetPasswordDTO) {
+  resetPassword(@Body() { token, password }: ResetPasswordDTO) {
     return this.usersService.resetPassword(token, password);
   }
 
   @UseGuards(AuthGuard)
   @Get("files")
-  async getFiles(
+  getFiles(
     @Request() req: ERequest,
     @Query("skip") skip: string,
     @Query("take") take: string,
@@ -90,10 +90,7 @@ export class UsersController {
   @UseFilters(new HttpExceptionFilter())
   @UsePipes(new ValidationPipe({ transform: true }))
   @Put("embed-settings")
-  async updateEmbedSettings(
-    @Request() req: ERequest,
-    @Body() body: EmbedSettingDTO
-  ) {
+  updateEmbedSettings(@Request() req: ERequest, @Body() body: EmbedSettingDTO) {
     return this.usersService.setEmbedSettings(
       body,
       (req.session as CustomSession).userId
@@ -102,7 +99,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get("embed-settings")
-  async getEmbedSettings(@Request() req: ERequest) {
+  getEmbedSettings(@Request() req: ERequest) {
     return this.usersService.getEmbedSettings(
       (req.session as CustomSession).userId
     );
@@ -113,7 +110,7 @@ export class UsersController {
   @UsePipes(new ValidationPipe({ transform: true }))
   @UseFilters(new HttpExceptionFilter())
   @Put("change-password")
-  async changePassword(
+  changePassword(
     @Request() req: ERequest,
     @Body()
     { password, newPassword }: ChangePasswordDTO
@@ -130,7 +127,7 @@ export class UsersController {
   @UsePipes(new ValidationPipe({ transform: true }))
   @UseFilters(new HttpExceptionFilter())
   @Put("change-username")
-  async changeUsername(
+  changeUsername(
     @Body()
     { username, newUsername }: ChangeUsernameDTO
   ) {
@@ -141,7 +138,7 @@ export class UsersController {
   @Throttle(1, 300)
   @UseGuards(AuthGuard)
   @Put("regenerate-api-key")
-  async regnerateApiKey(@Request() req: ERequest) {
+  regnerateApiKey(@Request() req: ERequest) {
     return this.usersService.regenerateApiKey(
       (req.session as CustomSession).userId
     );
@@ -149,9 +146,15 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Delete("delete-account")
-  async deleteAccount(@Request() req: ERequest) {
+  deleteAccount(@Request() req: ERequest) {
     return this.usersService.deleteAccount(
       (req.session as CustomSession).userId
     );
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete("wipe-files")
+  wipeFiles(@Request() req: ERequest) {
+    return this.usersService.wipeFiles((req.session as CustomSession).userId);
   }
 }

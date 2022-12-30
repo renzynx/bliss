@@ -37,6 +37,7 @@
     "cuid": "^2.1.8",
     "express-session": "^1.17.3",
     "fast-folder-size": "^1.7.1",
+    "ffmpeg-static": "^5.1.0",
     "hbs": "^4.2.0",
     "helmet": "^6.0.0",
     "ioredis": "^5.2.4",

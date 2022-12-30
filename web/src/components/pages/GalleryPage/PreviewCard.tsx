@@ -1,5 +1,5 @@
 import { API_URL } from '@lib/constants';
-import { IFile } from '@lib/types';
+import { FileResponse, IFile } from '@lib/types';
 import { formatDate } from '@lib/utils';
 import {
 	Box,
@@ -7,26 +7,20 @@ import {
 	Flex,
 	Grid,
 	Group,
-	// Paper,
+	Image,
 	Stack,
 	Text,
 } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import { IconCheck, IconX } from '@tabler/icons';
-import {
-	QueryObserverResult,
-	RefetchOptions,
-	RefetchQueryFilters,
-} from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { FC, useCallback } from 'react';
 
 const PreviewCard: FC<{
 	file: IFile;
-	refetch: <TPageData>(
-		options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined
-	) => Promise<QueryObserverResult<any, unknown>>;
-}> = ({ file, refetch }) => {
+}> = ({ file }) => {
+	const queryClient = useQueryClient();
 	const fileURL = `${API_URL}/${file.slug}.${file.filename.split('.').pop()}`;
 	const deleteFile = useCallback(() => {
 		return axios
@@ -39,9 +33,25 @@ const PreviewCard: FC<{
 					message: data,
 					icon: <IconCheck />,
 				});
-				refetch({ queryKey: ['files'], exact: true });
+				queryClient.setQueryData<FileResponse>(['files'], (oldData) => {
+					if (!oldData) return { files: [], totalFiles: 0, totalPages: 0 };
+					return {
+						files: oldData?.files.filter((f: IFile) => f.id !== file.id),
+						totalFiles: oldData?.totalFiles - 1,
+						totalPages: oldData?.totalPages,
+					};
+				});
 			})
-			.catch(() => {
+			.catch((err) => {
+				if (err.response.status === 429) {
+					showNotification({
+						title: 'Delete File',
+						color: 'red',
+						message: 'You are deleting files too fast.',
+						icon: <IconX />,
+					});
+					return;
+				}
 				showNotification({
 					title: 'Delete File',
 					color: 'red',
@@ -49,7 +59,7 @@ const PreviewCard: FC<{
 					icon: <IconX />,
 				});
 			});
-	}, [file.id, refetch]);
+	}, [file.id, queryClient]);
 
 	return (
 		<Box>
@@ -62,7 +72,6 @@ const PreviewCard: FC<{
 					border: `1px solid ${theme.colors.dark[4]}`,
 					borderRadius: theme.radius.md,
 					boxShadow: theme.shadows.sm,
-					maxHeight: 500,
 					msOverflowStyle: 'none',
 					scrollbarWidth: 'thin',
 					scrollbarColor: `${theme.colors.dark[5]} ${theme.colors.dark[7]}`,
@@ -113,9 +122,17 @@ const PreviewCard: FC<{
 							<source src={fileURL} />
 						</video>
 					) : file.mimetype.includes('audio') ? (
-						<audio controls loop preload="metadata">
-							<source src={fileURL} />
-						</audio>
+						<Stack align="center">
+							<Image
+								width={300}
+								height={300}
+								src={`${API_URL}/${file.slug}.jpg`}
+								alt="Album Cover"
+							/>
+							<audio controls loop preload="metadata">
+								<source src={fileURL} />
+							</audio>
+						</Stack>
 					) : (
 						<Text align="center">
 							This file type is not supported for preview.

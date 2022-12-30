@@ -16,8 +16,8 @@ export const useGetUserFiles = ({
 	sort?: string;
 	search?: string;
 }) => {
-	const { data, isLoading, error, isFetching, refetch } = useQuery(
-		['files'],
+	const { data, isLoading, error, isFetching } = useQuery(
+		['files', skip, take, sort, search, currentPage],
 		() =>
 			axios
 				.get<FileResponse>(
@@ -28,7 +28,9 @@ export const useGetUserFiles = ({
 						withCredentials: true,
 					}
 				)
-				.then((res) => res.data)
+				.then((res) => {
+					return res.data;
+				})
 				.catch((error) => {
 					throw new Error(error.response.data.message);
 				}),
@@ -39,5 +41,5 @@ export const useGetUserFiles = ({
 		}
 	);
 
-	return { data, isLoading, isFetching, error, refetch };
+	return { data, isLoading, isFetching, error };
 };

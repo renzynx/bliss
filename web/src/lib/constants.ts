@@ -31,6 +31,7 @@ export enum API_ROUTES {
 	FORGOT_PASSWORD = '/users/forgot-password',
 	RESET_PASSWORD = '/users/reset-password',
 	DELETE_ACCOUNT = '/users/delete-account',
+	WIPE_FILES = '/users/wipe-files',
 	CHECK_TOKEN = '/users/check-token',
 	SEND_VERIFICATION_EMAIL = '/users/verify/send',
 	VERIFY_EMAIL = '/users/verify',

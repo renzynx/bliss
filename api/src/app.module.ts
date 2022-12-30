@@ -15,6 +15,7 @@ import { RedisService } from "modules/redis/redis.service";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerBehindProxyGuard } from "modules/root/root.guard";
+import { S3Service } from "modules/s3/s3.service";
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ThrottlerBehindProxyGuard } from "modules/root/root.guard";
   providers: [
     RootService,
     PrismaService,
+    S3Service,
     RedisService,
     {
       provide: APP_GUARD,

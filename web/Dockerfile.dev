@@ -1,0 +1,18 @@
+FROM node:lts-buster-slim AS development
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+  openssl \
+  && rm -rf /var/lib/apt/lists/*
+
+ENV NODE_ENV development
+
+WORKDIR /app
+
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY .yarn ./.yarn
+
+RUN yarn install --immutable
+
+COPY . .
+
+CMD [ "yarn", "dev" ]

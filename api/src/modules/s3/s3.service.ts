@@ -36,6 +36,10 @@ export class S3Service {
       });
   }
 
+  createInstance() {
+    return this.s3;
+  }
+
   createOEmbedJSON(oembed: Partial<EmbedSettings> & { filename: string }) {
     const { author_name, author_url, provider_name, provider_url, filename } =
       oembed;

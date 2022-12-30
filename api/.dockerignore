@@ -13,3 +13,5 @@
 !/.yarn/releases
 !/.yarn/plugins
 /test
+.env
+.env.example

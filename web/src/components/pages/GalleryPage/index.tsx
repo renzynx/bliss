@@ -15,15 +15,15 @@ import {
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import dynamic from 'next/dynamic';
-import { Suspense, useEffect, useMemo, useState } from 'react';
-const PreviewCard = dynamic(() => import('./PreviewCard'));
+import { Suspense, useMemo, useState, memo } from 'react';
+const PreviewCard = memo(dynamic(() => import('./PreviewCard')));
 
 const FileViewer = () => {
 	const [value, setValue] = useDebouncedState('', 200);
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState<number | 'all'>(15);
 	const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
-	const { data, isFetching, error, refetch, isLoading } = useGetUserFiles({
+	const { data, isFetching, error, isLoading } = useGetUserFiles({
 		currentPage: page,
 		skip: limit !== 'all' ? limit * (page - 1) : 0,
 		take: limit !== 'all' ? limit : 'all',
@@ -31,19 +31,15 @@ const FileViewer = () => {
 		search: value,
 	});
 
-	useEffect(() => {
-		refetch({ queryKey: ['files'], exact: true });
-	}, [page, limit, sort, value, refetch]);
-
 	const files = useMemo(() => {
 		if (data?.files) {
 			return data.files.map((file: IFile) => (
-				<PreviewCard refetch={refetch} key={file.id} file={file} />
+				<PreviewCard key={file.id} file={file} />
 			));
 		} else {
 			return null;
 		}
-	}, [data?.files, refetch]);
+	}, [data?.files]);
 
 	if (isLoading) {
 		return <LoadingPage color="yellow" />;

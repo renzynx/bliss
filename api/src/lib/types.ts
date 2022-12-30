@@ -16,6 +16,7 @@ export interface UserResponse {
 export interface findUserOptions {
   byId?: boolean;
   withPassword?: boolean;
+  withFiles?: boolean;
   totalUsed?: boolean;
 }
 
