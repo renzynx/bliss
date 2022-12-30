@@ -19,17 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
-      - name: Get changed files
-        id: changed-files-specific
-        uses: tj-actions/changed-files@v35
-        with:
-          files: |
-            api/src/**
-            api/prisma/**
-            api/Dockerfile
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -60,14 +50,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Get changed files
-        id: changed-files-specific
-        uses: tj-actions/changed-files@v35
-        with:
-          files: |
-            web/src/**
-            web/public/**
-            web/Dockerfile
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
