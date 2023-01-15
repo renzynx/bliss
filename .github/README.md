@@ -12,6 +12,7 @@
 - Easy installation with docker.
 - Easy to use admin panel.
 - Email verification.
+- Chunked upload for uploading big files.
 
 # Installing
 
